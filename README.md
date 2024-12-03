@@ -1,37 +1,46 @@
-# 诗韵-JavaEE-web
+# Vite + Vue 3 + Typescript + Tailwind Starter
 
-#### 介绍
-2024-2025学年 JaveEE课程 结课项目 用户网页前端
+Simple, opinionated, **fully typed**, and **production-ready** project template for Vite.
 
-#### 软件架构
-软件架构说明
+This template is **practical** and **batteries included** but not overly complex or bloated. Also explicit configuration over magic; it should be easy to understand how everything works, strip out anything you don't need, and fast to modify things to your needs.
 
+Includes plenty of **examples and documentation** of how to do things but **minimal cruft** to delete to get you going.
 
-#### 安装教程
+Please [check out the homepage](https://vite-ts-tailwind-starter.vercel.app/) for full docs. A [detailed changelog](./CHANGES.md) is available. This repository is also [mirrored on GitLab](https://gitlab.com/uninen/vite-ts-tailwind-starter).
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## Features
 
-#### 使用说明
+- Vue 3
+- Pinia store (fully typed Vuex store is available up to template version 1.13)
+- Routing using [vue-router 4](https://router.vuejs.org/)
+- TypeScript 5
+  - Fully typed components configured in templates as well
+- Automatic package and component imports w/ [unplugin-auto-import](https://github.com/antfu/unplugin-auto-import) and [unplugin-vue-components](https://github.com/antfu/unplugin-vue-components)
+- Tailwind CSS 3 w/ following plugins and configuration preinstalled:
+  - `@tailwindcss/aspect-ratio`
+  - `@tailwindcss/typography`
+  - `@tailwindcss/forms`
+  - [@egoist/tailwindcss-icons](https://github.com/egoist/tailwindcss-icons)
+- PostCSS 8 w/ `postcss-nesting` plugin and `cssnano` for minimizing production CSS
+- Eslint
+- Prettier
+- Alias `@` to `<project_root>/src`
+- Predefined and fully typed global variables:
+  - `VITE_APP_VERSION` is read from `package.json` version at build time
+  - `VITE_APP_BUILD_EPOCH` is populated as `new Date().getTime()` at build time
+- Vitest unit + component tests with code coverage
+- GitHub workflows
+  - Renovatebot for keeping up with dependencies
+  - Automated unit + component tests
+  - Automated e2e tests
+  - Coverage reporting in PR comments ([example](https://github.com/Uninen/vite-ts-tailwind-starter/pull/225#issuecomment-1507477206))
+- GitLab CI config available up to versions 2.x
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## Elsewhere
 
-#### 参与贡献
+- [Follow @uninen](https://twitter.com/uninen) on Twitter
+- Read my continuously updating learnings from Vite / Vue / TypeScript and other Web development topics from my [Today I Learned site](https://til.unessa.net/)
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+## Contributing
 
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+Contributions are welcome! Please follow the [code of conduct](./CODE_OF_CONDUCT.md) when interacting with others.
