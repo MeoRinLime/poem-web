@@ -40,7 +40,7 @@ export default defineComponent({
 <template>
   <div class="flex flex-col justify-center items-center z-10 relative top-40">
     <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 opacity-70">
-      Welcome to Meorin's Website
+      Welcome to 诗韵Poemre<br/>
     </h1>
 
     <!-- 一言 -->

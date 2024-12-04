@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import path from 'path'
 import HomePage from '@/pages/HomePage.vue'
-import MyOshiPage from '@/pages/MyOshiPage.vue'
-import HanjianPage from '@/pages/HanjianPage.vue'
-import BlogsPage from '@/pages/BlogsPage.vue'
 import Blog from '@/components/Blog.vue'
-import PersonalInformationPage from '@/pages/PersonalInformationPage.vue'
-import DriftBottlesPage from '@/pages/DriftBottlesPage.vue'
-import DailyFortunePage from '@/pages/DailyFortunePage.vue'
+import SearchPage from '@/pages/SearchPage.vue'
+import CommunicationPage from '@/pages/CommunicationPage.vue'
+import DailyPoemPage from '@/pages/DailyPoemPage.vue'
+import PersonalCenterPage from '@/pages/PersonalCenterPage.vue'
+import WritePoemPage from '@/pages/WritePoemPage.vue'
+import ReadAloudPage from '@/pages/ReadAloudPage.vue'
+import PoemExplanationPage from '@/pages/PoemExplanationPage.vue'
 
 const routes = [
   {
@@ -19,52 +19,59 @@ const routes = [
     },
   },
   {
-    path: '/my-oshi',
-    component: MyOshiPage,
+    path: '/daily-poem',
+    component: DailyPoemPage,
     meta: {
-      title: '推し活',
+      title: '每日一诗推荐',
     },
   },
   {
-    path: '/dongxuelian',
-    component: HanjianPage,
+    path: '/personal-center',
+    component: PersonalCenterPage,
     meta: {
-      title: '我去！有罕见！',
+      title: '个人中心',
     },
   },
   {
-    path: '/travel-diary',
-    component: BlogsPage,
+    path: '/write-poem',
+    component: WritePoemPage,
     meta: {
-      title: '旅行日记',
+      title: '创作诗歌',
+    },
+  },
+  // {
+  //   path: '/travel-diary/:title',
+  //   component: Blog,
+  //   meta: {
+  //     title: '文章详情',
+  //   },
+  // },
+  {
+    path: '/read-aloud',
+    component: ReadAloudPage,
+    meta: {
+      title: '诗歌朗诵',
     },
   },
   {
-    path: '/travel-diary/:title',
-    component: Blog,
+    path: '/poem-explanation',
+    component: PoemExplanationPage,
     meta: {
-      title: '文章详情',
+      title: '诗歌解析',
     },
   },
   {
-    path: '/personal-status',
-    component: PersonalInformationPage,
+    path: '/communication',
+    component: CommunicationPage,
     meta: {
-      title: 'Meorin的个人动态',
+      title: '诗歌交流',
     },
   },
   {
-    path: '/drift-bottles',
-    component: DriftBottlesPage,
+    path: '/search',
+    component: SearchPage,
     meta: {
-      title: '漂流瓶',
-    },
-  },
-  {
-    path: '/daily-fortune',
-    component: DailyFortunePage,
-    meta: {
-      title: '每日运势',
+      title: '搜索',
     },
   }
 ]

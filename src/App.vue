@@ -38,47 +38,8 @@ const BUILD_DATE = import.meta.env.VITE_APP_BUILD_EPOCH
 const thisYear = new Date().getFullYear()
 
 const backgroundImageUrl = ref<string>('');
-const sidebarOpen = ref<boolean>(true);  // 默认展开侧边栏
 const backgroundVisible = ref<boolean>(false); // 默认不显示背景图
 const blurAmount = ref<number>(6);
-
-// 切换侧边栏的展开和收起
-function toggleSidebar() {
-  sidebarOpen.value = !sidebarOpen.value;
-}
-
-// 样式方法
-function railStyle({
-  focused,
-  checked
-}: {
-  focused: boolean;
-  checked: boolean;
-}): CSSProperties {
-  const style: CSSProperties = {};
-  if (checked) {
-    style.background = '#d03050';
-    if (focused) {
-      style.boxShadow = '0 0 0 2px #d0305040';
-    }
-  } else {
-    style.background = '#2080f0';
-    if (focused) {
-      style.boxShadow = '0 0 0 2px #2080f040';
-    }
-  }
-  return style;
-}
-
-onMounted(async () => {
-  try {
-    const responseBG = await axios.get('http://47.120.46.215:3000/api/data', { responseType: 'blob' });
-    const imageUrl = URL.createObjectURL(responseBG.data);
-    backgroundImageUrl.value = imageUrl;
-  } catch (error) {
-    console.error('Failed to fetch background image:', error);
-  }
-});
 
 </script>
 
@@ -108,35 +69,6 @@ onMounted(async () => {
 
   </div> 
   <footer class="py-6 text-sm text-center text-gray-700"></footer>
-  </div>
-
-  <!-- 控制面板 -->
-  <div 
-  :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
-  class="fixed mx-auto bottom-10 w-40 max-h-52 bg-white shadow-lg transition-transform duration-1000 z-10 rounded-2xl">
-  
-  <div class="p-4 mt-2"> <!-- 留出按钮位置 -->
-
-    <div class="mb-4">
-      <n-switch :rail-style="railStyle" @click="backgroundVisible = !backgroundVisible"
-      class="flex items-left">
-        <template #checked>
-          关闭背景图
-        </template>
-        <template #unchecked>
-          启动背景图
-        </template>
-      </n-switch>
-    </div>
-    <div class="mb-2">
-      <n-tag for="blur-range" class="mb-4 flex justify-center items-center w-full text-center" type="error" ghost round >背景模糊度: {{ blurAmount }}px</n-tag>
-      <n-slider v-model:value="blurAmount" id="blur-range" type="range" :max="20" :step="1" class="w-full"/>
-    </div>
-  </div>
-  <button @click="toggleSidebar" 
-    class="fixed top-2 left-40 bg-blue-500 text-white p-2 rounded z-20 ">
-    {{ sidebarOpen ? '收起' : '展开' }}
-  </button>
   </div>
   
   <!-- 流星 -->
