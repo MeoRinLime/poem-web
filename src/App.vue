@@ -1,7 +1,8 @@
-<script setup lang="ts">
-// See vite.config.ts for details about automatic imports
-import { ref, onMounted, type CSSProperties } from 'vue';
-import axios from 'axios';
+<!-- eslint-disable id-length -->
+<script lang="ts">
+import { ref, computed} from 'vue';
+import { useRoute } from 'vue-router';
+
 const route = useRoute()
 
 const lineList = ref(
@@ -31,65 +32,86 @@ useHead({
   ],
 })
 
-const VERSION = import.meta.env.VITE_APP_VERSION
-const BUILD_DATE = import.meta.env.VITE_APP_BUILD_EPOCH
-  ? new Date(Number(import.meta.env.VITE_APP_BUILD_EPOCH))
-  : undefined
-const thisYear = new Date().getFullYear()
-
 const backgroundImageUrl = ref<string>('');
 const backgroundVisible = ref<boolean>(false); // 默认不显示背景图
 const blurAmount = ref<number>(6);
+
+export default defineComponent({
+  name: 'App',
+  setup() {
+    const route = useRoute();
+    const isFullScreenPage = computed(() => route.meta.isFullscreen);
+    return { isFullScreenPage };
+  },
+  data() {
+    return {
+      lineList,
+      backgroundImageUrl,
+      backgroundVisible,
+      blurAmount,
+    };
+  },
+});
 
 </script>
 
 
 <template>
-  <div class="relative py-8 pt-100 overflow-hidden">
-    <Header></Header>
-    <div class="relative min-h-screen">
+  <div :class="isFullScreenPage ? 'fixed-container' : 'scroll-container'">
+    <!-- 导航栏 -->
+    <Header class="h-16 bg-white flex-shrink-0"></Header>
+    
+    <!-- 内容区域 -->
+    <div class="relative flex-grow">
       <!-- 背景图 -->
-      <div v-if="backgroundVisible" 
+      <div 
+        v-if="backgroundVisible" 
         :style="{ 
           backgroundImage: `url(${backgroundImageUrl})`, 
           filter: `blur(${blurAmount}px)` 
         }" 
-        class="fixed inset-0 bg-cover bg-center z-0 top-24">
+        class="fixed inset-0 bg-cover bg-center z-0">
       </div>
-    <div 
-      class="absolute inset-0 bg-gradient-to-b from-pink-500 via-white to-blue-500 origin-cente opacity-5 top-1/2 left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 scale-125"
-      style="width: 90%; height: 100%;"
-    ></div>
-    <div class="absolute inset-0 bg-[url(/img/grid.svg)] bg-top [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]">
+
+      <!-- 渐变和网格 -->
+      <div 
+        class="fixed inset-0 bg-gradient-to-b from-pink-500 via-white to-blue-500 opacity-5 z-0"
+      ></div>
+      <div 
+        class="fixed inset-0 bg-[url(/img/grid.svg)] bg-top z-0"
+      ></div>
+
+
+      <!-- 主内容 -->
+      <main class="relative z-10">
+        <router-view />
+      </main>
     </div>
+    
+    <!-- 页脚 -->
+    <footer class="py-6 text-sm text-center text-gray-700"></footer>
 
-    <main>
-      <router-view />
-    </main>
-
-  </div> 
-  <footer class="py-6 text-sm text-center text-gray-700"></footer>
+    <!-- 流星效果 -->
+    <div class="line-box">
+      <span
+        class="line-item"
+        v-for="(item, index) in lineList"
+        :key="index"
+        :style="{
+          '--c1': item.c1,
+          '--c2': item.c2,
+          '--t': item.t,
+          '--l': item.l,
+          '--d': item.d,
+          '--r': item.r,
+          '--duration': item.duration,
+          '--delay': item.delay,
+        }"
+      ></span>
+    </div>
   </div>
-  
-  <!-- 流星 -->
-  <div class="line-box">
-    <span
-      class="line-item"
-      v-for="(item, index) in lineList"
-      :key="index"
-      :style="{
-        '--c1': item.c1, //颜色1
-        '--c2': item.c2, //颜色2
-        '--t': item.t,   //top
-        '--l': item.l,   //left
-        '--d': item.d,   //
-        '--r': item.r,
-        '--duration': item.duration, //持续时间
-        '--delay': item.delay,       //延迟时间
-      }"
-    ></span>
-  </div> 
 </template>
+
 
 <style scoped>
 .min-h-screen {
@@ -152,5 +174,14 @@ const blurAmount = ref<number>(6);
   }
 }
 
+.fixed-container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.scroll-container {
+  min-height: 100vh;
+  overflow-y: auto;
+}
 </style>
 

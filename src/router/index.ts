@@ -1,14 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/store/auth';  // 引入 Pinia 的 auth store
 
-import HomePage from '@/pages/HomePage.vue'
-import Blog from '@/components/Blog.vue'
-import SearchPage from '@/pages/SearchPage.vue'
-import CommunicationPage from '@/pages/CommunicationPage.vue'
-import DailyPoemPage from '@/pages/DailyPoemPage.vue'
-import PersonalCenterPage from '@/pages/PersonalCenterPage.vue'
-import WritePoemPage from '@/pages/WritePoemPage.vue'
-import ReadAloudPage from '@/pages/ReadAloudPage.vue'
-import PoemExplanationPage from '@/pages/PoemExplanationPage.vue'
+import HomePage from '@/pages/HomePage.vue';
+import SearchPage from '@/pages/SearchPage.vue';
+import CommunicationPage from '@/pages/CommunicationPage.vue';
+import DailyPoemPage from '@/pages/DailyPoemPage.vue';
+import PersonalCenterPage from '@/pages/PersonalCenterPage.vue';
+import WritePoemPage from '@/pages/WritePoemPage.vue';
+import ReadAloudPage from '@/pages/ReadAloudPage.vue';
+import PoemExplanationPage from '@/pages/PoemExplanationPage.vue';
+import LoginPage from '@/pages/LoginPage.vue';
 
 const routes = [
   {
@@ -23,6 +24,7 @@ const routes = [
     component: DailyPoemPage,
     meta: {
       title: '每日一诗推荐',
+      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -30,6 +32,7 @@ const routes = [
     component: PersonalCenterPage,
     meta: {
       title: '个人中心',
+      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -37,20 +40,15 @@ const routes = [
     component: WritePoemPage,
     meta: {
       title: '创作诗歌',
+      requiresAuth: true,  // 需要登录才能访问
     },
   },
-  // {
-  //   path: '/travel-diary/:title',
-  //   component: Blog,
-  //   meta: {
-  //     title: '文章详情',
-  //   },
-  // },
   {
     path: '/read-aloud',
     component: ReadAloudPage,
     meta: {
       title: '诗歌朗诵',
+      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -58,6 +56,7 @@ const routes = [
     component: PoemExplanationPage,
     meta: {
       title: '诗歌解析',
+      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -65,6 +64,7 @@ const routes = [
     component: CommunicationPage,
     meta: {
       title: '诗歌交流',
+      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -72,13 +72,35 @@ const routes = [
     component: SearchPage,
     meta: {
       title: '搜索',
+      isFullscreen: false,
+    },
+  },
+  {
+    path: '/login',
+    component: LoginPage,
+    name : 'login',
+    meta: {
+      isFullscreen: true,
+      title: '登录',
     },
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-})
+});
 
-export default router
+// 全局前置路由守卫
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();  // 获取 Pinia 中的 auth store
+
+  // 如果目标路由需要登录权限（requiresAuth 为 true），且用户未登录
+  if (to.matched.some(record => record.meta.requiresAuth) && !authStore.isLoggedIn) {
+    next({ name: 'login' });  // 跳转到登录页面
+  } else {
+    next();  // 继续访问
+  }
+});
+
+export default router;

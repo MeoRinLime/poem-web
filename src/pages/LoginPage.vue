@@ -1,0 +1,192 @@
+<template>
+  <div class="flex items-center justify-center h-screen">
+    <div class="bg-white shadow-lg rounded-lg w-3/4 md:w-2/3 lg:w-2/3 h-2/3 flex overflow-hidden">
+      <div class="w-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-l-lg flex items-center justify-center">
+        <div class="text-white space-y-6 p-10">
+          <h1 class="text-4xl font-bold">欢迎来到诗韵！</h1>
+          <p class="text-lg">
+            {{ isLoginForm ? '马上登录开始探索美妙的诗词世界' : '注册一个新账号，开启诗词之旅' }}
+          </p>
+        </div>
+      </div>
+      <div class="w-1/2 p-10 relative">
+        <Transition 
+          mode="out-in" 
+          enter-from-class="opacity-0 translate-x-full" 
+          enter-active-class="transition duration-500 ease-out" 
+          enter-to-class="opacity-100 translate-x-0"
+          leave-from-class="opacity-100 translate-x-0"
+          leave-active-class="transition duration-500 ease-in"
+          leave-to-class="opacity-0 -translate-x-full"
+        >
+          <div v-if="isLoginForm" key="login" class="absolute inset-0 p-10">
+            <h2 class="text-3xl font-bold mt-4 mb-24 text-center">登录</h2>
+            <form @submit.prevent="handleLogin" class="space-y-4 w-2/3 mx-auto">
+              <div>
+                <input 
+                  id="email" 
+                  v-model="loginForm.email"
+                  name="email" 
+                  type="email" 
+                  placeholder="用户名/邮箱" 
+                  autocomplete="email" 
+                  required
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                />
+              </div>
+              <div>
+                <input 
+                  id="password" 
+                  v-model="loginForm.password"
+                  name="password" 
+                  type="password" 
+                  placeholder="密码" 
+                  autocomplete="current-password" 
+                  required 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                />
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <input 
+                    id="remember-me" 
+                    v-model="loginForm.rememberMe"
+                    name="remember-me" 
+                    type="checkbox" 
+                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
+                  />
+                  <label for="remember-me" class="ml-2 block text-sm text-gray-900">记住我</label>
+                </div>
+                <div class="text-sm">
+                  <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">忘记密码？</a>
+                </div>
+              </div>
+              <div class="w-1/2 mx-auto pt-12">
+                <button 
+                  type="submit" 
+                  class="flex w-full justify-center rounded-full border border-transparent bg-indigo-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  登录 >
+                </button>
+              </div>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-4">
+              没有账号？
+              <button 
+                @click="switchToRegister" 
+                class="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                马上注册
+              </button>
+            </p>
+          </div>
+
+          <div v-else key="register" class="absolute inset-0 p-10">
+            <h2 class="text-3xl font-bold mt-4 mb-2 text-center">注册</h2>
+            <h4 class="mt-4 mb-20 text-center opacity-50 text-opacity-50">让我们的旅途从这里开始吧</h4>
+            <form @submit.prevent="handleRegister" class="space-y-4 w-2/3 mx-auto">
+              <div>
+                <input 
+                  id="new-username" 
+                  v-model="registerForm.username"
+                  name="username" 
+                  type="text" 
+                  placeholder="用户名" 
+                  required
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                />
+              </div>
+              <div>
+                <input 
+                  id="new-email" 
+                  v-model="registerForm.email"
+                  name="email" 
+                  type="email" 
+                  placeholder="邮箱" 
+                  required
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                />
+              </div>
+              <div>
+                <input 
+                  id="new-password" 
+                  v-model="registerForm.password"
+                  name="password" 
+                  type="password" 
+                  placeholder="密码" 
+                  required 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                />
+              </div>
+              <div>
+                <input 
+                  id="confirm-password" 
+                  v-model="registerForm.confirmPassword"
+                  name="confirm-password" 
+                  type="password" 
+                  placeholder="确认密码" 
+                  required 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                />
+              </div>
+              <div class="w-1/2 mx-auto pt-12">
+                <button 
+                  type="submit" 
+                  class="flex w-full justify-center rounded-full border border-transparent bg-indigo-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  注册 >
+                </button>
+              </div>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-4">
+              已有账号？
+              <button 
+                @click="switchToLogin" 
+                class="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                马上登录
+              </button>
+            </p>
+          </div>
+        </Transition>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+
+const isLoginForm = ref(true)
+
+const loginForm = reactive({
+  email: '',
+  password: '',
+  rememberMe: false
+})
+
+const registerForm = reactive({
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
+
+const switchToRegister = () => {
+  isLoginForm.value = false
+}
+
+const switchToLogin = () => {
+  isLoginForm.value = true
+}
+
+const handleLogin = () => {
+  // 处理登录逻辑
+  console.log('Login', loginForm)
+}
+
+const handleRegister = () => {
+  // 处理注册逻辑
+  console.log('Register', registerForm)
+}
+</script>

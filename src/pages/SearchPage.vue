@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { SearchOutlined } from '@vicons/antd'
 
 const searchQuery = ref('')
-const suggestions = ref<string[]>([])
 
 //后续补充
 const handleSearch = () => {
@@ -13,7 +12,7 @@ const handleSearch = () => {
 </script>
 
 <template>
-  <div class=" min-h-screen bg-white flex flex-col items-center p-4">
+  <div class=" min-h-screen flex flex-col items-center p-4">
     <div class="mb-8 text-center mt-36">
       <h1 class="text-5xl font-thin text-gray-600">
         <span class="text-blue-500">P</span>
