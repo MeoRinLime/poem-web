@@ -24,12 +24,12 @@
             <form @submit.prevent="handleLogin" class="space-y-4 w-2/3 mx-auto">
               <div>
                 <input 
-                  id="email" 
-                  v-model="loginForm.email"
-                  name="email" 
-                  type="email" 
-                  placeholder="用户名/邮箱" 
-                  autocomplete="email" 
+                  id="username" 
+                  v-model="loginForm.username"
+                  name="username" 
+                  type="text" 
+                  placeholder="用户名或邮箱" 
+                  autocomplete="username" 
                   required
                   class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
                 />
@@ -50,7 +50,6 @@
                 <div class="flex items-center">
                   <input 
                     id="remember-me" 
-                    v-model="loginForm.rememberMe"
                     name="remember-me" 
                     type="checkbox" 
                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
@@ -83,7 +82,7 @@
 
           <div v-else key="register" class="absolute inset-0 p-10">
             <h2 class="text-3xl font-bold mt-4 mb-2 text-center">注册</h2>
-            <h4 class="mt-4 mb-20 text-center opacity-50 text-opacity-50">让我们的旅途从这里开始吧</h4>
+            <h4 class="mt-4 mb-10 text-center opacity-50 text-opacity-50">让我们的旅途从这里开始吧</h4>
             <form @submit.prevent="handleRegister" class="space-y-4 w-2/3 mx-auto">
               <div>
                 <input 
@@ -130,11 +129,15 @@
                 />
               </div>
               <div class="w-1/2 mx-auto pt-12">
+                <div v-if="registerError" class="text-red-500 text-sm mb-4">
+                  {{ registerError }}
+                </div>
                 <button 
                   type="submit" 
+                  :disabled="isLoading"
                   class="flex w-full justify-center rounded-full border border-transparent bg-indigo-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
-                  注册 >
+                  {{ isLoading ? '注册中...' : '注册 >' }}
                 </button>
               </div>
             </form>
@@ -156,14 +159,18 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { login, register } from '@/api/auth'
+import router from '@/router';
+import { useAuthStore } from '@/store/auth';
 
 const isLoginForm = ref(true)
+const registerError = ref('')
+const isLoading = ref(false)
 
 const loginForm = reactive({
-  email: '',
+  username: '', // 用户名或邮箱
   password: '',
-  rememberMe: false
-})
+});
 
 const registerForm = reactive({
   username: '',
@@ -180,13 +187,39 @@ const switchToLogin = () => {
   isLoginForm.value = true
 }
 
-const handleLogin = () => {
-  // 处理登录逻辑
-  console.log('Login', loginForm)
-}
+const handleLogin = async () => {
+  try {
+    const data = await login(loginForm.username, loginForm.password);
+    router.push('/');
+    const token = data.token;
+    useAuthStore().login(token);
+    console.log('登录成功', data);
+  } catch (error: any) {
+    console.error('登录失败:', error.message);
+  }
+};
 
-const handleRegister = () => {
-  // 处理注册逻辑
-  console.log('Register', registerForm)
-}
+const handleRegister = async () => {
+  registerError.value = ''
+  isLoading.value = true
+  try {
+    // Validation checks (as shown above)
+    const data = await register(
+      registerForm.username,
+      registerForm.email,
+      registerForm.password,
+      registerForm.confirmPassword,
+      registerForm.username,
+      "12345678900",
+      true
+    );
+    //ElMessage.success('注册成功，请登录');
+    switchToLogin();
+  } catch (error: any) {
+    registerError.value = error.message || '注册失败，请重试';
+    //ElMessage.error(registerError.value);
+  } finally {
+    isLoading.value = false
+  }
+};
 </script>

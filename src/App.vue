@@ -2,6 +2,7 @@
 <script lang="ts">
 import { ref, computed} from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from './store/auth';
 
 const route = useRoute()
 
@@ -36,11 +37,17 @@ const backgroundImageUrl = ref<string>('');
 const backgroundVisible = ref<boolean>(false); // 默认不显示背景图
 const blurAmount = ref<number>(6);
 
+
+
 export default defineComponent({
   name: 'App',
   setup() {
     const route = useRoute();
     const isFullScreenPage = computed(() => route.meta.isFullscreen);
+    const authStore = useAuthStore();
+    onMounted(() => {
+      authStore.initialize();
+    });
     return { isFullScreenPage };
   },
   data() {

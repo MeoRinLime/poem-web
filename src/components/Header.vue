@@ -46,10 +46,6 @@
           <GlobalOutlined class="h-5 w-5 text-blue-400" aria-hidden="true" />
           每日一诗
         </router-link>
-        <router-link to="/personal-center" class="flex items-center gap-x-2 text-sm font-semibold leading-6 text-gray-900">
-          <UserDeleteOutlined class="h-5 w-5 text-green-400" aria-hidden="true" />
-          个人中心
-        </router-link>
         <router-link to="/write-poem" class="flex items-center gap-x-2 text-sm font-semibold leading-6 text-gray-900">
           <LikeFilled class="h-5 w-5 text-pink-400" aria-hidden="true" />
           创作
@@ -62,40 +58,83 @@
         >
           <SearchOutlined class="h-6 w-6" />
         </router-link>
-      </PopoverGroup>
 
-      <!-- 移动设备搜索 -->
-      <div class="lg:hidden">
+        <!-- 用户头像和下拉菜单 -->
+        <div class="relative" v-if="authStore.isLoggedIn">
+          <button 
+            @click="toggleUserMenu" 
+            class="flex items-center focus:outline-none"
+          >
+            <img 
+              :src="userAvatar" 
+              alt="User Avatar" 
+              class="h-8 w-8 rounded-full object-cover"
+            />
+          </button>
+          
+          <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <div 
+              v-if="userMenuOpen" 
+              class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            >
+              <router-link 
+                to="/personal-center" 
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                @click="toggleUserMenu"
+              >
+                个人中心
+              </router-link>
+              <button 
+                @click="handleLogout"
+                class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                退出登录
+              </button>
+            </div>
+          </transition>
+        </div>
+
+        <!-- 未登录时的个人中心入口 -->
         <router-link 
-          to="/search" 
-          class="text-gray-700 hover:text-gray-900"
+          v-else 
+          to="/login" 
+          class="flex items-center gap-x-2 text-sm font-semibold leading-6 text-gray-900"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <UserDeleteOutlined class="h-5 w-5 text-green-400" aria-hidden="true" />
+          登录
         </router-link>
-      </div>
+      </PopoverGroup>
     </nav>
 
+    <!-- Mobile menu dialog remains the same as in the original code -->
     <Dialog class="lg:hidden" @close="mobileMenuOpen = false" :open="mobileMenuOpen">
-      <!-- Mobile menu dialog remains the same -->
       <DialogPanel class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-        <!-- ... (previous mobile menu content) ... -->
+        <!-- Mobile menu content -->
       </DialogPanel>
     </Dialog>
   </header>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Dialog, DialogPanel, Disclosure, DisclosureButton, DisclosurePanel, Popover, PopoverButton, PopoverGroup, PopoverPanel } 
-from '@headlessui/vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { Dialog, DialogPanel, Popover, PopoverButton, PopoverGroup, PopoverPanel } from '@headlessui/vue'
+import { Bars3Icon, ChevronDownIcon, PaperAirplaneIcon, SparklesIcon, StarIcon } from '@heroicons/vue/24/outline'
+import { GlobalOutlined, AppstoreOutlined, LikeFilled, SearchOutlined, UserDeleteOutlined } from '@vicons/antd'
+import { useAuthStore } from '@/store/auth' // 使用提供的 auth store
+import { logout } from '@/api/auth'
 
-import { Bars3Icon, XMarkIcon, ChevronDownIcon, PaperAirplaneIcon, SparklesIcon, StarIcon } 
-from '@heroicons/vue/24/outline'
+const DEFAULT_AVATAR = '/default-avatar.png'
 
-import { GlobalOutlined, AppstoreOutlined, UserDeleteOutlined, LikeFilled, SearchOutlined } 
-from '@vicons/antd'
+const authStore = useAuthStore()
+const mobileMenuOpen = ref(false)
+const userMenuOpen = ref(false)
 
 const products = [
   { name: '朗读专区', description: '白日放歌须纵酒，青春作伴好还乡', href: '/read-aloud', icon: PaperAirplaneIcon },
@@ -103,7 +142,40 @@ const products = [
   { name: '日常交流', description: '尘世难逢开口笑，菊花须插满头归', href: '/communication', icon: StarIcon },
 ]
 
-const mobileMenuOpen = ref(false)
+// 计算用户头像，如果没有则使用默认头像
+const userAvatar = computed(() => {
+  // 这里可以根据实际需求从用户信息中获取头像
+  // 目前使用默认头像，可以根据实际情况修改
+  return DEFAULT_AVATAR
+})
+
+const toggleUserMenu = () => {
+  userMenuOpen.value = !userMenuOpen.value
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  logout()
+  userMenuOpen.value = false
+}
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event) => {
+  const userMenuElement = event.target.closest('.relative')
+  if (!userMenuElement) {
+    userMenuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  // 初始化 auth store
+  authStore.initialize()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <script>
