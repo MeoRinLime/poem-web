@@ -162,7 +162,9 @@ import { ref, reactive } from 'vue'
 import { login, register } from '@/api/auth'
 import router from '@/router';
 import { useAuthStore } from '@/store/auth';
+import { useMessage } from 'naive-ui'
 
+const message = useMessage()
 const isLoginForm = ref(true)
 const registerError = ref('')
 const isLoading = ref(false)
@@ -192,9 +194,16 @@ const handleLogin = async () => {
     const data = await login(loginForm.username, loginForm.password);
     router.push('/');
     const token = data.token;
-    useAuthStore().login(token);
+    const username = data.user.username;
+    useAuthStore().login(token, username);
+    message.success(
+          '登录成功！欢迎回到诗词的世界！'
+        );
     console.log('登录成功', data);
   } catch (error: any) {
+    message.error(
+          '登录失败，请检查用户名和密码是否正确！'
+        );
     console.error('登录失败:', error.message);
   }
 };
@@ -203,16 +212,13 @@ const handleRegister = async () => {
   registerError.value = ''
   isLoading.value = true
   try {
-    // Validation checks (as shown above)
     const data = await register(
       registerForm.username,
       registerForm.email,
       registerForm.password,
       registerForm.confirmPassword,
-      registerForm.username,
-      "12345678900",
-      true
     );
+    console.log('注册成功', data);
     //ElMessage.success('注册成功，请登录');
     switchToLogin();
   } catch (error: any) {

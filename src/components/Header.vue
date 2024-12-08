@@ -129,7 +129,10 @@ import { Bars3Icon, ChevronDownIcon, PaperAirplaneIcon, SparklesIcon, StarIcon }
 import { GlobalOutlined, AppstoreOutlined, LikeFilled, SearchOutlined, UserDeleteOutlined } from '@vicons/antd'
 import { useAuthStore } from '@/store/auth' // 使用提供的 auth store
 import { logout } from '@/api/auth'
+import { useMessage } from 'naive-ui'
+import router from '@/router'
 
+const message = useMessage()
 const DEFAULT_AVATAR = '/default-avatar.png'
 
 const authStore = useAuthStore()
@@ -156,7 +159,9 @@ const toggleUserMenu = () => {
 const handleLogout = () => {
   authStore.logout()
   logout()
+  message.success('退出登录成功，下次见哦。')
   userMenuOpen.value = false
+  router.push('/')
 }
 
 // Close dropdown when clicking outside

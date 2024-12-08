@@ -64,59 +64,61 @@ export default defineComponent({
 
 
 <template>
-  <div :class="isFullScreenPage ? 'fixed-container' : 'scroll-container'">
-    <!-- 导航栏 -->
-    <Header class="h-16 bg-white flex-shrink-0"></Header>
-    
-    <!-- 内容区域 -->
-    <div class="relative flex-grow">
-      <!-- 背景图 -->
-      <div 
-        v-if="backgroundVisible" 
-        :style="{ 
-          backgroundImage: `url(${backgroundImageUrl})`, 
-          filter: `blur(${blurAmount}px)` 
-        }" 
-        class="fixed inset-0 bg-cover bg-center z-0">
+  <n-message-provider>
+    <div :class="isFullScreenPage ? 'fixed-container' : 'scroll-container'">
+      <!-- 导航栏 -->
+      <Header class="h-16 bg-white flex-shrink-0"></Header>
+      
+      <!-- 内容区域 -->
+      <div class="relative flex-grow">
+        <!-- 背景图 -->
+        <div 
+          v-if="backgroundVisible" 
+          :style="{ 
+            backgroundImage: `url(${backgroundImageUrl})`, 
+            filter: `blur(${blurAmount}px)` 
+          }" 
+          class="fixed inset-0 bg-cover bg-center z-0">
+        </div>
+
+        <!-- 渐变和网格 -->
+        <div 
+          class="fixed inset-0 bg-gradient-to-b from-pink-500 via-white to-blue-500 opacity-5 z-0"
+        ></div>
+        <div 
+          class="fixed inset-0 bg-[url(/img/grid.svg)] bg-top z-0"
+        ></div>
+
+
+        <!-- 主内容 -->
+        <main class="relative z-10">
+          <router-view />
+        </main>
       </div>
+      
+      <!-- 页脚 -->
+      <footer class="py-6 text-sm text-center text-gray-700"></footer>
 
-      <!-- 渐变和网格 -->
-      <div 
-        class="fixed inset-0 bg-gradient-to-b from-pink-500 via-white to-blue-500 opacity-5 z-0"
-      ></div>
-      <div 
-        class="fixed inset-0 bg-[url(/img/grid.svg)] bg-top z-0"
-      ></div>
-
-
-      <!-- 主内容 -->
-      <main class="relative z-10">
-        <router-view />
-      </main>
+      <!-- 流星效果 -->
+      <div class="line-box">
+        <span
+          class="line-item"
+          v-for="(item, index) in lineList"
+          :key="index"
+          :style="{
+            '--c1': item.c1,
+            '--c2': item.c2,
+            '--t': item.t,
+            '--l': item.l,
+            '--d': item.d,
+            '--r': item.r,
+            '--duration': item.duration,
+            '--delay': item.delay,
+          }"
+        ></span>
+      </div>
     </div>
-    
-    <!-- 页脚 -->
-    <footer class="py-6 text-sm text-center text-gray-700"></footer>
-
-    <!-- 流星效果 -->
-    <div class="line-box">
-      <span
-        class="line-item"
-        v-for="(item, index) in lineList"
-        :key="index"
-        :style="{
-          '--c1': item.c1,
-          '--c2': item.c2,
-          '--t': item.t,
-          '--l': item.l,
-          '--d': item.d,
-          '--r': item.r,
-          '--duration': item.duration,
-          '--delay': item.delay,
-        }"
-      ></span>
-    </div>
-  </div>
+  </n-message-provider>
 </template>
 
 

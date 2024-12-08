@@ -1,16 +1,242 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import { 
+  NForm, 
+  NFormItem, 
+  NInput, 
+  NButton, 
+  NCard, 
+  NSpace,
+  NGrid,
+  NGridItem,
+  useMessage,
+  type FormRules
+} from 'naive-ui'
+import { 
+  BookOutline as BookIcon, 
+  SaveOutline as SaveIcon,
+} from '@vicons/ionicons5'
+import { useAuthStore } from '@/store/auth';
+
+// 诗词数据接口
+interface Poem {
+  title: string
+  subtitle?: string
+  content: string
+  author: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 用户信息, 从Store中获取
+const username = useAuthStore().username
+
+// 诗词表单状态
+const poemForm = ref({
+  title: '',
+  subtitle: '',
+  content: ''
+})
+
+// 消息通知处理
+const message = useMessage()
+
+// 表单验证规则
+const rules: FormRules = {
+  title: [
+    {
+      required: true,
+      message: '请输入诗词标题',
+      trigger: ['input', 'blur']
+    },
+    {
+      max: 50,
+      message: '标题不能超过50个字',
+      trigger: ['input', 'blur']
+    }
+  ],
+  subtitle: [
+    {
+      max: 30,
+      message: '副标题不能超过30个字',
+      trigger: ['input', 'blur']
+    }
+  ],
+  content: [
+    {
+      required: true,
+      message: '请输入诗词内容',
+      trigger: ['input', 'blur']
+    },
+    {
+      min: 10,
+      message: '诗词内容至少需要10个字',
+      trigger: ['input', 'blur']
+    }
+  ]
+}
+
+// 表单引用
+const formRef = ref(null)
+
+// 提交诗词处理
+const submitPoem = async () => {
+  await formRef.value?.validate((errors: any) => {
+    if (errors) {
+      message.error('请检查表单内容')
+      return
+    }
+
+    // 创建诗词对象
+    const newPoem: Poem = {
+      title: poemForm.value.title,
+      subtitle: poemForm.value.subtitle || undefined,
+      content: poemForm.value.content,
+      author: username.value,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
+    // TODO: 添加保存诗词的API调用
+    console.log('Poem submitted:', newPoem)
+
+    message.success('诗词创作成功！')
+
+    // 重置表单
+    poemForm.value.title = ''
+    poemForm.value.subtitle = ''
+    poemForm.value.content = ''
+  })
+}
+
+// 计算内容剩余字符
+const contentRemainingChars = computed(() => {
+  return 1000 - (poemForm.value.content?.length || 0)
+})
 </script>
 
 <template>
-  <div class=" min-h-screen flex flex-col items-center p-4">
-    <div class="mb-8 text-center mt-36">
-      <h1 class="text-5xl font-thin text-gray-600">
-        这是创作界面
-      </h1>
-    </div>
+  <div class="min-h-screen flex items-center justify-center p-24">
+    <n-card 
+      class="w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden"
+      :content-style="{ padding: '0' }"
+    >
+      <n-grid :cols="2" class="h-[700px]">
+        <!-- 左侧装饰区域 -->
+        <n-grid-item 
+          class="bg-cover bg-center relative" 
+          style="background-image: linear-gradient(120deg,#8fd3f4 0%,#84fab0 100%), 
+          url('/assets/images/poem-bg.jpg')"
+        >
+          <div class="absolute inset-0 flex flex-col justify-center p-8 text-white">
+            <h2 class="text-4xl font-bold mb-4">诗词创作</h2>
+            <p class="text-lg opacity-80">
+              让文字如诗，情感如歌。<br>
+              在这里，每一个词都是诗的开始。
+            </p>
+          </div>
+        </n-grid-item>
+
+        <!-- 右侧表单区域 -->
+        <n-grid-item class="bg-white p-8 overflow-y-auto">
+          <n-form 
+            ref="formRef"
+            :model="poemForm"
+            :rules="rules"
+            label-placement="top"
+            require-mark-placement="right"
+          >
+            <div class="space-y-6">
+              <n-form-item label="标题" path="title">
+                <n-input 
+                  v-model:value="poemForm.title" 
+                  placeholder="诗词的主题或灵感"
+                  clearable
+                  :maxlength="50"
+                  class="poem-input"
+                />
+              </n-form-item>
+
+              <n-form-item label="副标题（可选）" path="subtitle">
+                <n-input 
+                  v-model:value="poemForm.subtitle" 
+                  placeholder="为您的诗词增添一丝微妙的意蕴"
+                  clearable
+                  :maxlength="30"
+                  class="poem-input"
+                />
+              </n-form-item>
+
+              <n-form-item label="内容" path="content">
+                <n-input 
+                  v-model:value="poemForm.content"
+                  type="textarea"
+                  placeholder="在这里倾诉您的诗意..."
+                  :autosize="{
+                    minRows: 8,
+                    maxRows: 12
+                  }"
+                  :maxlength="1000"
+                  show-count
+                  class="poem-textarea"
+                />
+                <div class="text-right text-sm text-gray-500 mt-1">
+                  剩余 {{ contentRemainingChars }} 字
+                </div>
+              </n-form-item>
+
+              <n-form-item label="作者">
+                <n-input 
+                  v-model:value="username" 
+                  disabled 
+                  placeholder="登录用户名"
+                  class="poem-input"
+                />
+              </n-form-item>
+
+              <n-space justify="center" class="mt-6">
+                <n-button 
+                  type="primary" 
+                  @click="submitPoem"
+                  secondary 
+                  strong
+                >
+                  <template #icon>
+                    <n-icon :component="SaveIcon" />
+                  </template>
+                  保存诗词
+                </n-button>
+                <n-button 
+                  type="default"
+                  @click="$router.push('/daily-poem')"
+                >
+                  <template #icon>
+                    <n-icon :component="BookIcon" />
+                  </template>
+                  返回每日一诗
+                </n-button>
+              </n-space>
+            </div>
+          </n-form>
+        </n-grid-item>
+      </n-grid>
+    </n-card>
   </div>
 </template>
 
 <style scoped>
-/* 可以添加额外的样式 */
+.poem-input, .poem-textarea {
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 0;
+  transition: border-color 0.3s ease;
+}
+
+.poem-input:hover, .poem-textarea:hover {
+  border-bottom-color: #4299e1;
+}
+
+.poem-input:focus, .poem-textarea:focus {
+  border-bottom-color: #3182ce;
+  box-shadow: none;
+}
 </style>

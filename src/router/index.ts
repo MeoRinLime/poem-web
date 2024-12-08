@@ -10,6 +10,8 @@ import WritePoemPage from '@/pages/WritePoemPage.vue';
 import ReadAloudPage from '@/pages/ReadAloudPage.vue';
 import PoemExplanationPage from '@/pages/PoemExplanationPage.vue';
 import LoginPage from '@/pages/LoginPage.vue';
+import PoemExplanationDetailPage from '@/pages/PoemExplanationDetailPage.vue';
+import NotFoundPage from '@/pages/NotFoundPage.vue';
 
 const routes = [
   {
@@ -60,6 +62,12 @@ const routes = [
     },
   },
   {
+    path: '/poem-explanation/:id',
+    name: 'PoemExplanationDetail',
+    component: PoemExplanationDetailPage,
+    props: true
+  },
+  {
     path: '/communication',
     component: CommunicationPage,
     meta: {
@@ -83,7 +91,15 @@ const routes = [
       isFullscreen: true,
       title: '登录',
     },
-  }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFoundPage,
+    meta: {
+      title: '页面未找到',
+    },
+  },
 ];
 
 const router = createRouter({

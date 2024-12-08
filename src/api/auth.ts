@@ -27,9 +27,6 @@ export const register = async (
   email: string,
   password: string,
   confirmPassword: string,
-  nickname: string,
-  phone: string,
-  enabled: boolean,
 ) => {
   try {
     // eslint-disable-next-line security/detect-possible-timing-attacks
@@ -41,22 +38,15 @@ export const register = async (
       username,
       email,
       password,
-      confirmPassword,
-      nickname,
-      phone,
-      enabled
+      confirmPassword
     });
     return response.data; 
   } catch (error: any) {
-    // Detailed error handling
     if (error.response) {
-      // Server responded with an error
       throw new Error(error.response.data.message || '注册失败');
     } else if (error.request) {
-      // Request was made but no response
       throw new Error('无法连接服务器，请检查网络');
     } else {
-      // Something happened in setting up the request
       throw error;
     }
   }
