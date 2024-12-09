@@ -17,6 +17,7 @@ import {
   SaveOutline as SaveIcon,
 } from '@vicons/ionicons5'
 import { useAuthStore } from '@/store/auth';
+import { writePoem } from '@/api/writePoem'
 
 // 诗词数据接口
 interface Poem {
@@ -24,12 +25,10 @@ interface Poem {
   subtitle?: string
   content: string
   author: string
-  createdAt: Date
-  updatedAt: Date
 }
 
 // 用户信息, 从Store中获取
-const username = useAuthStore().username
+const username = useAuthStore().username || 'Unknown Author'
 
 // 诗词表单状态
 const poemForm = ref({
@@ -77,11 +76,13 @@ const rules: FormRules = {
 }
 
 // 表单引用
-const formRef = ref(null)
+import type { FormInst } from 'naive-ui'
+
+const formRef = ref<FormInst | null>(null)
 
 // 提交诗词处理
 const submitPoem = async () => {
-  await formRef.value?.validate((errors: any) => {
+  await formRef.value?.validate(async (errors: any) => {
     if (errors) {
       message.error('请检查表单内容')
       return
@@ -92,13 +93,20 @@ const submitPoem = async () => {
       title: poemForm.value.title,
       subtitle: poemForm.value.subtitle || undefined,
       content: poemForm.value.content,
-      author: username.value,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      author: username
     }
 
-    // TODO: 添加保存诗词的API调用
-    console.log('Poem submitted:', newPoem)
+    try {
+      await writePoem(
+        newPoem.title, 
+        newPoem.author,
+        newPoem.content, 
+        newPoem.subtitle,
+      )
+    } catch (error) {
+      message.error('诗词创作失败，请稍后再试')
+      return
+    }
 
     message.success('诗词创作成功！')
 

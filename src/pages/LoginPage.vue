@@ -195,7 +195,8 @@ const handleLogin = async () => {
     router.push('/');
     const token = data.token;
     const username = data.user.username;
-    useAuthStore().login(token, username);
+    const bio = data.user.bio;
+    useAuthStore().login(token, username, bio);
     message.success(
           '登录成功！欢迎回到诗词的世界！'
         );

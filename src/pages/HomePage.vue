@@ -3,6 +3,7 @@ import { ref, onMounted, defineComponent } from 'vue';
 import axios from 'axios';
 import Typed from 'typed.js';
 import router from '@/router';
+import { getPoemRecommend } from '@/api/hitopoem';
 
 export default defineComponent({
   name: 'HomePage',
@@ -21,15 +22,15 @@ export default defineComponent({
           backgroundOpacity.value = 1;
         }, 100);
 
-        const responseHitokoto = await axios.get('https://v1.hitokoto.cn/?c=a&encode=json');
-        console.log(responseHitokoto.data);
+        const responseHitokoto = await getPoemRecommend();
+        console.log('responseHitokoto:', responseHitokoto);
         new Typed('#hitokoto', {
-          strings: [responseHitokoto.data.hitokoto],
+          strings: [responseHitokoto.data.content],
           typeSpeed: 50,
           showCursor: false,
         });
         new Typed('#hitokoto-From', {
-          strings: [`——  ${responseHitokoto.data.from} `],
+          strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
           typeSpeed: 50,
           showCursor: false,
           startDelay: 1000,
@@ -74,7 +75,7 @@ export default defineComponent({
         Welcome to 诗韵Poemre<br/>
       </h1>
 
-      <!-- 一言 -->
+      <!-- 随机一诗 -->
       <div class="text-center mt-10">
         <span id="hitokoto" class="text-xl text-gray-700"></span>
         <div id="hitokoto-From" class="text-sm text-gray-500 mt-2"></div>

@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { NCard, NImage, NDivider, NSpace, NTag, NPagination, NEmpty } from 'naive-ui'
+import { ref, onMounted, computed } from 'vue'
+import { 
+  NCard, 
+  NDivider, 
+  NTag, 
+  NPagination, 
+  NEmpty 
+} from 'naive-ui'
+import { getDailyPoem, getRelatedPoem } from '@/api/recommendPoem'
 
-// Interface for poem data structure
+// 定义接口以增强类型安全
 interface Poem {
   id: number
   title: string
@@ -12,7 +19,6 @@ interface Poem {
   relatedPosts?: RelatedPost[]
 }
 
-// Interface for related posts
 interface RelatedPost {
   id: number
   title: string
@@ -22,43 +28,82 @@ interface RelatedPost {
   likeCount: number
 }
 
-// Mock data - in a real application, this would come from an API
-const dailyPoem = ref<Poem>({
-  id: 1,
-  title: '静夜思',
-  author: '李白',
-  content: `\n床前明月光，\n疑是地上霜。\n举头望明月，\n低头思故乡。`,
-  dynasty: '唐',
-  relatedPosts: [
-    {
-      id: 101,
-      title: '细品李白《静夜思》的深意',
-      author: '诗词爱好者',
-      excerpt: '李白这首诗道出了游子思乡的深切情感...',
-      commentCount: 42,
-      likeCount: 256
-    },
-    {
-      id: 102,
-      title: '月光下的乡愁',
-      author: '文学评论家',
-      excerpt: '从诗中感受古人对家乡的眷恋...',
-      commentCount: 28,
-      likeCount: 189
-    }
-  ]
-})
+interface PoemAPI {
+  poemId: number
+  title: string
+  authorName: string
+  content: string
+  dynasty: string
+}
 
-// Reactive state for current post page
-const currentPostPage = ref(1)
+interface RelatedPostAPI {
+  postid: number
+  title: string
+  userName: string
+  excerpt: string
+  commentCount: number
+  likeCount: number
+}
+
+// 响应式状态
+const dailyPoem = ref<Poem | null>(null)
+const isLoading = ref<boolean>(true)
+const error = ref<string | null>(null)
+
+// 分页相关
+const currentPostPage = ref<number>(1)
 const postsPerPage = 5
 
-// Computed property for paginated posts
-const paginatedPosts = computed(() => {
-  if (!dailyPoem.value.relatedPosts) return []
+const paginatedPosts = computed<RelatedPost[]>(() => {
+  if (!dailyPoem.value || !dailyPoem.value.relatedPosts) return []
   const start = (currentPostPage.value - 1) * postsPerPage
   const end = start + postsPerPage
   return dailyPoem.value.relatedPosts.slice(start, end)
+})
+
+const pageCount = computed<number>(() => {
+  return Math.ceil((dailyPoem.value?.relatedPosts?.length || 0) / postsPerPage)
+})
+
+// 获取每日诗词及相关帖子
+const fetchDailyPoem = async () => {
+  isLoading.value = true
+  error.value = null
+  try {
+    const [poemResponse, relatedResponse] = await Promise.all([
+      getDailyPoem(),
+      getRelatedPoem()
+    ])
+
+    const poemData: PoemAPI = poemResponse.data
+    dailyPoem.value = {
+      id: poemData.poemId,
+      title: poemData.title,
+      author: poemData.authorName,
+      content: poemData.content,
+      dynasty: poemData.dynasty,
+    }
+
+    const relatedData: RelatedPostAPI[] = relatedResponse.data
+    dailyPoem.value.relatedPosts = relatedData.map(post => ({
+      id: post.postid,
+      title: post.title,
+      author: post.userName,
+      excerpt: post.excerpt,
+      commentCount: post.commentCount,
+      likeCount: post.likeCount,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch daily poem or related posts:', err)
+    error.value = '获取数据失败，请稍后重试。'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 页面加载时获取数据
+onMounted(() => {
+  fetchDailyPoem()
 })
 </script>
 
@@ -68,73 +113,93 @@ const paginatedPosts = computed(() => {
       class="w-full max-w-3xl shadow-lg rounded-lg"
       :content-style="{ padding: '24px' }"
     >
-      <!-- Poem Title and Author Section -->
-      <div class="text-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">
-          {{ dailyPoem.title }}
-        </h1>
-        <div class="text-gray-600 text-xl">
-          {{ dailyPoem.dynasty }} · {{ dailyPoem.author }}
+      <!-- 加载状态 -->
+      <template v-if="isLoading">
+        <n-empty description="加载中..." class="my-6" />
+      </template>
+      
+      <!-- 错误状态 -->
+      <template v-else-if="error">
+        <div class="text-red-500 text-center my-6">{{ error }}</div>
+      </template>
+      
+      <!-- 数据展示 -->
+      <template v-else>
+        <!-- 诗词标题和作者 -->
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            {{ dailyPoem?.title }}
+          </h1>
+          <div class="text-gray-600 text-xl">
+            {{ dailyPoem?.dynasty }} · {{ dailyPoem?.author }}
+          </div>
         </div>
-      </div>
 
-      <!-- Poem Content -->
-      <div class="bg-white p-6 rounded-lg shadow-inner mb-6">
-        <pre class="whitespace-pre-wrap text-center text-xl text-gray-700">
-          {{ dailyPoem.content }}</pre>
-      </div>
+        <!-- 诗词内容 -->
+        <div class="bg-white p-6 rounded-lg shadow-inner mb-6">
+          <pre class="whitespace-pre-wrap text-center text-xl text-gray-700 font-ma-shan-zheng">
+            {{ dailyPoem?.content }}
+          </pre>
+        </div>
 
-      <!-- Related Posts Section -->
-      <n-divider title-placement="left">
-        <span class="text-gray-600">相关讨论</span>
-      </n-divider>
+        <!-- 相关讨论分隔线 -->
+        <n-divider title-placement="left">
+          <span class="text-gray-600">相关讨论</span>
+        </n-divider>
 
-      <!-- Posts List -->
-      <div v-if="dailyPoem.relatedPosts?.length">
-        <div 
-          v-for="post in paginatedPosts" 
-          :key="post.id" 
-          class="mb-4 p-4 border-b last:border-b-0 hover:bg-gray-100 transition-colors"
-        >
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-lg font-semibold text-gray-800">{{ post.title }}</h3>
-            <div class="flex space-x-2">
-              <n-tag type="info" size="small">
-                {{ post.commentCount }} 评论
-              </n-tag>
-              <n-tag type="success" size="small">
-                {{ post.likeCount }} 点赞
-              </n-tag>
+        <!-- 相关讨论列表 -->
+        <div v-if="dailyPoem?.relatedPosts?.length">
+          <div 
+            v-for="post in paginatedPosts" 
+            :key="post.id" 
+            class="mb-4 p-4 border-b last:border-b-0 hover:bg-gray-100 transition-colors"
+          >
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-lg font-semibold text-gray-800">{{ post.title }}</h3>
+              <div class="flex space-x-2">
+                <n-tag type="info" size="small">
+                  {{ post.commentCount }} 评论
+                </n-tag>
+                <n-tag type="success" size="small">
+                  {{ post.likeCount }} 点赞
+                </n-tag>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-2">{{ post.excerpt }}</p>
+            <div class="text-right text-gray-500 text-sm">
+              作者：{{ post.author }}
             </div>
           </div>
-          <p class="text-gray-600 mb-2">{{ post.excerpt }}</p>
-          <div class="text-right text-gray-500 text-sm">
-            作者：{{ post.author }}
+
+          <!-- 分页组件 -->
+          <div class="mt-4 flex justify-center">
+            <n-pagination 
+              v-model:page="currentPostPage"
+              :page-count="pageCount"
+              :show-size-picker="false"
+            />
           </div>
         </div>
 
-        <!-- Pagination -->
-        <div class="mt-4 flex justify-center">
-          <n-pagination 
-            v-model:page="currentPostPage"
-            :page-count="Math.ceil((dailyPoem.relatedPosts?.length || 0) / postsPerPage)"
-          />
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <n-empty 
-        v-else 
-        description="暂无相关讨论" 
-        class="my-6" 
-      />
+        <!-- 无相关讨论时的空状态 -->
+        <n-empty 
+          v-else 
+          description="暂无相关讨论" 
+          class="my-6" 
+        />
+      </template>
     </n-card>
   </div>
 </template>
 
 <style scoped>
+/* 使用 CSS 变量定义字体 */
+:root {
+  --poem-font: 'Ma Shan Zheng', cursive;
+}
+
 pre {
-  font-family: 'Ma Shan Zheng', cursive; /* 使用更具诗意的字体 */
+  font-family: var(--poem-font);
   line-height: 1.8;
 }
 </style>
