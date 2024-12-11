@@ -36,15 +36,15 @@ onMounted(() => {
   getPoemExplanationList().then((response: { data: any }) => {
     const data = response.data
     explanationList.value = data
-    console.log('data:', data)
+    //console.log('data:', data)
   })
 })
   
 
-const goToDetail = (id: number) => {
+const goToDetail = (postId: number) => {
   router.push({ 
     name: 'PoemExplanationDetail', 
-    params: { id: id } 
+    params: { postId: postId } 
   })
 }
 

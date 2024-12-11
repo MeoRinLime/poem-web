@@ -92,7 +92,7 @@ export default defineComponent({
 
         <!-- 主内容 -->
         <main class="relative z-10">
-          <router-view />
+          <router-view :key="$route.fullPath"/>
         </main>
       </div>
       

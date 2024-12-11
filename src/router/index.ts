@@ -64,7 +64,7 @@ const routes = [
     },
   },
   {
-    path: '/poem-explanation/:id',
+    path: '/poem-explanation/:postId',
     name: 'PoemExplanationDetail',
     component: PoemExplanationDetailPage,
     props: true

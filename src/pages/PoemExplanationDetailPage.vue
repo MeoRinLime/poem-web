@@ -15,60 +15,45 @@ import {
   HeartOutline as HeartIcon,
   ChatbubbleOutline as CommentIcon
 } from '@vicons/ionicons5'
+import { getPostById } from '@/api/post';
+import { postComment } from '@/api/comment';
+import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/store/auth';
 
+const DEFAULT_AVATAR = '/default-avatar.png'
+const message = useMessage()
 // 评论接口
 interface Comment {
-  id: number
-  author: string
-  avatar: string
+  commentId: number
+  userName: string
   content: string
-  createdAt: Date
-  likes: number
+  createdAt: string
+  countLike: number
 }
 
 // 诗歌解释详情接口
 interface PoemExplanationDetail {
-  id: number
+  postId: number
   poemTitle: string
   poemAuthor: string
-  explanationTitle: string
+  title: string
   content: string
-  author: {
-    name: string
-    avatar: string
-  }
-  tags: string[]
+  userName: string
+  tag: string[]
   createdAt: Date
   comments: Comment[]
 }
+// 从路由中获取帖子 ID
+const route = useRoute()
+const postId = Number(route.params.postId)
+const explanationDetail = ref<PoemExplanationDetail | null>(null)
 
-// 模拟详情数据
-const explanationDetail = ref<PoemExplanationDetail>({
-  id: 1,
-  poemTitle: '静夜思',
-  poemAuthor: '李白',
-  explanationTitle: '月光下的乡愁',
-  content: `李白的《静夜思》是一首脍炙人口的抒情诗，短短四句诗道出了游子思乡的深切情感。
-  
-  "床前明月光"描绘了一个静谧的夜晚场景，月光如水般洒在床前。"疑是地上霜"的比喻生动地展现了月光的皎洁。
-  
-  最后两句"举头望明月，低头思故乡"是全诗的点睛之笔，通过抬头看月、低头思乡的动作，传达出无限的乡愁和思念之情。`,
-  author: {
-    name: '文学评论家张三',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg'
-  },
-  tags: ['唐诗', '乡愁', '抒情'],
-  createdAt: new Date('2024-02-15'),
-  comments: [
-    {
-      id: 1,
-      author: '诗词爱好者',
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-      content: '李白的诗果然妙笔生花，每读一次都有新的感悟！',
-      createdAt: new Date('2024-02-16'),
-      likes: 12
-    }
-  ]
+onMounted(async () => {
+  getPostById(postId).then((response: { data: any }) => {
+    const data = response.data
+    explanationDetail.value = data
+    //console.log('data:', data)
+  })
 })
 
 // 新评论
@@ -77,20 +62,24 @@ const newComment = ref('')
 // 发送评论
 const sendComment = () => {
   if (!newComment.value.trim()) {
-    useMessage().warning('评论内容不能为空')
+    message.warning('评论内容不能为空')
     return
   }
-
-  // 模拟添加评论 - 实际应调用API
-  explanationDetail.value.comments.push({
-    id: explanationDetail.value.comments.length + 1,
-    author: '当前用户',
-    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+  const userName = useAuthStore().username
+  const postCommentData = {
+    objectId: postId, 
+    objectType: 0,
+    userName: userName,
     content: newComment.value,
-    createdAt: new Date(),
-    likes: 0
+  }
+  postComment(postCommentData).then(() => {
+    message.success('评论成功')
+    // 重新获取帖子详情
+    getPostById(postId).then((response: { data: any }) => {
+      const data = response.data
+      explanationDetail.value = data
+    })
   })
-
   newComment.value = ''
 }
 </script>
@@ -104,14 +93,14 @@ const sendComment = () => {
       <!-- 解释标题和诗词信息 -->
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-2">
-          {{ explanationDetail.explanationTitle }}
+          {{ explanationDetail?.title }}
         </h1>
         <n-space justify="center" align="center" class="mb-4">
           <n-tag type="info">
-            {{ explanationDetail.poemTitle }} - {{ explanationDetail.poemAuthor }}
+            {{ explanationDetail?.poemTitle }} - {{ explanationDetail?.poemAuthor }}
           </n-tag>
           <n-tag 
-            v-for="tag in explanationDetail.tags" 
+            v-for="tag in explanationDetail?.tag" 
             :key="tag" 
             type="success" 
             size="small"
@@ -124,23 +113,23 @@ const sendComment = () => {
       <!-- 作者信息 -->
       <div class="flex items-center mb-6">
         <n-avatar 
-          :src="explanationDetail.author.avatar" 
+          :src="DEFAULT_AVATAR" 
           size="large" 
           class="mr-4"
         />
         <div>
           <div class="font-bold text-gray-800">
-            {{ explanationDetail.author.name }}
+            {{ explanationDetail?.userName }}
           </div>
           <div class="text-sm text-gray-500">
-            发布于 {{ explanationDetail.createdAt.toLocaleString() }}
+            发布于 {{ explanationDetail?.createdAt.toLocaleString() }}
           </div>
         </div>
       </div>
 
       <!-- 解释正文 -->
       <div class="prose max-w-full mb-8 text-gray-700 leading-relaxed">
-        {{ explanationDetail.content }}
+        {{ explanationDetail?.content }}
       </div>
 
       <!-- 评论区 -->
@@ -172,21 +161,21 @@ const sendComment = () => {
       </div>
 
       <!-- 现有评论 -->
-      <div v-if="explanationDetail.comments.length" class="space-y-4">
+      <div v-if="explanationDetail?.comments.length" class="space-y-4">
         <div 
-          v-for="comment in explanationDetail.comments" 
-          :key="comment.id" 
+          v-for="comment in explanationDetail?.comments" 
+          :key="comment.commentId" 
           class="bg-white p-4 rounded-lg shadow-sm"
         >
           <div class="flex items-center mb-2">
             <n-avatar 
-              :src="comment.avatar" 
+              :src="DEFAULT_AVATAR" 
               size="small" 
               class="mr-3"
             />
             <div>
               <div class="font-semibold text-gray-800">
-                {{ comment.author }}
+                {{ comment.userName }}
               </div>
               <div class="text-xs text-gray-500">
                 {{ comment.createdAt.toLocaleString() }}
@@ -194,7 +183,7 @@ const sendComment = () => {
             </div>
             <div class="ml-auto flex items-center text-gray-500">
               <n-icon :component="HeartIcon" class="mr-1" />
-              {{ comment.likes }}
+              {{ comment.countLike }}
             </div>
           </div>
           <div class="text-gray-700">
