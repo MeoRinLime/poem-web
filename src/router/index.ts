@@ -12,6 +12,7 @@ import PoemExplanationPage from '@/pages/PoemExplanationPage.vue';
 import LoginPage from '@/pages/LoginPage.vue';
 import PoemExplanationDetailPage from '@/pages/PoemExplanationDetailPage.vue';
 import NotFoundPage from '@/pages/NotFoundPage.vue';
+import CreatePoemExplanation from '@/pages/CreatePoemExplanation.vue';
 
 const routes = [
   {
@@ -56,6 +57,7 @@ const routes = [
   {
     path: '/poem-explanation',
     component: PoemExplanationPage,
+    name: 'PoemExplanationList',
     meta: {
       title: '诗歌解析',
       requiresAuth: true,  // 需要登录才能访问
@@ -90,6 +92,15 @@ const routes = [
     meta: {
       isFullscreen: true,
       title: '登录',
+    },
+  },
+  {
+    path: '/create-poem-explanation',
+    component: CreatePoemExplanation,
+    name: 'CreatePoemExplanation',
+    meta: {
+      title: '创建诗歌解析',
+      requiresAuth: true,
     },
   },
   {

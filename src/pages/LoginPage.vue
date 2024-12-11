@@ -196,7 +196,9 @@ const handleLogin = async () => {
     const token = data.token;
     const username = data.user.username;
     const bio = data.user.bio;
-    useAuthStore().login(token, username, bio);
+    const createTime = data.user.createTime;
+    const email = data.user.email;
+    useAuthStore().login(token, username, bio, createTime, email);
     message.success(
           '登录成功！欢迎回到诗词的世界！'
         );

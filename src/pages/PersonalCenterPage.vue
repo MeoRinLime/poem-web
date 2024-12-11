@@ -58,8 +58,8 @@ const userData = ref({
   username: userStore.username || 'Unknown Author',
   avatar: DEFAULT_AVATAR, // 头像功能暂时不做
   bio: userStore.bio || '这个人很懒，什么也没留下',
-  email: 'poet@example.com',
-  registrationDate: '2023-01-15'
+  email: userStore.email,
+  registrationDate: userStore.createTime,
 })
 
 const posts = ref<Post[]>([

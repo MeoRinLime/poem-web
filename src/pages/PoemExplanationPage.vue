@@ -7,53 +7,39 @@ import {
   NSpace, 
   NTag, 
   NPagination,
-  NEmpty,
-  NIcon,
-  useMessage
+  NButton,
+  NIcon
 } from 'naive-ui'
 import { 
-  ChatbubbleEllipsesOutline as CommentIcon 
+  ChatbubbleEllipsesOutline as CommentIcon,
+  AddCircleOutline as AddIcon
 } from '@vicons/ionicons5'
 import router from '@/router'
+import { getPoemExplanationList } from '@/api/post'
 
 // 诗歌解释帖子接口
 interface PoemExplanation {
-  id: number
-  poemTitle: string
-  poemAuthor: string
-  explanationTitle: string
-  briefIntro: string
-  author: string
-  tags: string[]
   commentCount: number
-  createdAt: Date
+  content: string
+  createdAt: String
+  poemAuthor: string
+  poemTitle: string
+  postId: number
+  tags: string[]
+  title: string
+  userName: string
 }
 
-// 模拟数据 - 实际应用中应从API获取
-const explanationList = ref<PoemExplanation[]>([
-  {
-    id: 1,
-    poemTitle: '静夜思',
-    poemAuthor: '李白',
-    explanationTitle: '月光下的乡愁',
-    briefIntro: '解读李白《静夜思》中深藏的思乡之情...',
-    author: '文学评论家张三',
-    tags: ['唐诗', '乡愁', '抒情'],
-    commentCount: 42,
-    createdAt: new Date('2024-02-15')
-  },
-  {
-    id: 2,
-    poemTitle: '登鹳雀楼',
-    poemAuthor: '王之涣',
-    explanationTitle: '边塞诗中的壮美景象',
-    briefIntro: '细品边塞诗人笔下的壮丽山川...',
-    author: '诗词学者李四',
-    tags: ['边塞诗', '意境', '自然'],
-    commentCount: 28,
-    createdAt: new Date('2024-02-10')
-  }
-])
+const explanationList = ref<PoemExplanation[]>([])
+
+onMounted(() => {
+  getPoemExplanationList().then((response: { data: any }) => {
+    const data = response.data
+    explanationList.value = data
+    console.log('data:', data)
+  })
+})
+  
 
 const goToDetail = (id: number) => {
   router.push({ 
@@ -62,38 +48,48 @@ const goToDetail = (id: number) => {
   })
 }
 
-const props = defineProps({
-  id: {
-    type: Number,
-    required: true
-  }
-})
+const goToNewExplanation = () => {
+  router.push({ 
+    name: 'CreatePoemExplanation' 
+  })
+}
 
 // 分页相关
 const currentPage = ref(1)
 const pageSize = 6
-
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col items-center p-24">
     <n-card 
-      class="max-w-6xl mx-auto shadow-2xl rounded-2xl"
+      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl"
       :content-style="{ padding: '32px' }"
     >
-      <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">
-        诗词解析集
-      </h1>
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800">
+          诗词解析集
+        </h1>
+        <n-button 
+          type="primary" 
+          size="large" 
+          @click="goToNewExplanation"
+        >
+          <template #icon>
+            <n-icon :component="AddIcon" />
+          </template>
+          撰写新解析
+        </n-button>
+      </div>
 
       <n-grid :cols="3" :x-gap="16" :y-gap="16">
         <n-grid-item 
           v-for="explanation in explanationList" 
-          :key="explanation.id"
+          :key="explanation.postId"
           class="cursor-pointer hover:scale-105 transition-transform"
-          @click="goToDetail(explanation.id)"
+          @click="goToDetail(explanation.postId)"
         >
           <n-card 
-            :title="explanation.explanationTitle"
+            :title="explanation.title"
             class="h-full"
             hoverable
           >
@@ -104,7 +100,7 @@ const pageSize = 6
             </template>
 
             <div class="mb-4 text-gray-600">
-              {{ explanation.briefIntro }}
+              {{ explanation.content }}
             </div>
 
             <div class="flex justify-between items-center">
@@ -127,8 +123,8 @@ const pageSize = 6
 
             <template #footer>
               <div class="text-right text-sm text-gray-500">
-                {{ explanation.author }} · 
-                {{ explanation.createdAt.toLocaleDateString() }}
+                {{ explanation.userName }} · 
+                {{ explanation.createdAt }}
               </div>
             </template>
           </n-card>
@@ -144,3 +140,9 @@ const pageSize = 6
     </n-card>
   </div>
 </template>
+
+<style scoped>
+.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #EFF6FF, #C7D2FE);
+}
+</style>
