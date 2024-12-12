@@ -5,7 +5,7 @@ const BASE_URL = 'http://localhost:8000';
 // 创建诗歌解析帖子
 export const createPost = async (title: string, userName: string, poemTitle: string, poemAuthor: string, content: string, type: number, tag: string[]) => {
     try {
-        const response = await axios.post(`${BASE_URL}/api/post/create`, {
+        const response = await axios.post(`${BASE_URL}/api/post`, {
             title,
             userName,
             poemTitle,
@@ -39,3 +39,13 @@ export const getPostById = async (postId: number) => {
         throw new Error(error.response?.data?.message || '获取失败');
     }
 }
+
+// 获取日常交流帖子列表
+export const getCommunicationList = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/post/getCommunication`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取失败');
+    }
+};

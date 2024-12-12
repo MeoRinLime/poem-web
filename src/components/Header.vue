@@ -46,7 +46,7 @@
           <GlobalOutlined class="h-5 w-5 text-blue-400" aria-hidden="true" />
           每日一诗
         </router-link>
-        <router-link to="/write-poem" class="flex items-center gap-x-2 text-sm font-semibold leading-6 text-gray-900">
+        <router-link to="/user-poem-list" class="flex items-center gap-x-2 text-sm font-semibold leading-6 text-gray-900">
           <LikeFilled class="h-5 w-5 text-pink-400" aria-hidden="true" />
           创作
         </router-link>
@@ -140,7 +140,7 @@ const mobileMenuOpen = ref(false)
 const userMenuOpen = ref(false)
 
 const products = [
-  { name: '朗读专区', description: '白日放歌须纵酒，青春作伴好还乡', href: '/read-aloud', icon: PaperAirplaneIcon },
+  //{ name: '朗读专区', description: '白日放歌须纵酒，青春作伴好还乡', href: '/read-aloud', icon: PaperAirplaneIcon },
   { name: '诗歌解读', description: '横看成岭侧成峰，远近高低各不同', href: '/poem-explanation', icon: SparklesIcon },
   { name: '日常交流', description: '尘世难逢开口笑，菊花须插满头归', href: '/communication', icon: StarIcon },
 ]

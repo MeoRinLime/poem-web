@@ -221,11 +221,11 @@ const handleRegister = async () => {
       registerForm.password,
       registerForm.confirmPassword,
     );
-    console.log('注册成功', data);
+    message.success('注册成功，请登录');
     //ElMessage.success('注册成功，请登录');
     switchToLogin();
   } catch (error: any) {
-    registerError.value = error.message || '注册失败，请重试';
+    message.error(error.message + ' · 名称或邮箱已被占用');
     //ElMessage.error(registerError.value);
   } finally {
     isLoading.value = false

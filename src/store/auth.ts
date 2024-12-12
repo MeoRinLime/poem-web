@@ -57,14 +57,14 @@ export const useAuthStore = defineStore('auth', {
       const bio = localStorage.getItem('bio');
       const createTime = localStorage.getItem('createTime');
       const email = localStorage.getItem('email');
-      if (status === 'true' && token && username && bio) {
+      if (status === 'true' && token && username && bio !== null) {
         this.setLoginStatus(true);
         this.token = token;
         this.username = username;
         this.bio = bio;
         this.createTime = createTime;
         this.email = email;
-      }
+      }      
     }
   },
 });

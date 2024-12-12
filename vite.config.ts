@@ -40,6 +40,7 @@ export default defineConfig({
     Components({
       dts: 'components.d.ts',
       resolvers: [NaiveUiResolver()],
+      exclude: [/NLoadingBar/], // 关键配置，排除 NLoadingBar
     }),
   ],
   resolve: {

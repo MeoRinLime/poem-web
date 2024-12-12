@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { 
   NTabs, 
   NTabPane, 
@@ -25,35 +25,45 @@ import {
   ChatboxOutline, 
   EllipsisVerticalOutline,
   CreateOutline,
-  CloudUploadOutline
+  CloudUploadOutline,
+  HeartOutline
 } from '@vicons/ionicons5'
 import { useAuthStore } from '@/store/auth';
+import {getUserPosts, getUserPoems, getUserComments, getUserFavorites } from '@/api/personalCenter';
+import { useRouter } from 'vue-router';
 
 interface Post {
-  id: number
+  postId: number
   title: string
   content: string
   createdAt: string
+  likeCount: number
+  commentCount: number
+  poemTitle?: string
+  poemAuthor?: string
+  tag?: string[]
 }
 
 interface Comment {
-  id: number
-  postId: number
+  commentId: number
+  objectId: number
   content: string
   createdAt: string
+  title: string
 }
 
 interface Poetry {
-  id: number
+  poemId: number
   title: string
   content: string
   createdAt: string
+  likeCount: number
+  commentCount: number
 }
 
 const userStore = useAuthStore()
 const DEFAULT_AVATAR = '/default-avatar.png'
 
-// Simulated user data and content
 const userData = ref({
   username: userStore.username || 'Unknown Author',
   avatar: DEFAULT_AVATAR, // 头像功能暂时不做
@@ -62,38 +72,38 @@ const userData = ref({
   registrationDate: userStore.createTime,
 })
 
-const posts = ref<Post[]>([
-  { 
-    id: 1, 
-    title: '关于生活的随笔', 
-    content: '生活就像一首诗，需要细细品味...', 
-    createdAt: '2024-03-15' 
-  }
-])
+const posts = ref<Post[]>([])
+const comments = ref<Comment[]>([])
+const poetry = ref<Poetry[]>([])
+const favorites = ref<Post[]>([])
 
-const comments = ref<Comment[]>([
-  { 
-    id: 1, 
-    postId: 1, 
-    content: '这篇文章很有感触', 
-    createdAt: '2024-03-16' 
-  }
-])
+onMounted(() => {
+  getUserPosts(userStore.username || '').then((response: { data: any }) => {
+    const data = response.data
+    posts.value = data
+    //console.log('posts:', posts.value)
+  })
 
-const poetry = ref<Poetry[]>([
-  { 
-    id: 1, 
-    title: '夏日微风', 
-    content: '轻轻吹过 / 带走一丝炎热 / 留下温柔', 
-    createdAt: '2024-02-20' 
-  }
-])
+  getUserComments(userStore.username || '').then((response: { data: any }) => {
+    const data = response.data
+    comments.value = data
+  })
 
+  getUserPoems(userStore.username || '').then((response: { data: any }) => {
+    const data = response.data
+    poetry.value = data
+  })
+
+  getUserFavorites(userStore.username || '').then((response: { data: any }) => {
+    const data = response.data
+    favorites.value = data
+  })
+
+})
 const activeTab = ref('profile')
 const currentPage = ref(1)
 const pageSize = ref(5)
 
-// Edit profile modal state
 const showEditProfileModal = ref(false)
 const editProfileForm = reactive({
   bio: userData.value.bio,
@@ -103,46 +113,33 @@ const editProfileForm = reactive({
 
 const message = useMessage()
 
-// Handle profile edit
 const handleEditProfile = () => {
-  // Update user data
   userData.value.bio = editProfileForm.bio
   userData.value.email = editProfileForm.email
-  
-  // If avatar is changed, update it (in real app, would involve file upload)
   if (editProfileForm.avatar !== userData.value.avatar) {
     userData.value.avatar = editProfileForm.avatar
   }
-
-  // Close modal and show success message
   showEditProfileModal.value = false
   message.success('个人信息更新成功')
 }
 
-// Navigation functions for detailed views
+const router = useRouter()
 const navigateToPostDetail = (postId: number) => {
-  // Implement navigation to post detail page
-  console.log(`Navigating to post ${postId}`)
-  // Use Vue Router or your navigation method
+  router.push({ name: 'PoemExplanationDetail', params: { postId } })
 }
 
-const navigateToCommentDetail = (commentId: number) => {
-  // Implement navigation to comment detail page
-  console.log(`Navigating to comment ${commentId}`)
-  // Use Vue Router or your navigation method
+const navigateToCommentDetail = (objectId: number) => {
+  router.push({ name: 'PoemExplanationDetail', params: { postId: objectId } })
 }
 
 const navigateToPoetryDetail = (poetryId: number) => {
-  // Implement navigation to poetry detail page
-  console.log(`Navigating to poetry ${poetryId}`)
-  // Use Vue Router or your navigation method
+  router.push({ name: 'UserPoemDetail', params: { poemId: poetryId } })
 }
 </script>
 
 <template>
   <div class="min-h-screen p-24">
     <div class="max-w-4xl mx-auto">
-      <!-- User Profile Header with Edit Button -->
       <div class="bg-white shadow-lg rounded-lg p-6 mb-6 flex items-center">
         <NAvatar 
           :size="120" 
@@ -158,6 +155,7 @@ const navigateToPoetryDetail = (poetryId: number) => {
             <NText depth="3">帖子: {{ posts.length }}</NText>
             <NText depth="3">评论: {{ comments.length }}</NText>
             <NText depth="3">诗歌: {{ poetry.length }}</NText>
+            <NText depth="3">收藏: {{ favorites.length }}</NText>
           </NSpace>
         </div>
         <NButton 
@@ -252,7 +250,7 @@ const navigateToPoetryDetail = (poetryId: number) => {
                 <span>帖子列表</span>
               </div>
             </template>
-            <div v-for="post in posts" :key="post.id" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPostDetail(post.id)">
+            <div v-for="post in posts" :key="post.postId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPostDetail(post.postId)">
               <h3 class="text-xl font-medium">{{ post.title }}</h3>
               <p class="text-gray-600">{{ post.content }}</p>
               <div class="text-right text-gray-500 text-sm">
@@ -275,8 +273,9 @@ const navigateToPoetryDetail = (poetryId: number) => {
                 <span>评论列表</span>
               </div>
             </template>
-            <div v-for="comment in comments" :key="comment.id" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToCommentDetail(comment.id)">
+            <div v-for="comment in comments" :key="comment.objectId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToCommentDetail(comment.objectId)">
               <p class="text-gray-700">{{ comment.content }}</p>
+              <h3 class="text-xl font-medium text-gray-800 text-right">FROM——{{ comment.title }}</h3>
               <div class="text-right text-gray-500 text-sm">
                 {{ comment.createdAt }}
               </div>
@@ -297,7 +296,7 @@ const navigateToPoetryDetail = (poetryId: number) => {
                 <span>诗歌作品</span>
               </div>
             </template>
-            <div v-for="poem in poetry" :key="poem.id" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPoetryDetail(poem.id)">
+            <div v-for="poem in poetry" :key="poem.poemId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPoetryDetail(poem.poemId)">
               <h3 class="text-xl font-medium text-gray-800">{{ poem.title }}</h3>
               <pre class="whitespace-pre-wrap text-gray-600">{{ poem.content }}</pre>
               <div class="text-right text-gray-500 text-sm">
@@ -308,6 +307,43 @@ const navigateToPoetryDetail = (poetryId: number) => {
               v-model:page="currentPage"
               :page-size="pageSize"
               :total="poetry.length"
+            />
+          </NCard>
+        </NTabPane>
+
+        <NTabPane name="favorites" tab="我的收藏">
+          <NCard>
+            <template #header>
+              <div class="flex items-center">
+                <HeartOutline class="mr-2 w-5 h-5" />
+                <span>收藏列表</span>
+              </div>
+            </template>
+            <div v-for="favorite in favorites" :key="favorite.postId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPostDetail(favorite.postId)">
+              <h3 class="text-xl font-medium text-gray-800">{{ favorite.title }}</h3>
+              <p class="text-gray-600 mb-2">{{ favorite.content }}</p>
+              <div v-if="favorite.poemTitle" class="text-sm text-gray-500 mb-2">
+                <span>诗歌: {{ favorite.poemTitle }}</span>
+                <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>
+              </div>
+              <div v-if="favorite.tag && favorite.tag.length > 0" class="mb-2">
+                <NTag 
+                  v-for="tag in favorite.tag" 
+                  :key="tag" 
+                  size="small" 
+                  class="mr-1"
+                >
+                  {{ tag }}
+                </NTag>
+              </div>
+              <div class="text-right text-gray-500 text-sm">
+                {{ favorite.createdAt }}
+              </div>
+            </div>
+            <NPagination 
+              v-model:page="currentPage"
+              :page-size="pageSize"
+              :total="favorites.length"
             />
           </NCard>
         </NTabPane>

@@ -13,6 +13,11 @@ import LoginPage from '@/pages/LoginPage.vue';
 import PoemExplanationDetailPage from '@/pages/PoemExplanationDetailPage.vue';
 import NotFoundPage from '@/pages/NotFoundPage.vue';
 import CreatePoemExplanation from '@/pages/CreatePoemExplanation.vue';
+import UserPoemList from '@/pages/UserPoemList.vue';
+import UserPoemDetail from '@/pages/UserPoemDetail.vue';
+import SearchResultsPage from '@/pages/SearchResultsPage.vue';
+import CommunicationDetailPage from '@/pages/CommunicationDetailPage.vue';
+import CreateCommunication from '@/pages/CreateCommunication.vue';
 
 const routes = [
   {
@@ -41,6 +46,7 @@ const routes = [
   {
     path: '/write-poem',
     component: WritePoemPage,
+    name: 'WritePoem',
     meta: {
       title: '创作诗歌',
       requiresAuth: true,  // 需要登录才能访问
@@ -72,16 +78,32 @@ const routes = [
   {
     path: '/communication',
     component: CommunicationPage,
+    name: 'Communication',
     meta: {
       title: '诗歌交流',
       requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
+    path: '/communication/:postId',
+    name: 'CommunicationDetail',
+    component: CommunicationDetailPage,
+    props: true
+  },
+  {
     path: '/search',
     component: SearchPage,
     meta: {
       title: '搜索',
+      isFullscreen: false,
+    },
+  },
+  {
+    path: '/search-result',
+    component: SearchResultsPage,
+    name: 'SearchResultsPage',
+    meta: {
+      title: '搜索结果',
       isFullscreen: false,
     },
   },
@@ -100,6 +122,34 @@ const routes = [
     name: 'CreatePoemExplanation',
     meta: {
       title: '创建诗歌解析',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/create-communication',
+    component: CreateCommunication,
+    name: 'CreateCommunication',
+    meta: {
+      title: '创建诗歌交流',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/user-poem-list',
+    component: UserPoemList,
+    name: 'UserPoemList',
+    meta: {
+      title: '用户诗歌列表',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/user-poem-detail/:poemId',
+    component: UserPoemDetail,
+    name: 'UserPoemDetail',
+    props: true,
+    meta: {
+      title: '用户诗歌详情',
       requiresAuth: true,
     },
   },

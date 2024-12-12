@@ -293,7 +293,7 @@ const goBack = () => {
           class="text-white hover:text-yellow-500"
           @click="goBack"
         >
-          ← 返回诗歌解析集
+          ← 返回日常交流贴列表
         </n-button>
       </div>
 
@@ -303,9 +303,9 @@ const goBack = () => {
           {{ postDetail?.title }}
         </h1>
         <n-space justify="center" align="center" class="mb-4">
-          <n-tag type="info">
+          <!-- <n-tag type="info">
             {{ postDetail?.poemTitle }} - {{ postDetail?.poemAuthor }}
-          </n-tag>
+          </n-tag> -->
           <n-tag 
             v-for="tag in postDetail?.tag" 
             :key="tag" 

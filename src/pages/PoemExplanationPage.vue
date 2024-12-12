@@ -142,7 +142,4 @@ const pageSize = 6
 </template>
 
 <style scoped>
-.bg-gradient-to-br {
-  background: linear-gradient(to bottom right, #EFF6FF, #C7D2FE);
-}
 </style>
