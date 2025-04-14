@@ -32,7 +32,6 @@ const routes = [
     component: DailyPoemPage,
     meta: {
       title: '每日一诗推荐',
-      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -57,7 +56,6 @@ const routes = [
     component: ReadAloudPage,
     meta: {
       title: '诗歌朗诵',
-      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -66,7 +64,6 @@ const routes = [
     name: 'PoemExplanationList',
     meta: {
       title: '诗歌解析',
-      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -81,7 +78,6 @@ const routes = [
     name: 'Communication',
     meta: {
       title: '诗歌交流',
-      requiresAuth: true,  // 需要登录才能访问
     },
   },
   {
@@ -140,7 +136,6 @@ const routes = [
     name: 'UserPoemList',
     meta: {
       title: '用户诗歌列表',
-      requiresAuth: true,
     },
   },
   {
@@ -150,7 +145,6 @@ const routes = [
     props: true,
     meta: {
       title: '用户诗歌详情',
-      requiresAuth: true,
     },
   },
   {
