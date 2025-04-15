@@ -1,10 +1,10 @@
 <template>
   <div class="flex items-center justify-center h-screen">
     <div class="bg-white shadow-lg rounded-lg w-3/4 md:w-2/3 lg:w-2/3 h-2/3 flex overflow-hidden">
-      <div class="w-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-l-lg flex items-center justify-center">
-        <div class="text-white space-y-6 p-10">
-          <h1 class="text-4xl font-bold">欢迎来到诗韵！</h1>
-          <p class="text-lg">
+      <div class="w-1/2 bg-gradient-to-r from-amber-500 to-amber-500 rounded-l-lg flex items-center justify-center"> 
+        <div class="text-white space-y-6 p-10 font-serif">
+          <h1 class="text-4xl font-bold" style="font-family: Georgia, serif">欢迎来到诗韵！</h1>
+          <p class="text-lg" style="font-family: Georgia, serif">
             {{ isLoginForm ? '马上登录开始探索美妙的诗词世界' : '注册一个新账号，开启诗词之旅' }}
           </p>
         </div>
@@ -19,9 +19,9 @@
           leave-active-class="transition duration-500 ease-in"
           leave-to-class="opacity-0 -translate-x-full"
         >
-          <div v-if="isLoginForm" key="login" class="absolute inset-0 p-10">
-            <h2 class="text-3xl font-bold mt-4 mb-24 text-center">登录</h2>
-            <form @submit.prevent="handleLogin" class="space-y-4 w-2/3 mx-auto">
+          <div v-if="isLoginForm" key="login" class="absolute inset-0 p-10" style="font-family: Courier New, Courier, monospace">
+            <h2 class="text-5xl font-bold mt-4 mb-16 text-center">登录</h2>
+            <form @submit.prevent="handleLogin" class="space-y-4 w-2/3 mx-auto -mt-4">
               <div>
                 <input 
                   id="username" 
@@ -31,7 +31,7 @@
                   placeholder="用户名或邮箱" 
                   autocomplete="username" 
                   required
-                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -43,27 +43,27 @@
                   placeholder="密码" 
                   autocomplete="current-password" 
                   required 
-                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between mt-2">
                 <div class="flex items-center">
                   <input 
                     id="remember-me" 
                     name="remember-me" 
                     type="checkbox" 
-                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
+                    class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500" 
                   />
                   <label for="remember-me" class="ml-2 block text-sm text-gray-900">记住我</label>
                 </div>
                 <div class="text-sm">
-                  <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">忘记密码？</a>
+                  <a href="#" class="font-medium text-amber-600 hover:text-amber-500">忘记密码？</a>
                 </div>
               </div>
-              <div class="w-1/2 mx-auto pt-12">
+              <div class="w-1/2 mx-auto pt-8">
                 <button 
                   type="submit" 
-                  class="flex w-full justify-center rounded-full border border-transparent bg-indigo-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="flex w-full justify-center rounded-full border border-transparent bg-amber-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                 >
                   登录 >
                 </button>
@@ -73,17 +73,17 @@
               没有账号？
               <button 
                 @click="switchToRegister" 
-                class="font-medium text-indigo-600 hover:text-indigo-500"
+                class="font-medium text-amber-600 hover:text-amber-500"
               >
                 马上注册
               </button>
             </p>
           </div>
 
-          <div v-else key="register" class="absolute inset-0 p-10">
-            <h2 class="text-3xl font-bold mt-4 mb-2 text-center">注册</h2>
-            <h4 class="mt-4 mb-10 text-center opacity-50 text-opacity-50">让我们的旅途从这里开始吧</h4>
-            <form @submit.prevent="handleRegister" class="space-y-4 w-2/3 mx-auto">
+          <div v-else key="register" class="absolute inset-0 p-10" style="font-family: Courier New, Courier, monospace">
+            <h2 class="text-3xl font-bold mt-4 mb-6 text-center">注册</h2>
+            <h4 class="mt-4 mb-8 text-center opacity-50">让我们的旅途从这里开始吧</h4>
+            <form @submit.prevent="handleRegister" class="space-y-4 w-2/3 mx-auto -mt-2">
               <div>
                 <input 
                   id="new-username" 
@@ -92,7 +92,7 @@
                   type="text" 
                   placeholder="用户名" 
                   required
-                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -103,7 +103,7 @@
                   type="email" 
                   placeholder="邮箱" 
                   required
-                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -114,7 +114,7 @@
                   type="password" 
                   placeholder="密码" 
                   required 
-                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -125,17 +125,17 @@
                   type="password" 
                   placeholder="确认密码" 
                   required 
-                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
-              <div class="w-1/2 mx-auto pt-12">
+              <div class="w-1/2 mx-auto pt-8">
                 <div v-if="registerError" class="text-red-500 text-sm mb-4">
                   {{ registerError }}
                 </div>
                 <button 
                   type="submit" 
                   :disabled="isLoading"
-                  class="flex w-full justify-center rounded-full border border-transparent bg-indigo-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="flex w-full justify-center rounded-full border border-transparent bg-amber-600 py-2 px-4 text-m font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                 >
                   {{ isLoading ? '注册中...' : '注册 >' }}
                 </button>
@@ -145,7 +145,7 @@
               已有账号？
               <button 
                 @click="switchToLogin" 
-                class="font-medium text-indigo-600 hover:text-indigo-500"
+                class="font-medium text-amber-600 hover:text-amber-500"
               >
                 马上登录
               </button>
@@ -222,11 +222,9 @@ const handleRegister = async () => {
       registerForm.confirmPassword,
     );
     message.success('注册成功，请登录');
-    //ElMessage.success('注册成功，请登录');
     switchToLogin();
   } catch (error: any) {
     message.error(error.message + ' · 名称或邮箱已被占用');
-    //ElMessage.error(registerError.value);
   } finally {
     isLoading.value = false
   }

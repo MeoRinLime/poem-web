@@ -136,7 +136,7 @@ const contentRemainingChars = computed(() => {
           style="background-image: linear-gradient(120deg,#8fd3f4 0%,#84fab0 100%), 
           url('/assets/images/poem-bg.jpg')"
         >
-          <div class="absolute inset-0 flex flex-col justify-center p-8 text-white">
+          <div class="absolute inset-0 flex flex-col justify-center p-8 text-white" style="font-family: Courier New, Courier, monospace">
             <h2 class="text-4xl font-bold mb-4">诗词创作</h2>
             <p class="text-lg opacity-80">
               让文字如诗，情感如歌。<br>

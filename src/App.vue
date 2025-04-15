@@ -1,4 +1,3 @@
-<!-- eslint-disable id-length -->
 <template>
   <n-message-provider>
     <div :class="isFullScreenPage ? 'fixed-container' : 'scroll-container'">
@@ -10,21 +9,15 @@
       
       <!-- 内容区域 -->
       <div class="relative flex-grow">
-
-        <!-- 渐变和网格 -->
+        <!-- 背景图片（已替换渐变和网格） -->
         <div 
-          class="fixed inset-0 bg-gradient-to-b from-pink-500 via-white to-blue-500 opacity-5 z-0"
+          class="fixed inset-0 bg-[url(/img/background.png)] bg-cover bg-center bg-no-repeat z-0 opacity-20"
         ></div>
-        <div 
-          class="fixed inset-0 bg-[url(/img/grid.svg)] bg-top z-0"
-        ></div>
-
 
         <!-- 主内容 -->
         <main class="relative z-10">
           <router-view :key="$route.fullPath"/>
         </main>
-
       </div>
 
       <!-- 页脚 -->
@@ -32,59 +25,3 @@
     </div>
   </n-message-provider>
 </template>
-
-
-<script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { useAuthStore } from './store/auth';
-import MeteorsStars from './components/MeteorsStars.vue';
-
-const route = useRoute();
-
-useHead({
-  title: () => route.meta.title || 'Meorin',
-  meta: [
-    {
-      property: 'og:title',
-      content: () => route.meta.title,
-    },
-    {
-      name: 'twitter:title',
-      content: () => route.meta.title,
-    },
-  ],
-});
-
-const isFullScreenPage = computed(() => route.meta.isFullscreen);
-const authStore = useAuthStore();
-
-onMounted(() => {
-  authStore.initialize();
-});
-</script>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'App',
-});
-</script>
-
-<style scoped>
-.min-h-screen {
-  min-height: 100vh;
-}
-
-.fixed-container {
-  height: 100vh;
-  overflow: hidden;
-}
-
-.scroll-container {
-  min-height: 100vh;
-  overflow-y: auto;
-}
-</style>
-
