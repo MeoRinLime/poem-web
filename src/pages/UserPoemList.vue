@@ -1,71 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted} from 'vue'
-import { 
-  NCard, 
-  NGrid, 
-  NGridItem, 
-  NTag, 
-  NPagination,
-  NButton,
-  NIcon,
-  NDivider
-} from 'naive-ui'
-import { 
-  PersonOutline, 
-  CalendarOutline,
-  AddOutline
-} from '@vicons/ionicons5'
-import { useRouter } from 'vue-router'
-import { getAllUserPoems } from '@/api/poemUser'
-
-// 定义诗歌类型
-interface Poem {
-  poemId: number
-  authorName: string
-  title: string
-  subtitle?: string
-  content: string
-  createdAt: string
-  commentCount: number
-  likeCount: number
-}
-
-const router = useRouter()
-
-const poems = ref<Poem[]>([])
-onMounted(() => {
-  getAllUserPoems().then((response: { data: any }) => {
-    const data = response.data
-    poems.value = data
-  })
-})
-
-// 跳转到详情页
-const goToDetail = (poemId: number) => {
-  router.push({ name: 'UserPoemDetail', params: { poemId } })
-}
-
-// 跳转到新建诗歌页面
-const goToNewPoem = () => {
-  router.push({ name: 'WritePoem' })
-}
-
-// 分页相关
-const currentPage = ref(1)
-const pageSize = 6
-
-const pageCount = computed(() => Math.ceil(poems.value.length / pageSize))
-
-const paginatedPoems = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return poems.value.slice(start, start + pageSize)
-})
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page
-}
-</script>
-
 <template>
   <div class="min-h-screen flex flex-col items-center p-24">
     <n-card 
@@ -77,20 +9,19 @@ const handlePageChange = (page: number) => {
         <h1 class="text-4xl font-bold text-gray-800">
           诗歌长廊
         </h1>
-        <n-button 
-          type="primary" 
-          size="large" 
+        <CreateButton 
           @click="goToNewPoem"
         >
-          <template #icon>
-            <n-icon :component="AddOutline" />
-          </template>
-          撰写新诗
-        </n-button>
+          新建诗歌
+        </CreateButton>
+      </div>
+
+      <div v-if="poems.length === 0" class="flex items-center justify-center h-64">
+        <LoadingComponent />
       </div>
 
       <!-- 诗歌列表 -->
-      <n-grid :cols="3" :x-gap="24" :y-gap="24">
+      <n-grid v-else :cols="3" :x-gap="24" :y-gap="24">
         <n-grid-item 
           v-for="poem in paginatedPoems" 
           :key="poem.poemId"
@@ -141,6 +72,67 @@ const handlePageChange = (page: number) => {
     </n-card>
   </div>
 </template>
+
+
+<script setup lang="ts">
+import { ref, computed, onMounted} from 'vue'
+import { NCard, NGrid, NGridItem, NTag, NPagination, NIcon, NDivider} from 'naive-ui'
+import { 
+  PersonOutline, 
+  CalendarOutline,
+} from '@vicons/ionicons5'
+import { useRouter } from 'vue-router'
+import { getAllUserPoems } from '@/api/poemUser'
+import CreateButton from '@/components/CreateButton.vue'
+import LoadingComponent from '@/components/LoadingComponent.vue'
+
+// 定义诗歌类型
+interface Poem {
+  poemId: number
+  authorName: string
+  title: string
+  subtitle?: string
+  content: string
+  createdAt: string
+  commentCount: number
+  likeCount: number
+}
+
+const router = useRouter()
+
+const poems = ref<Poem[]>([])
+onMounted(() => {
+  getAllUserPoems().then((response: { data: any }) => {
+    const data = response.data
+    poems.value = data
+  })
+})
+
+// 跳转到详情页
+const goToDetail = (poemId: number) => {
+  router.push({ name: 'UserPoemDetail', params: { poemId } })
+}
+
+// 跳转到新建诗歌页面
+const goToNewPoem = () => {
+  router.push({ name: 'WritePoem' })
+}
+
+// 分页相关
+const currentPage = ref(1)
+const pageSize = 6
+
+const pageCount = computed(() => Math.ceil(poems.value.length / pageSize))
+
+const paginatedPoems = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return poems.value.slice(start, start + pageSize)
+})
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+}
+</script>
 
 <style scoped>
 .cursor-pointer {

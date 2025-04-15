@@ -1,63 +1,3 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { 
-  NCard, 
-  NGrid, 
-  NGridItem, 
-  NSpace, 
-  NTag, 
-  NPagination,
-  NButton,
-  NIcon
-} from 'naive-ui'
-import { 
-  ChatbubbleEllipsesOutline as CommentIcon,
-  AddCircleOutline as AddIcon
-} from '@vicons/ionicons5'
-import router from '@/router'
-import { getPoemExplanationList } from '@/api/post'
-
-// 诗歌解释帖子接口
-interface PoemExplanation {
-  commentCount: number
-  content: string
-  createdAt: String
-  poemAuthor: string
-  poemTitle: string
-  postId: number
-  tags: string[]
-  title: string
-  userName: string
-}
-
-const explanationList = ref<PoemExplanation[]>([])
-
-onMounted(() => {
-  getPoemExplanationList().then((response: { data: any }) => {
-    const data = response.data
-    explanationList.value = data
-    //console.log('data:', data)
-  })
-})
-  
-
-const goToDetail = (postId: number) => {
-  router.push({ 
-    name: 'PoemExplanationDetail', 
-    params: { postId: postId } 
-  })
-}
-
-const goToNewExplanation = () => {
-  router.push({ 
-    name: 'CreatePoemExplanation' 
-  })
-}
-
-// 分页相关
-const currentPage = ref(1)
-const pageSize = 6
-</script>
 
 <template>
   <div class="min-h-screen flex flex-col items-center p-24">
@@ -69,18 +9,16 @@ const pageSize = 6
         <h1 class="text-4xl font-bold text-gray-800">
           诗词解析集
         </h1>
-        <n-button 
-          type="primary" 
-          size="large" 
+        <CreateButton 
           @click="goToNewExplanation"
         >
-          <template #icon>
-            <n-icon :component="AddIcon" />
-          </template>
-          撰写新解析
-        </n-button>
+          新建解析
+        </CreateButton>
       </div>
 
+      <div v-if="explanationList.length === 0" class="flex items-center justify-center h-64">
+        <LoadingComponent />
+      </div>
       <n-grid :cols="3" :x-gap="16" :y-gap="16">
         <n-grid-item 
           v-for="explanation in explanationList" 
@@ -140,6 +78,66 @@ const pageSize = 6
     </n-card>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { 
+  NCard, 
+  NGrid, 
+  NGridItem, 
+  NSpace, 
+  NTag, 
+  NPagination,
+  NIcon
+} from 'naive-ui'
+import { 
+  ChatbubbleEllipsesOutline as CommentIcon,
+} from '@vicons/ionicons5'
+import router from '@/router'
+import { getPoemExplanationList } from '@/api/post'
+import CreateButton from '@/components/CreateButton.vue'
+
+// 诗歌解释帖子接口
+interface PoemExplanation {
+  commentCount: number
+  content: string
+  createdAt: String
+  poemAuthor: string
+  poemTitle: string
+  postId: number
+  tags: string[]
+  title: string
+  userName: string
+}
+
+const explanationList = ref<PoemExplanation[]>([])
+
+onMounted(() => {
+  getPoemExplanationList().then((response: { data: any }) => {
+    const data = response.data
+    explanationList.value = data
+    //console.log('data:', data)
+  })
+})
+  
+
+const goToDetail = (postId: number) => {
+  router.push({ 
+    name: 'PoemExplanationDetail', 
+    params: { postId: postId } 
+  })
+}
+
+const goToNewExplanation = () => {
+  router.push({ 
+    name: 'CreatePoemExplanation' 
+  })
+}
+
+// 分页相关
+const currentPage = ref(1)
+const pageSize = 6
+</script>
 
 <style scoped>
 </style>

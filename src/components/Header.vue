@@ -99,7 +99,7 @@
           class="text-gray-700 hover:text-gray-900 ml-4 flex items-center"
           aria-label="搜索"
         >
-          <SearchOutlined class="h-6 w-6" />
+          <SearchButton class="h-6 w-6" />
         </router-link>
 
         <!-- User Avatar and Dropdown (Logged in) -->
