@@ -1,4 +1,3 @@
-<!-- eslint-disable id-length -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { 
@@ -113,16 +112,16 @@ const cancelCreation = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-24">
+  <div class="min-h-screen flex items-center justify-center p-4">
     <n-card 
       class="w-full max-w-2xl shadow-2xl rounded-2xl"
-      :content-style="{ padding: '32px' }"
+      :content-style="{ padding: '16px' }"
     >
       <div class="flex items-center justify-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mr-4">
+        <h1 class="text-2xl font-bold text-gray-800 mr-4">
           今天也聊点什么吧
         </h1>
-        <n-icon :component="PencilOutline" size="28" class="text-gray-600" />
+        <n-icon :component="PencilOutline" size="24" class="text-gray-600" />
       </div>
 
       <n-form>
@@ -143,7 +142,7 @@ const cancelCreation = () => {
             v-model:value="formData.content"
             type="textarea"
             placeholder="随便说一些什么"
-            :autosize="{ minRows: 4, maxRows: 10 }"
+            :autosize="{ minRows: 2, maxRows: 6 }"
           />
         </n-form-item>
 
@@ -183,7 +182,7 @@ const cancelCreation = () => {
           </div>
         </n-form-item>
 
-        <div class="flex justify-end space-x-4 mt-6">
+        <div class="flex justify-end space-x-2 mt-4">
           <n-button 
             class="mr-2"
             @click="cancelCreation"
@@ -209,5 +208,23 @@ const cancelCreation = () => {
 /* 输入框获取焦点时的阴影效果 */
 :deep(.n-input__state-border) {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+@media (max-width: 768px) {
+  .text-2xl {
+    font-size: 18px;
+  }
+  .text-xl {
+    font-size: 16px;
+  }
+  .text-lg {
+    font-size: 14px;
+  }
+  .text-sm {
+    font-size: 12px;
+  }
+  .text-xs {
+    font-size: 10px;
+  }
 }
 </style>

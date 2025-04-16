@@ -10,6 +10,7 @@ import {
   NButton,
   useMessage,
   NEmpty,
+  NIcon
 } from 'naive-ui'
 import { 
   SendOutline as SendIcon, 
@@ -280,32 +281,29 @@ const goBack = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center p-24">
+  <div class="min-h-screen flex flex-col items-center p-4">
     <n-card 
-      class="max-w-4xl mx-auto shadow-2xl rounded-2xl"
-      :content-style="{ padding: '32px' }"
+      class="max-w-full mx-auto shadow-2xl rounded-2xl mt-12"
+      :content-style="{ padding: '16px' }"
     >
       <!-- 返回按钮 -->
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex justify-between items-center mb-4">
         <n-button 
           type="success"
           round 
           class="text-white hover:text-yellow-500"
           @click="goBack"
         >
-          ← 返回诗歌解析集
+          ← 返回日常交流贴列表
         </n-button>
       </div>
 
       <!-- 解释标题和诗词信息 -->
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+      <div class="text-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
           {{ postDetail?.title }}
         </h1>
-        <n-space justify="center" align="center" class="mb-4">
-          <n-tag type="info">
-            {{ postDetail?.poemTitle }} - {{ postDetail?.poemAuthor }}
-          </n-tag>
+        <n-space justify="center" align="center" class="mb-2">
           <n-tag 
             v-for="tag in postDetail?.tag" 
             :key="tag" 
@@ -318,29 +316,29 @@ const goBack = () => {
       </div>
 
       <!-- 作者信息 -->
-      <div class="flex items-center mb-6">
+      <div class="flex items-center mb-4">
         <n-avatar 
           :src="DEFAULT_AVATAR" 
-          size="large" 
-          class="mr-4"
+          size="medium" 
+          class="mr-2"
         />
         <div>
           <div class="font-bold text-gray-800">
             {{ postDetail?.userName }}
           </div>
-          <div class="text-sm text-gray-500">
+          <div class="text-xs text-gray-500">
             发布于 {{ postDetail?.createdAt.toLocaleString() }}
           </div>
         </div>
       </div>
 
       <!-- 解释正文 -->
-      <div class="prose max-w-full mb-8 text-gray-700 leading-relaxed">
+      <div class="prose max-w-full mb-4 text-gray-700 leading-relaxed">
         {{ postDetail?.content }}
       </div>
 
       <!-- 交互按钮 -->
-      <div class="flex justify-center space-x-6 mb-10">
+      <div class="flex justify-center space-x-2 mb-6">
         <n-button 
           :type="likeButtonType"
           @click="toggleLike"
@@ -381,12 +379,12 @@ const goBack = () => {
       </n-divider>
 
       <!-- 发表评论 -->
-      <div class="mb-6">
+      <div class="mb-4">
         <n-input 
           v-model:value="newComment"
           type="textarea"
           placeholder="分享您对这篇解析的看法..."
-          :autosize="{ minRows: 3, maxRows: 6 }"
+          :autosize="{ minRows: 2, maxRows: 4 }"
         />
         <div class="text-right mt-2">
           <n-button 
@@ -403,17 +401,17 @@ const goBack = () => {
       </div>
 
       <!-- 现有评论 -->
-      <div v-if="postDetail?.comments.length" class="space-y-4">
+      <div v-if="postDetail?.comments.length" class="space-y-2">
         <div 
           v-for="comment in postDetail?.comments" 
           :key="comment.commentId" 
-          class="bg-white p-4 rounded-lg shadow-sm"
+          class="bg-white p-2 rounded-lg shadow-sm"
         >
           <div class="flex items-center mb-2">
             <n-avatar 
               :src="DEFAULT_AVATAR" 
               size="small" 
-              class="mr-3"
+              class="mr-2"
             />
             <div>
               <div class="font-semibold text-gray-800">
@@ -426,7 +424,7 @@ const goBack = () => {
             <div class="ml-auto flex items-center">
               <n-button 
                 quaternary 
-                size="tiny"
+                size="small"
                 :type="comment.isLiked ? 'primary' : 'default'"
                 class="mr-2"
                 @click="toggleCommentLike(comment)"
@@ -446,7 +444,7 @@ const goBack = () => {
       <n-empty 
         v-else 
         description="暂无评论，快来抢沙发！"
-        class="my-6"
+        class="my-4"
       />
     </n-card>
   </div>
@@ -455,6 +453,12 @@ const goBack = () => {
 <style scoped>
 .prose {
   max-width: 100%;
-  line-height: 1.8;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .prose {
+    font-size: 14px;
+  }
 }
 </style>

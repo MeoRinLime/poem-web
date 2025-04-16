@@ -1,6 +1,73 @@
+<script lang="ts">
+import { ref, onMounted, onUnmounted, defineComponent } from 'vue';
+import Typed from 'typed.js';
+import router from '@/router';
+import { getPoemRecommend } from '@/api/hitopoem';
+
+export default defineComponent({
+  name: 'HomePage',
+  setup() {
+    const backgroundImageUrl = ref('');
+    const backgroundOpacity = ref(0);
+
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        backgroundImageUrl.value = '/img/mobile-bg.jpg';
+      } else {
+        backgroundImageUrl.value = '/img/desktop-bg.jpg';
+      }
+    };
+
+    onMounted(async () => {
+      try {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        setTimeout(() => {
+          backgroundOpacity.value = 1;
+        }, 100);
+
+        const responseHitokoto = await getPoemRecommend();
+        new Typed('#hitokoto', {
+          strings: [responseHitokoto.data.content],
+          typeSpeed: 50,
+          showCursor: false,
+        });
+        new Typed('#hitokoto-From', {
+          strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
+          typeSpeed: 50,
+          showCursor: false,
+          startDelay: 1000,
+        });
+      } catch (error) {
+        console.error('Failed to fetch hitokoto:', error);
+      }
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize);
+    });
+
+    const handleCreatePoem = () => {
+      router.push('/write-poem');
+    };
+
+    const handleDailyPoem = () => {
+      router.push('/daily-poem');
+    };
+
+    return {
+      backgroundImageUrl,
+      backgroundOpacity,
+      handleCreatePoem,
+      handleDailyPoem,
+    };
+  }
+});
+</script>
 
 <template>
-  <div class="fixed inset-0 overflow-hidden">
+  <div class="fixed inset-0 overflow-auto">
     <!-- 背景图片 -->
     <div 
       class="absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-1000 ease-in-out" 
@@ -10,93 +77,127 @@
       }"
     ></div>
 
-    <!-- GIF动图 -->
-    <img 
-      src="/img/book.gif" 
-      alt="Animated GIF" 
-      class="fixed bottom-0 left-0 ml-4 mb-4"
-    >
-
-    
-
-    <!-- 主内容 -->
-    <div class="flex flex-col justify-center items-center z-10 relative top-40">
-      <h1 class="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 opacity-90 font-serif" style="font-family: Georgia, 'SimSun', serif">
-        诗韵Poemre
-      </h1>
-      <h2 class="text-2xl mt-4 text-amber-700 opacity-80 font-serif">Welcome to 诗歌世界</h2>
-
-      <!-- 随机一诗 -->
-      <div class="items-center fixed bottom-0 right-0 mr-4 mb-4">
-        <DailyPoem :quoteData="quoteData"/>
+    <!-- 主布局容器 -->
+    <div class="absolute inset-0 flex flex-col md:flex-row items-center justify-center pt-10 md:pt-0 z-10">
+      <!-- 左侧书籍GIF（桌面端显示） -->
+      <div class="hidden md:flex items-center justify-center mr-10 lg:mr-20 xl:mr-30 relative">
+        <img 
+          src="/img/book.gif" 
+          alt="Animated Book" 
+          class="w-[280px] h-auto z-10 opacity-95 transition-all duration-300"
+          style="filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.4));"
+        >
       </div>
 
-      <!-- 按钮区域 -->
-      <div class="flex space-x-10 mt-16"> 
-        <button 
-          @click="handleCreatePoem" 
-          class="px-8 py-3 text-lg bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg hover:opacity-90 transition-opacity font-serif shadow-md" 
+      <!-- 主内容区域 -->
+      <div class="flex flex-col items-center px-4 md:px-0">
+        <h1 class="md:text-7xl text-4xl font-bold text-transparent bg-clip-text 
+                  bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 opacity-90 font-serif" 
+            style="font-family: Georgia, 'SimSun', serif">
+          诗韵Poemre
+        </h1>
+        <h2 class="md:text-2xl text-lg mt-4 text-amber-700 opacity-80 font-serif">Welcome to 诗歌世界</h2>
+
+        <!-- 随机一诗 -->
+        <div class="text-center md:mt-20 mt-10 p-4 md:p-6 border-2 border-amber-200 rounded-lg 
+                  bg-amber-50 bg-opacity-70 shadow-md max-w-md mx-auto font-mono w-[90%] relative z-30">
+          <span id="hitokoto" class="md:text-xl text-base text-amber-900" 
+                style="font-family: 'Courier New', Courier, monospace"></span>
+          <div id="hitokoto-From" class="text-sm text-amber-800 mt-2 italic" 
+               style="font-family: 'Courier New', Courier, monospace"></div>
+        </div>
+
+        <!-- 按钮区域 -->
+        <div class="flex md:space-x-10 space-x-4 md:mt-16 mt-10 z-30 mb-10 md:mb-0">
+          <button 
+            @click="handleCreatePoem" 
+            class="px-6 py-2 md:px-8 md:py-3 text-base md:text-lg bg-gradient-to-r 
+                  from-amber-600 to-amber-700 text-white rounded-lg hover:opacity-90 
+                  transition-opacity font-serif shadow-md active:scale-95" 
+          >
+            开始创作
+          </button>
+          <button 
+            @click="handleDailyPoem" 
+            class="px-6 py-2 md:px-8 md:py-3 text-base md:text-lg bg-gradient-to-r 
+                  from-amber-700 to-amber-800 text-white rounded-lg hover:opacity-90 
+                  transition-opacity font-serif shadow-md active:scale-95" 
+          >
+            每日一诗
+          </button>
+        </div>
+      </div>
+
+      <!-- 移动端书籍GIF（放在底部） -->
+      <div class="md:hidden flex justify-center mt-6 mb-10 z-10">
+        <img 
+          src="/img/book.gif" 
+          alt="Animated Book" 
+          class="w-[150px] h-auto opacity-90"
+          style="filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));"
         >
-          开始创作
-        </button>
-        <button 
-          @click="handleDailyPoem" 
-          class="px-8 py-3 text-lg bg-gradient-to-r from-amber-700 to-amber-800 text-white rounded-lg hover:opacity-90 transition-opacity font-serif shadow-md" 
-        >
-          每日一诗
-        </button>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue';
-import router from '@/router';
-import { getPoemRecommend } from '@/api/hitopoem';
-import DailyPoem from '@/components/DailyPoem.vue';
-
-const backgroundImageUrl = ref('');
-const backgroundOpacity = ref(0);
-
-const quoteData = reactive({
-  authorName: '',
-  content: '',
-  dynasty: '',
-});
-
-onMounted(async () => {
-  try {
-    setTimeout(() => {
-      backgroundOpacity.value = 1;
-    }, 100);
-
-    const responseHitokoto = await getPoemRecommend();
-    console.log('responseHitokoto:', responseHitokoto);
-    quoteData.authorName = responseHitokoto.data.authorName;
-    quoteData.content = responseHitokoto.data.content;
-    quoteData.dynasty = responseHitokoto.data.dynasty;
-  } catch (error) {
-    console.error('Failed to fetch hitokoto:', error);
-  }
-});
-
-const handleCreatePoem = () => {
-  router.push('/write-poem');
-};
-
-const handleDailyPoem = () => {
-  router.push('/daily-poem');
-};
-</script>
-
 <style scoped>
-/* 其他样式... */
+/* 基础字体大小 */
+html {
+  font-size: 16px;
+}
 
-/* GIF动图样式 */
-img {
-  width: 300px; /* 根据需要调整大小 */
-  height: auto;
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 5)); /* 添加阴影效果 */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* 按钮点击效果 */
+button {
+  transition: transform 0.1s ease, opacity 0.3s ease;
+  min-width: 120px;
+  min-height: 48px;
+}
+
+/* 确保内容不会超出屏幕 */
+.fixed {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 背景图片优化 */
+.absolute {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 移动端优化 */
+@media (max-width: 640px) {
+  .text-4xl {
+    font-size: 2rem;
+  }
+  
+  .text-lg {
+    font-size: 1rem;
+  }
+
+  /* 移动端书籍动图动画 */
+  .md\\:hidden img {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+}
+
+/* 书籍GIF悬停效果（桌面端） */
+@media (min-width: 768px) {
+  img:hover {
+    transform: scale(1.03) rotate(-2deg);
+    opacity: 1;
+  }
 }
 </style>

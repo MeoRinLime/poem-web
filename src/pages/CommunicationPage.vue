@@ -1,9 +1,10 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center p-24">
+  <div class="min-h-screen flex flex-col items-center p-4">
     <n-card 
-      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl"
-      :content-style="{ padding: '32px' }"
+      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12"
+      :content-style="{ padding: '16px' }"
     >
+      <!-- 页面标题和添加按钮 -->
       <div class="flex justify-between items-center mb-8">
         <BigTitle class="text-4xl font-bold text-gray-800" text="诗歌交流集" />
         <CreateButton 
@@ -17,9 +18,10 @@
         <LoadingComponent />
       </div>
 
-      <n-grid :cols="3" :x-gap="16" :y-gap="16">
+      <!-- 诗歌列表 -->
+      <n-grid :cols="isMobile ? 1 : 3" :x-gap="24" :y-gap="24">
         <n-grid-item 
-          v-for="explanation in CommunicationList" 
+          v-for="explanation in paginatedCommunications" 
           :key="explanation.postId"
           class="cursor-pointer hover:scale-105 transition-transform"
           @click="goToDetail(explanation.postId)"
@@ -29,12 +31,6 @@
             class="h-full"
             hoverable
           >
-            <!-- <template #header-extra>
-              <n-tag size="small" type="info">
-                {{ explanation.poemTitle }} - {{ explanation.poemAuthor }}
-              </n-tag>
-            </template> -->
-
             <div class="mb-4 text-gray-600">
               {{ explanation.content }}
             </div>
@@ -67,10 +63,13 @@
         </n-grid-item>
       </n-grid>
 
+      <!-- 分页组件 -->
       <div class="mt-8 flex justify-center">
         <n-pagination 
           v-model:page="currentPage"
-          :page-count="Math.ceil(CommunicationList.length / pageSize)"
+          :page-count="pageCount"
+          :page-size="pageSize"
+          @update:page="handlePageChange"
         />
       </div>
     </n-card>
@@ -78,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { 
   NCard, 
   NGrid, 
@@ -86,16 +85,15 @@ import {
   NSpace, 
   NTag, 
   NPagination,
-  NButton,
   NIcon
 } from 'naive-ui'
 import { 
-  ChatbubbleEllipsesOutline as CommentIcon,
-  AddCircleOutline as AddIcon
+  ChatbubbleEllipsesOutline as CommentIcon
 } from '@vicons/ionicons5'
 import router from '@/router'
 import { getCommunicationList } from '@/api/post'
 import CreateButton from '@/components/CreateButton.vue'
+import LoadingComponent from '@/components/LoadingComponent.vue'
 
 // 诗歌交流帖子接口
 interface Communication {
@@ -116,10 +114,17 @@ onMounted(() => {
   getCommunicationList().then((response: { data: any }) => {
     const data = response.data
     CommunicationList.value = data
-    //console.log('data:', data)
   })
 })
-  
+
+const isMobile = ref(false)
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth < 768
+})
+
+isMobile.value = window.innerWidth < 768
 
 const goToDetail = (postId: number) => {
   router.push({ 
@@ -137,7 +142,61 @@ const goToNewCommunication = () => {
 // 分页相关
 const currentPage = ref(1)
 const pageSize = 6
+
+const pageCount = computed(() => Math.ceil(CommunicationList.value.length / pageSize))
+
+const paginatedCommunications = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return CommunicationList.value.slice(start, start + pageSize)
+})
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+}
 </script>
 
 <style scoped>
+.min-h-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.max-w-6xl {
+  max-width: 1140px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 767px) {
+  .p-4 {
+    padding: 16px;
+  }
+  .text-4xl {
+    font-size: 18px;
+  }
+  .text-xl {
+    font-size: 16px;
+  }
+  .text-lg {
+    font-size: 14px;
+  }
+  .text-sm {
+    font-size: 12px;
+  }
+  .text-xs {
+    font-size: 10px;
+  }
+}
 </style>

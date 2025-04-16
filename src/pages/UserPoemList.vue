@@ -1,12 +1,14 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center p-24">
+  <div class="min-h-screen flex flex-col items-center p-4">
     <n-card 
-      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl"
-      :content-style="{ padding: '32px' }"
+      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12"
+      :content-style="{ padding: '16px' }"
     >
       <!-- 页面标题和添加按钮 -->
       <div class="flex justify-between items-center mb-8">
-        <BigTitle class="text-4xl font-bold text-gray-800" text="诗歌长廊" />
+        <h1 class="text-4xl font-bold text-gray-800 ">
+          诗歌长廊
+        </h1>
         <CreateButton 
           @click="goToNewPoem"
         >
@@ -19,7 +21,7 @@
       </div>
 
       <!-- 诗歌列表 -->
-      <n-grid v-else :cols="3" :x-gap="24" :y-gap="24">
+      <n-grid v-else :cols="isMobile ? 1 : 3" :x-gap="24" :y-gap="24">
         <n-grid-item 
           v-for="poem in paginatedPoems" 
           :key="poem.poemId"
@@ -73,11 +75,19 @@
 
 
 <script setup lang="ts">
-import { ref, computed, onMounted} from 'vue'
-import { NCard, NGrid, NGridItem, NTag, NPagination, NIcon, NDivider} from 'naive-ui'
-import { 
-  PersonOutline, 
-  CalendarOutline,
+import { ref, computed, onMounted, watch } from 'vue'
+import {
+  NCard,
+  NGrid,
+  NGridItem,
+  NTag,
+  NPagination,
+  NIcon,
+  NDivider
+} from 'naive-ui'
+import {
+  PersonOutline,
+  CalendarOutline
 } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
 import { getAllUserPoems } from '@/api/poemUser'
@@ -99,6 +109,8 @@ interface Poem {
 const router = useRouter()
 
 const poems = ref<Poem[]>([])
+const isMobile = ref(false)
+
 onMounted(() => {
   getAllUserPoems().then((response: { data: any }) => {
     const data = response.data
@@ -117,22 +129,40 @@ const goToNewPoem = () => {
 }
 
 // 分页相关
-const currentPage = ref(1)
+const currentPage = ref(0)
 const pageSize = 6
 
 const pageCount = computed(() => Math.ceil(poems.value.length / pageSize))
 
 const paginatedPoems = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
+  const start = currentPage.value * pageSize
   return poems.value.slice(start, start + pageSize)
 })
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
 }
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth < 768
+})
+
+isMobile.value = window.innerWidth < 768
 </script>
 
 <style scoped>
+.min-h-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.max-w-6xl {
+  max-width: 1140px;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -144,4 +174,26 @@ const handlePageChange = (page: number) => {
 .transition-transform {
   transition: transform 0.3s ease;
 }
+
+@media (max-width: 767px) {
+  .p-4 {
+    padding: 16px;
+  }
+  .text-4xl {
+    font-size: 18px;
+  }
+  .text-xl {
+    font-size: 16px;
+  }
+  .text-lg {
+    font-size: 14px;
+  }
+  .text-sm {
+    font-size: 12px;
+  }
+  .text-xs {
+    font-size: 10px;
+  }
+}
 </style>
+

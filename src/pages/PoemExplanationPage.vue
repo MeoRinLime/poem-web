@@ -1,8 +1,7 @@
-
 <template>
   <div class="min-h-screen flex flex-col items-center p-24">
     <n-card 
-      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl"
+      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12"
       :content-style="{ padding: '32px' }"
     >
       <div class="flex justify-between items-center mb-8">
@@ -17,7 +16,8 @@
       <div v-if="explanationList.length === 0" class="flex items-center justify-center h-64">
         <LoadingComponent />
       </div>
-      <n-grid :cols="3" :x-gap="16" :y-gap="16">
+
+      <n-grid :cols="isMobile ? 1 : 3" :x-gap="16" :y-gap="16">
         <n-grid-item 
           v-for="explanation in explanationList" 
           :key="explanation.postId"
@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watchEffect } from 'vue'
 import { 
   NCard, 
   NGrid, 
@@ -89,11 +89,12 @@ import {
   NIcon
 } from 'naive-ui'
 import { 
-  ChatbubbleEllipsesOutline as CommentIcon,
+  ChatbubbleEllipsesOutline as CommentIcon
 } from '@vicons/ionicons5'
 import router from '@/router'
 import { getPoemExplanationList } from '@/api/post'
 import CreateButton from '@/components/CreateButton.vue'
+import LoadingComponent from '@/components/LoadingComponent.vue'
 
 // 诗歌解释帖子接口
 interface PoemExplanation {
@@ -114,10 +115,17 @@ onMounted(() => {
   getPoemExplanationList().then((response: { data: any }) => {
     const data = response.data
     explanationList.value = data
-    //console.log('data:', data)
   })
 })
-  
+
+const isMobile = ref(false)
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth < 768
+})
+
+isMobile.value = window.innerWidth < 768
 
 const goToDetail = (postId: number) => {
   router.push({ 
@@ -138,4 +146,35 @@ const pageSize = 6
 </script>
 
 <style scoped>
+.min-h-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.max-w-6xl {
+  max-width: 1140px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .p-24 {
+    padding: 16px;
+  }
+  .text-4xl {
+    font-size: 18px;
+  }
+}
 </style>

@@ -1,3 +1,88 @@
+<template>
+  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    <n-card 
+      class="w-full max-w-md shadow-lg rounded-lg"
+      :content-style="{ padding: '16px' }"
+    >
+      <!-- 加载状态 -->
+      <template v-if="isLoading">
+        <n-empty description="加载中..." class="my-6" />
+      </template>
+      
+      <!-- 错误状态 -->
+      <template v-else-if="error">
+        <div class="text-red-500 text-center my-6">{{ error }}</div>
+      </template>
+      
+      <!-- 数据展示 -->
+      <template v-else>
+        <!-- 诗词标题和作者 -->
+        <div class="text-center mb-4">
+          <h1 class="text-2xl font-bold text-gray-800 mb-2" style="font-family: Georgia, serif;">
+            {{ dailyPoem?.title }}
+          </h1>
+          <div class="text-gray-600 text-base" style="font-family: Georgia, serif;">
+            {{ dailyPoem?.dynasty }} · {{ dailyPoem?.author }}
+          </div>
+        </div>
+
+        <!-- 诗词内容 -->
+        <div class="bg-white p-4 rounded-lg shadow-inner mb-4">
+          <pre class="whitespace-pre-wrap text-center text-base text-gray-700" style="font-family: Georgia, serif;">
+            {{ dailyPoem?.content }}
+          </pre>
+        </div>
+
+        <!-- 相关讨论分隔线 -->
+        <n-divider title-placement="left">
+          <span class="text-gray-600">相关讨论</span>
+        </n-divider>
+
+        <!-- 相关讨论列表 -->
+        <div v-if="dailyPoem?.relatedPosts?.length">
+          <div 
+            v-for="post in paginatedPosts" 
+            :key="post.id" 
+            class="mb-4 p-2 border-b last:border-b-0 hover:bg-gray-100 transition-colors"
+          >
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-base font-semibold text-gray-800" style="font-family: Georgia, serif;">{{ post.title }}</h3>
+              <div class="flex space-x-2">
+                <n-tag type="info" size="small">
+                  {{ post.commentCount }} 评论
+                </n-tag>
+                <n-tag type="success" size="small">
+                  {{ post.likeCount }} 点赞
+                </n-tag>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-2" style="font-family: Georgia, serif;">{{ post.excerpt }}</p>
+            <div class="text-right text-gray-500 text-sm" style="font-family: Georgia, serif;">
+              作者：{{ post.author }}
+            </div>
+          </div>
+
+          <!-- 分页组件 -->
+          <div class="mt-4 flex justify-center">
+            <n-pagination 
+              v-model:page="currentPostPage"
+              :page-count="pageCount"
+              :show-size-picker="false"
+            />
+          </div>
+        </div>
+
+        <!-- 无相关讨论时的空状态 -->
+        <n-empty 
+          v-else 
+          description="暂无相关讨论" 
+          class="my-6" 
+        />
+      </template>
+    </n-card>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { 
@@ -107,99 +192,14 @@ onMounted(() => {
 })
 </script>
 
-<template>
-  <div class="min-h-screen flex flex-col items-center p-24">
-    <n-card 
-      class="w-full max-w-3xl shadow-lg rounded-lg"
-      :content-style="{ padding: '24px' }"
-    >
-      <!-- 加载状态 -->
-      <template v-if="isLoading">
-        <n-empty description="加载中..." class="my-6" />
-      </template>
-      
-      <!-- 错误状态 -->
-      <template v-else-if="error">
-        <div class="text-red-500 text-center my-6">{{ error }}</div>
-      </template>
-      
-      <!-- 数据展示 -->
-      <template v-else>
-        <!-- 诗词标题和作者 -->
-        <div class="text-center mb-6">
-          <h1 class="text-3xl font-bold text-gray-800 mb-2">
-            {{ dailyPoem?.title }}
-          </h1>
-          <div class="text-gray-600 text-xl">
-            {{ dailyPoem?.dynasty }} · {{ dailyPoem?.author }}
-          </div>
-        </div>
-
-        <!-- 诗词内容 -->
-        <div class="bg-white p-6 rounded-lg shadow-inner mb-6">
-          <pre class="whitespace-pre-wrap text-center text-xl text-gray-700 font-ma-shan-zheng">
-            {{ dailyPoem?.content }}
-          </pre>
-        </div>
-
-        <!-- 相关讨论分隔线 -->
-        <n-divider title-placement="left">
-          <span class="text-gray-600">相关讨论</span>
-        </n-divider>
-
-        <!-- 相关讨论列表 -->
-        <div v-if="dailyPoem?.relatedPosts?.length">
-          <div 
-            v-for="post in paginatedPosts" 
-            :key="post.id" 
-            class="mb-4 p-4 border-b last:border-b-0 hover:bg-gray-100 transition-colors"
-          >
-            <div class="flex justify-between items-center mb-2">
-              <h3 class="text-lg font-semibold text-gray-800">{{ post.title }}</h3>
-              <div class="flex space-x-2">
-                <n-tag type="info" size="small">
-                  {{ post.commentCount }} 评论
-                </n-tag>
-                <n-tag type="success" size="small">
-                  {{ post.likeCount }} 点赞
-                </n-tag>
-              </div>
-            </div>
-            <p class="text-gray-600 mb-2">{{ post.excerpt }}</p>
-            <div class="text-right text-gray-500 text-sm">
-              作者：{{ post.author }}
-            </div>
-          </div>
-
-          <!-- 分页组件 -->
-          <div class="mt-4 flex justify-center">
-            <n-pagination 
-              v-model:page="currentPostPage"
-              :page-count="pageCount"
-              :show-size-picker="false"
-            />
-          </div>
-        </div>
-
-        <!-- 无相关讨论时的空状态 -->
-        <n-empty 
-          v-else 
-          description="暂无相关讨论" 
-          class="my-6" 
-        />
-      </template>
-    </n-card>
-  </div>
-</template>
-
 <style scoped>
 /* 使用 CSS 变量定义字体 */
 :root {
-  --poem-font: 'Ma Shan Zheng', cursive;
+  --poem-font: 'Georgia', serif;
 }
 
 pre {
   font-family: var(--poem-font);
-  line-height: 1.8;
+  line-height: 1.6;
 }
 </style>

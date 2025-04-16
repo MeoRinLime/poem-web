@@ -1,4 +1,3 @@
-<!-- eslint-disable id-length -->
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { 
@@ -14,8 +13,6 @@ import {
 } from 'naive-ui'
 import { 
   PencilOutline, 
-  PersonOutline, 
-  BookmarkOutline, 
   TextOutline, 
   PricetagOutline,
   AddOutline,
@@ -72,8 +69,6 @@ const removeTag = (tagToRemove: { name: string, color: string }) => {
 const submitExplanation = () => {
   // 验证表单
   const validations = [
-    { field: 'poemTitle', message: '请输入诗歌标题' },
-    { field: 'poemAuthor', message: '请输入诗人' },
     { field: 'title', message: '请输入标题' },
     { field: 'content', message: '请输入内容' }
   ]
@@ -93,7 +88,7 @@ const submitExplanation = () => {
     username: username,
     poemTitle: formData.value.poemTitle,
     poemAuthor: formData.value.poemAuthor,
-    type: 1
+    type: 0
   }
   createPost(
     newPost.title,
@@ -108,54 +103,33 @@ const submitExplanation = () => {
   message.success('发布成功！')
   
   // 返回列表页
-  router.push({ name: 'PoemExplanationList' })
+  router.push({ name: 'Communication' })
 }
 
 const cancelCreation = () => {
-  router.push({ name: 'PoemExplanationList' })
+  router.push({ name: 'Communication' })
 }
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-24">
+  <div class="min-h-screen flex items-center justify-center p-4">
     <n-card 
       class="w-full max-w-2xl shadow-2xl rounded-2xl"
-      :content-style="{ padding: '32px' }"
+      :content-style="{ padding: '16px' }"
     >
       <div class="flex items-center justify-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mr-4">
-          撰写新诗词解析
+        <h1 class="text-2xl font-bold text-gray-800 mr-4">
+          今天也聊点什么吧
         </h1>
-        <n-icon :component="PencilOutline" size="28" class="text-gray-600" />
+        <n-icon :component="PencilOutline" size="24" class="text-gray-600" />
       </div>
 
       <n-form>
-        <n-form-item label="诗歌标题">
-          <n-input 
-            v-model:value="formData.poemTitle"
-            placeholder="请输入诗歌标题"
-          >
-            <template #prefix>
-              <n-icon :component="BookmarkOutline" />
-            </template>
-          </n-input>
-        </n-form-item>
-
-        <n-form-item label="诗人">
-          <n-input 
-            v-model:value="formData.poemAuthor"
-            placeholder="请输入诗人名字"
-          >
-            <template #prefix>
-              <n-icon :component="PersonOutline" />
-            </template>
-          </n-input>
-        </n-form-item>
 
         <n-form-item label="标题">
           <n-input 
             v-model:value="formData.title"
-            placeholder="给你的解析起一个吸引人的标题"
+            placeholder="随便起一个标题"
           >
             <template #prefix>
               <n-icon :component="TextOutline" />
@@ -167,8 +141,8 @@ const cancelCreation = () => {
           <n-input 
             v-model:value="formData.content"
             type="textarea"
-            placeholder="你对这首诗的理解..."
-            :autosize="{ minRows: 4, maxRows: 10 }"
+            placeholder="随便说一些什么"
+            :autosize="{ minRows: 2, maxRows: 6 }"
           />
         </n-form-item>
 
@@ -177,7 +151,7 @@ const cancelCreation = () => {
             <div class="flex mb-2">
               <n-input 
                 v-model:value="tagInput"
-                placeholder="输入标签"
+                placeholder="也许你会需要一些标签"
                 class="mr-2"
                 @keyup.enter="addTag"
               >
@@ -187,8 +161,8 @@ const cancelCreation = () => {
               </n-input>
               <n-button 
                 type="primary" 
-                @click="addTag"
                 class="flex items-center"
+                @click="addTag"
               >
                 <n-icon :component="AddOutline" class="mr-1" />
                 添加
@@ -208,10 +182,10 @@ const cancelCreation = () => {
           </div>
         </n-form-item>
 
-        <div class="flex justify-end space-x-4 mt-6">
+        <div class="flex justify-end space-x-2 mt-4">
           <n-button 
-            @click="cancelCreation"
             class="mr-2"
+            @click="cancelCreation"
           >
             <template #icon>
               <n-icon :component="CloseOutline" />
@@ -235,4 +209,23 @@ const cancelCreation = () => {
 :deep(.n-input__state-border) {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
+
+@media (max-width: 768px) {
+  .text-2xl {
+    font-size: 18px;
+  }
+  .text-xl {
+    font-size: 16px;
+  }
+  .text-lg {
+    font-size: 14px;
+  }
+  .text-sm {
+    font-size: 12px;
+  }
+  .text-xs {
+    font-size: 10px;
+  }
+}
 </style>
+
