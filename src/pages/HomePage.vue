@@ -1,56 +1,3 @@
-<script lang="ts">
-import { ref, onMounted, defineComponent } from 'vue';
-import Typed from 'typed.js';
-import router from '@/router';
-import { getPoemRecommend } from '@/api/hitopoem';
-
-export default defineComponent({
-  name: 'HomePage',
-  setup() {
-    const backgroundImageUrl = ref('');
-    const backgroundOpacity = ref(0);
-
-    onMounted(async () => {
-      try {
-        setTimeout(() => {
-          backgroundOpacity.value = 1;
-        }, 100);
-
-        const responseHitokoto = await getPoemRecommend();
-        console.log('responseHitokoto:', responseHitokoto);
-        new Typed('#hitokoto', {
-          strings: [responseHitokoto.data.content],
-          typeSpeed: 50,
-          showCursor: false,
-        });
-        new Typed('#hitokoto-From', {
-          strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
-          typeSpeed: 50,
-          showCursor: false,
-          startDelay: 1000,
-        });
-      } catch (error) {
-        console.error('Failed to fetch hitokoto:', error);
-      }
-    });
-
-    const handleCreatePoem = () => {
-      router.push('/write-poem');
-    };
-
-    const handleDailyPoem = () => {
-      router.push('/daily-poem');
-    };
-
-    return {
-      backgroundImageUrl,
-      backgroundOpacity,
-      handleCreatePoem,
-      handleDailyPoem,
-    };
-  }
-});
-</script>
 
 <template>
   <div class="fixed inset-0 overflow-hidden">
@@ -67,7 +14,7 @@ export default defineComponent({
     <img 
       src="/img/book.gif" 
       alt="Animated GIF" 
-      class="absolute top-1/2 left-0 transform  -translate-y-1/2 translate-x-80 translate-y-3"
+      class="fixed bottom-0 left-0 ml-4 mb-4"
     >
 
     
@@ -80,13 +27,12 @@ export default defineComponent({
       <h2 class="text-2xl mt-4 text-amber-700 opacity-80 font-serif">Welcome to 诗歌世界</h2>
 
       <!-- 随机一诗 -->
-      <div class="text-center mt-20 p-6 border-2 border-amber-200 rounded-lg bg-amber-50 bg-opacity-70 shadow-md max-w-md mx-auto font-mono translate-x-[50%]">
-        <span id="hitokoto" class="text-xl text-amber-900" style="font-family: 'Courier New', Courier, monospace"></span>
-        <div id="hitokoto-From" class="text-sm text-amber-800 mt-2 italic" style="font-family: 'Courier New', Courier, monospace"></div>
+      <div class="items-center fixed bottom-0 right-0 mr-4 mb-4">
+        <DailyPoem :quoteData="quoteData"/>
       </div>
 
       <!-- 按钮区域 -->
-      <div class="flex space-x-10 mt-16 translate-x-[50%]"> 
+      <div class="flex space-x-10 mt-16"> 
         <button 
           @click="handleCreatePoem" 
           class="px-8 py-3 text-lg bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg hover:opacity-90 transition-opacity font-serif shadow-md" 
@@ -103,6 +49,46 @@ export default defineComponent({
     </div>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { ref, reactive, onMounted } from 'vue';
+import router from '@/router';
+import { getPoemRecommend } from '@/api/hitopoem';
+import DailyPoem from '@/components/DailyPoem.vue';
+
+const backgroundImageUrl = ref('');
+const backgroundOpacity = ref(0);
+
+const quoteData = reactive({
+  authorName: '',
+  content: '',
+  dynasty: '',
+});
+
+onMounted(async () => {
+  try {
+    setTimeout(() => {
+      backgroundOpacity.value = 1;
+    }, 100);
+
+    const responseHitokoto = await getPoemRecommend();
+    console.log('responseHitokoto:', responseHitokoto);
+    quoteData.authorName = responseHitokoto.data.authorName;
+    quoteData.content = responseHitokoto.data.content;
+    quoteData.dynasty = responseHitokoto.data.dynasty;
+  } catch (error) {
+    console.error('Failed to fetch hitokoto:', error);
+  }
+});
+
+const handleCreatePoem = () => {
+  router.push('/write-poem');
+};
+
+const handleDailyPoem = () => {
+  router.push('/daily-poem');
+};
+</script>
 
 <style scoped>
 /* 其他样式... */
