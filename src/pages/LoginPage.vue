@@ -198,7 +198,8 @@ const handleLogin = async () => {
     const bio = data.user.bio;
     const createTime = data.user.createTime;
     const email = data.user.email;
-    useAuthStore().login(token, username, bio, createTime, email);
+    const rememberMe = document.getElementById('remember-me') as HTMLInputElement;
+    useAuthStore().login(token, username, bio, createTime, email, rememberMe.checked);
     message.success(
           '登录成功！欢迎回到诗词的世界！'
         );

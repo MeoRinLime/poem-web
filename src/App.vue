@@ -25,3 +25,33 @@
     </div>
   </n-message-provider>
 </template>
+
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useAuthStore } from './store/auth';
+import MeteorsStars from './components/MeteorsStars.vue';
+
+const route = useRoute();
+
+useHead({
+  title: () => route.meta.title || 'Meorin',
+  meta: [
+    {
+      property: 'og:title',
+      content: () => route.meta.title,
+    },
+    {
+      name: 'twitter:title',
+      content: () => route.meta.title,
+    },
+  ],
+});
+
+const isFullScreenPage = computed(() => route.meta.isFullscreen);
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.initialize();
+});
+</script>

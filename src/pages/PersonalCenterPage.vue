@@ -72,10 +72,10 @@ const userData = ref({
   registrationDate: userStore.createTime,
 })
 
-const posts = ref<Post[]>([])
-const comments = ref<Comment[]>([])
-const poetry = ref<Poetry[]>([])
-const favorites = ref<Post[]>([])
+const posts = ref<Post[]>([]);
+const comments = ref<Comment[]>([]);
+const poetry = ref<Poetry[]>([]);
+const favorites = ref<Post[]>([]);
 
 onMounted(() => {
   getUserPosts(userStore.username || '').then((response: { data: any }) => {

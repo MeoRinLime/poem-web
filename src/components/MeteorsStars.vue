@@ -1,5 +1,4 @@
 <!-- eslint-disable id-length -->
-<!-- eslint-disable id-length -->
 <template>
     <!-- 流星效果 -->
     <div class="line-box">

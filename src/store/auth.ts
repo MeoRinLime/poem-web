@@ -19,19 +19,31 @@ export const useAuthStore = defineStore('auth', {
     email : null, // 用户邮箱
   }),
   actions: {
-    login(token: string, username: string, bio: string, createTime: string, email: string) {
+    login(token: string, username: string, bio: string, createTime: string, email: string, rememberMe: boolean) {
       this.isLoggedIn = true;  // 登录时设置为已登录
       this.token = token;  // 保存 token
       this.username = username;  // 设置用户名
       this.bio = bio;  // 设置用户简介
       this.createTime = createTime;  // 设置用户创建时间
       this.email = email; // 设置用户邮箱
-      localStorage.setItem('isLoggedIn', 'true');  // 将登录状态存储到 localStorage
-      localStorage.setItem('token', token);  // 保存 token 到 localStorage
-      localStorage.setItem('username', username);  // 保存用户名到 localStorage
-      localStorage.setItem('bio', bio);  // 保存用户简介到 localStorage
-      localStorage.setItem('createTime', this.createTime);  // 保存用户创建时间到 localStorage
-      localStorage.setItem('email', email);  // 保存用户邮箱到 localStorage
+
+      if (rememberMe) {
+        console.log("rememberMe is true, saving to localStorage");
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('token', token);
+        localStorage.setItem('username', username);
+        localStorage.setItem('bio', bio);
+        localStorage.setItem('createTime', this.createTime);
+        localStorage.setItem('email', email);
+      } else {
+        console.log("rememberMe is false, saving to sessionStorage");
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('bio', bio);
+        sessionStorage.setItem('createTime', this.createTime);
+        sessionStorage.setItem('email', email);
+      }
     },
     logout() {
       this.isLoggedIn = false;  // 退出时设置为未登录
@@ -40,23 +52,33 @@ export const useAuthStore = defineStore('auth', {
       this.bio = null;  // 清除用户简介
       this.createTime = null;  // 清除用户创建时间
       this.email = null; // 清除用户邮箱
-      localStorage.removeItem('isLoggedIn');  // 清除登录状态
-      localStorage.removeItem('token');  // 清除 token
-      localStorage.removeItem('username');  // 清除用户名
-      localStorage.removeItem('bio');  // 清除用户简介
-      localStorage.removeItem('createTime');  // 清除用户创建时间
-      localStorage.removeItem('email');  // 清除用户邮箱
+
+      // 清除 localStorage 中的登陆状态和登录信息
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('bio');
+      localStorage.removeItem('createTime');
+      localStorage.removeItem('email');
+
+      // 清除 sessionStorage 中的登陆状态和登录信息
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('username');
+      sessionStorage.removeItem('bio');
+      sessionStorage.removeItem('createTime');
+      sessionStorage.removeItem('email');
     },
     setLoginStatus(status: boolean) {
       this.isLoggedIn = status;  // 设置登录状态
     },
     initialize() {
-      const status = localStorage.getItem('isLoggedIn');
-      const token = localStorage.getItem('token');
-      const username = localStorage.getItem('username');
-      const bio = localStorage.getItem('bio');
-      const createTime = localStorage.getItem('createTime');
-      const email = localStorage.getItem('email');
+      const status = localStorage.getItem('isLoggedIn') || sessionStorage.getItem('isLoggedIn');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const username = localStorage.getItem('username') || sessionStorage.getItem('username');
+      const bio = localStorage.getItem('bio') || sessionStorage.getItem('bio');
+      const createTime = localStorage.getItem('createTime') || sessionStorage.getItem('createTime');
+      const email = localStorage.getItem('email') || sessionStorage.getItem('email');
       if (status === 'true' && token && username && bio !== null) {
         this.setLoginStatus(true);
         this.token = token;

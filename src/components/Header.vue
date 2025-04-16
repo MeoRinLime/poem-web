@@ -347,10 +347,7 @@ const handleClickOutside = (event) => {
 }
 
 // Lifecycle hooks
-onMounted(() => {
-  // Initialize auth store
-  authStore.initialize()
-  
+onMounted(() => {  
   // Add event listeners
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('scroll', handleScroll)
