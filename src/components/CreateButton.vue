@@ -1,5 +1,5 @@
 <template>
-    <button @click="handleClick" :disabled="disabled">
+    <button :disabled="disabled" @click="handleClick">
       <slot></slot>
       <div class="star-1">
         <svg

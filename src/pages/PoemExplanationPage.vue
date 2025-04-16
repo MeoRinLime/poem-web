@@ -6,9 +6,7 @@
       :content-style="{ padding: '32px' }"
     >
       <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800">
-          诗词解析集
-        </h1>
+        <BigTitle class="text-4xl font-bold text-gray-800" text="诗歌解析" />
         <CreateButton 
           @click="goToNewExplanation"
         >

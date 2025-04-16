@@ -7,7 +7,6 @@ import CommunicationPage from '@/pages/CommunicationPage.vue';
 import DailyPoemPage from '@/pages/DailyPoemPage.vue';
 import PersonalCenterPage from '@/pages/PersonalCenterPage.vue';
 import WritePoemPage from '@/pages/WritePoemPage.vue';
-import ReadAloudPage from '@/pages/ReadAloudPage.vue';
 import PoemExplanationPage from '@/pages/PoemExplanationPage.vue';
 import LoginPage from '@/pages/LoginPage.vue';
 import PoemExplanationDetailPage from '@/pages/PoemExplanationDetailPage.vue';
@@ -18,6 +17,7 @@ import UserPoemDetail from '@/pages/UserPoemDetail.vue';
 import SearchResultsPage from '@/pages/SearchResultsPage.vue';
 import CommunicationDetailPage from '@/pages/CommunicationDetailPage.vue';
 import CreateCommunication from '@/pages/CreateCommunication.vue';
+import RecitationList from '@/pages/RecitationList.vue';
 
 const routes = [
   {
@@ -52,8 +52,8 @@ const routes = [
     },
   },
   {
-    path: '/read-aloud',
-    component: ReadAloudPage,
+    path: '/recitation',
+    component: RecitationList,
     meta: {
       title: '诗歌朗诵',
     },

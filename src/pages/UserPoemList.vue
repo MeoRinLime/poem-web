@@ -6,9 +6,7 @@
     >
       <!-- 页面标题和添加按钮 -->
       <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800">
-          诗歌长廊
-        </h1>
+        <BigTitle class="text-4xl font-bold text-gray-800" text="诗歌长廊" />
         <CreateButton 
           @click="goToNewPoem"
         >
