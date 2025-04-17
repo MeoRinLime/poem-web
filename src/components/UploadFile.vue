@@ -10,6 +10,12 @@
     </label>
 </template>
   
+<script lang="ts" setup>
+import { uploadRecitation } from '@/api/recitation/uploadRecitation'
+
+
+</script>
+
 <style scoped>
   .custum-file-upload {
     height: 200px;
