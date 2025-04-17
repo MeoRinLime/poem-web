@@ -12,6 +12,22 @@ export const getAllUserPoems = async () => {
     }
 };
 
+// 分页获取用户的诗歌
+export const getPagedUserPoems = async (current : number, size : number = 10) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/poemUser/paged`, {
+            params: {
+                current,
+                size,
+            },
+        });
+        return response;
+    }
+    catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取失败');
+    }
+};
+
 // 获取用户的诗歌
 export const getUserPoem = async (poemId: number) => {
     try {

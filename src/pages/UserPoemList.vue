@@ -6,9 +6,7 @@
     >
       <!-- 页面标题和添加按钮 -->
       <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 ">
-          诗歌长廊
-        </h1>
+        <BigTitle text="诗歌长廊" />
         <CreateButton 
           @click="goToNewPoem"
         >
@@ -16,14 +14,14 @@
         </CreateButton>
       </div>
 
-      <div v-if="poems.length === 0" class="flex items-center justify-center h-64">
+      <div v-if="loading" class="flex items-center justify-center h-64">
         <LoadingComponent />
       </div>
 
       <!-- 诗歌列表 -->
-      <n-grid v-else :cols="isMobile ? 1 : 3" :x-gap="24" :y-gap="24">
+      <n-grid v-else-if="poems.length > 0" :cols="isMobile ? 1 : 3" :x-gap="24" :y-gap="24">
         <n-grid-item 
-          v-for="poem in paginatedPoems" 
+          v-for="poem in poems" 
           :key="poem.poemId"
           class="cursor-pointer hover:scale-105 transition-transform"
           @click="goToDetail(poem.poemId)"
@@ -60,8 +58,12 @@
         </n-grid-item>
       </n-grid>
 
+      <div v-else class="text-center py-12 text-gray-500">
+        暂无诗歌数据
+      </div>
+
       <!-- 分页组件 -->
-      <div class="mt-8 flex justify-center">
+      <div v-if="pageCount > 1" class="mt-8 flex justify-center">
         <n-pagination 
           v-model:page="currentPage"
           :page-count="pageCount"
@@ -72,7 +74,6 @@
     </n-card>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
@@ -90,7 +91,7 @@ import {
   CalendarOutline
 } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
-import { getAllUserPoems } from '@/api/poemUser'
+import { getPagedUserPoems } from '@/api/poemUser'
 import CreateButton from '@/components/CreateButton.vue'
 import LoadingComponent from '@/components/LoadingComponent.vue'
 
@@ -106,17 +107,44 @@ interface Poem {
   likeCount: number
 }
 
+interface PaginationResult {
+  items: Poem[]
+  total: number
+}
+
 const router = useRouter()
 
 const poems = ref<Poem[]>([])
 const isMobile = ref(false)
+const total = ref(0)
+const loading = ref(false)
 
-onMounted(() => {
-  getAllUserPoems().then((response: { data: any }) => {
-    const data = response.data
-    poems.value = data
-  })
-})
+// 分页相关
+const currentPage = ref(1)
+const pageSize = 6
+
+// 计算总页数
+const pageCount = computed(() => Math.ceil(total.value / pageSize))
+
+const fetchPoems = async (page: number) => {
+  loading.value = true
+  try {
+    const response = await getPagedUserPoems(page, pageSize)
+    const data = response.data as PaginationResult
+    poems.value = data.content
+    //console.log('获取诗歌列表:', poems.value)
+    total.value = data.totalElements
+  } catch (error) {
+    console.error('获取诗歌列表失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  fetchPoems(page)
+}
 
 // 跳转到详情页
 const goToDetail = (poemId: number) => {
@@ -128,27 +156,17 @@ const goToNewPoem = () => {
   router.push({ name: 'WritePoem' })
 }
 
-// 分页相关
-const currentPage = ref(0)
-const pageSize = 6
-
-const pageCount = computed(() => Math.ceil(poems.value.length / pageSize))
-
-const paginatedPoems = computed(() => {
-  const start = currentPage.value * pageSize
-  return poems.value.slice(start, start + pageSize)
-})
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page
-}
-
 // 监听窗口大小变化
 window.addEventListener('resize', () => {
   isMobile.value = window.innerWidth < 768
 })
 
 isMobile.value = window.innerWidth < 768
+
+onMounted(() => {
+  fetchPoems(1)
+})
+
 </script>
 
 <style scoped>

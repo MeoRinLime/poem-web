@@ -6,7 +6,7 @@
     >
       <!-- 页面标题和添加按钮 -->
       <div class="flex justify-between items-center mb-8">
-        <BigTitle class="text-4xl font-bold text-gray-800" text="诗歌交流集" />
+        <BigTitle text="诗歌交流集" />
         <CreateButton 
           @click="goToNewCommunication"
         >

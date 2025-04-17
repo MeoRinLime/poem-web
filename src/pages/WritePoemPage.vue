@@ -1,140 +1,3 @@
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { 
-  NForm, 
-  NFormItem, 
-  NInput, 
-  NButton, 
-  NCard, 
-  NSpace,
-  NGrid,
-  NGridItem,
-  useMessage,
-  type FormRules
-} from 'naive-ui'
-import { 
-  BookOutline as BookIcon, 
-  SaveOutline as SaveIcon,
-} from '@vicons/ionicons5'
-import { useAuthStore } from '@/store/auth';
-import { writePoem } from '@/api/writePoem'
-
-// 诗词数据接口
-interface Poem {
-  title: string
-  subtitle?: string
-  content: string
-  author: string
-}
-
-// 用户信息, 从Store中获取
-const username = useAuthStore().username || 'Unknown Author'
-
-// 诗词表单状态
-const poemForm = ref({
-  title: '',
-  subtitle: '',
-  content: ''
-})
-
-// 消息通知处理
-const message = useMessage()
-
-// 表单验证规则
-const rules: FormRules = {
-  title: [
-    {
-      required: true,
-      message: '请输入诗词标题',
-      trigger: ['input', 'blur']
-    },
-    {
-      max: 50,
-      message: '标题不能超过50个字',
-      trigger: ['input', 'blur']
-    }
-  ],
-  subtitle: [
-    {
-      max: 30,
-      message: '副标题不能超过30个字',
-      trigger: ['input', 'blur']
-    }
-  ],
-  content: [
-    {
-      required: true,
-      message: '请输入诗词内容',
-      trigger: ['input', 'blur']
-    },
-    {
-      min: 10,
-      message: '诗词内容至少需要10个字',
-      trigger: ['input', 'blur']
-    }
-  ]
-}
-
-// 表单引用
-import type { FormInst } from 'naive-ui'
-
-const formRef = ref<FormInst | null>(null)
-
-// 提交诗词处理
-const submitPoem = async () => {
-  await formRef.value?.validate(async (errors: any) => {
-    if (errors) {
-      message.error('请检查表单内容')
-      return
-    }
-
-    // 创建诗词对象
-    const newPoem: Poem = {
-      title: poemForm.value.title,
-      subtitle: poemForm.value.subtitle || undefined,
-      content: poemForm.value.content,
-      author: username
-    }
-
-    try {
-      await writePoem(
-        newPoem.title, 
-        newPoem.author,
-        newPoem.content, 
-        newPoem.subtitle,
-      )
-    } catch (error) {
-      message.error('诗词创作失败，请稍后再试')
-      return
-    }
-
-    message.success('诗词创作成功！')
-
-    // 重置表单
-    poemForm.value.title = ''
-    poemForm.value.subtitle = ''
-    poemForm.value.content = ''
-  })
-}
-
-// 计算内容剩余字符
-const contentRemainingChars = computed(() => {
-  return 1000 - (poemForm.value.content?.length || 0)
-})
-
-// 响应式布局控制
-const isMobile = ref(false)
-
-onMounted(() => {
-  checkScreenSize()
-  window.addEventListener('resize', checkScreenSize)
-})
-
-const checkScreenSize = () => {
-  isMobile.value = window.innerWidth < 768
-}
-</script>
-
 <template>
   <div class="min-h-screen flex items-center justify-center p-4 md:p-8">
     <div class="w-full max-w-4xl mx-auto shadow-2xl rounded-2xl overflow-hidden">
@@ -218,28 +81,8 @@ const checkScreenSize = () => {
               </n-form-item>
 
               <n-space justify="center" class="mt-4 md:mt-6">
-                <n-button 
-                  type="primary" 
-                  @click="submitPoem"
-                  secondary 
-                  strong
-                  size="medium"
-                >
-                  <template #icon>
-                    <n-icon :component="SaveIcon" />
-                  </template>
-                  保存诗词
-                </n-button>
-                <n-button 
-                  type="default"
-                  @click="$router.push('/daily-poem')"
-                  size="medium"
-                >
-                  <template #icon>
-                    <n-icon :component="BookIcon" />
-                  </template>
-                  返回每日一诗
-                </n-button>
+                <SendButton @click="submitPoem"></SendButton>
+                <BackButton @click="$router.push('/')"></BackButton>
               </n-space>
             </div>
           </n-form>
@@ -248,6 +91,139 @@ const checkScreenSize = () => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { 
+  NForm, 
+  NFormItem, 
+  NInput, 
+  NCard, 
+  NSpace,
+  NGrid,
+  NGridItem,
+  useMessage,
+  type FormRules
+} from 'naive-ui'
+import { useAuthStore } from '@/store/auth';
+import { writePoem } from '@/api/writePoem'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+// 诗词数据接口
+interface Poem {
+  title: string
+  subtitle?: string
+  content: string
+  author: string
+}
+
+// 用户信息, 从Store中获取
+const username = useAuthStore().username || 'Unknown Author'
+
+// 诗词表单状态
+const poemForm = ref({
+  title: '',
+  subtitle: '',
+  content: ''
+})
+
+// 消息通知处理
+const message = useMessage()
+
+// 表单验证规则
+const rules: FormRules = {
+  title: [
+    {
+      required: true,
+      message: '请输入诗词标题',
+      trigger: ['input', 'blur']
+    },
+    {
+      max: 50,
+      message: '标题不能超过50个字',
+      trigger: ['input', 'blur']
+    }
+  ],
+  subtitle: [
+    {
+      max: 30,
+      message: '副标题不能超过30个字',
+      trigger: ['input', 'blur']
+    }
+  ],
+  content: [
+    {
+      required: true,
+      message: '请输入诗词内容',
+      trigger: ['input', 'blur']
+    },
+    {
+      min: 10,
+      message: '诗词内容至少需要10个字',
+      trigger: ['input', 'blur']
+    }
+  ]
+}
+
+// 表单引用
+import type { FormInst } from 'naive-ui'
+
+const formRef = ref<FormInst | null>(null)
+
+// 提交诗词处理
+const submitPoem = async () => {
+  await formRef.value?.validate(async (errors: any) => {
+    if (errors) {
+      message.error('请检查表单内容')
+      return
+    }
+
+    // 创建诗词对象
+    const newPoem: Poem = {
+      title: poemForm.value.title,
+      subtitle: poemForm.value.subtitle || undefined,
+      content: poemForm.value.content,
+      author: username
+    }
+
+    try {
+      await writePoem(
+        newPoem.title, 
+        newPoem.author,
+        newPoem.subtitle,
+        newPoem.content, 
+      )
+    } catch (error) {
+      message.error('诗词创作失败，请稍后再试')
+      return
+    }
+    message.success('诗词创作成功！')
+    router.push('/user-poem-list')
+    // 重置表单
+    poemForm.value.title = ''
+    poemForm.value.subtitle = ''
+    poemForm.value.content = ''
+  })
+}
+
+// 计算内容剩余字符
+const contentRemainingChars = computed(() => {
+  return 1000 - (poemForm.value.content?.length || 0)
+})
+
+// 响应式布局控制
+const isMobile = ref(false)
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+</script>
 
 <style scoped>
 .poem-input, .poem-textarea {

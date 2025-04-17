@@ -1,71 +1,3 @@
-<script lang="ts">
-import { ref, onMounted, onUnmounted, defineComponent } from 'vue';
-import Typed from 'typed.js';
-import router from '@/router';
-import { getPoemRecommend } from '@/api/hitopoem';
-
-export default defineComponent({
-  name: 'HomePage',
-  setup() {
-    const backgroundImageUrl = ref('');
-    const backgroundOpacity = ref(0);
-
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        backgroundImageUrl.value = '/img/mobile-bg.jpg';
-      } else {
-        backgroundImageUrl.value = '/img/desktop-bg.jpg';
-      }
-    };
-
-    onMounted(async () => {
-      try {
-        handleResize();
-        window.addEventListener('resize', handleResize);
-
-        setTimeout(() => {
-          backgroundOpacity.value = 1;
-        }, 100);
-
-        const responseHitokoto = await getPoemRecommend();
-        new Typed('#hitokoto', {
-          strings: [responseHitokoto.data.content],
-          typeSpeed: 50,
-          showCursor: false,
-        });
-        new Typed('#hitokoto-From', {
-          strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
-          typeSpeed: 50,
-          showCursor: false,
-          startDelay: 1000,
-        });
-      } catch (error) {
-        console.error('Failed to fetch hitokoto:', error);
-      }
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener('resize', handleResize);
-    });
-
-    const handleCreatePoem = () => {
-      router.push('/write-poem');
-    };
-
-    const handleDailyPoem = () => {
-      router.push('/daily-poem');
-    };
-
-    return {
-      backgroundImageUrl,
-      backgroundOpacity,
-      handleCreatePoem,
-      handleDailyPoem,
-    };
-  }
-});
-</script>
-
 <template>
   <div class="fixed inset-0 overflow-auto">
     <!-- 背景图片 -->
@@ -140,6 +72,74 @@ export default defineComponent({
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { ref, onMounted, onUnmounted, defineComponent } from 'vue';
+import Typed from 'typed.js';
+import router from '@/router';
+import { getPoemRecommend } from '@/api/hitopoem';
+
+export default defineComponent({
+  name: 'HomePage',
+  setup() {
+    const backgroundImageUrl = ref('');
+    const backgroundOpacity = ref(0);
+
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        backgroundImageUrl.value = '/img/mobile-bg.jpg';
+      } else {
+        backgroundImageUrl.value = '/img/desktop-bg.jpg';
+      }
+    };
+
+    onMounted(async () => {
+      try {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        setTimeout(() => {
+          backgroundOpacity.value = 1;
+        }, 100);
+
+        const responseHitokoto = await getPoemRecommend();
+        new Typed('#hitokoto', {
+          strings: [responseHitokoto.data.content],
+          typeSpeed: 50,
+          showCursor: false,
+        });
+        new Typed('#hitokoto-From', {
+          strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
+          typeSpeed: 50,
+          showCursor: false,
+          startDelay: 1000,
+        });
+      } catch (error) {
+        console.error('Failed to fetch hitokoto:', error);
+      }
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize);
+    });
+
+    const handleCreatePoem = () => {
+      router.push('/write-poem');
+    };
+
+    const handleDailyPoem = () => {
+      router.push('/daily-poem');
+    };
+
+    return {
+      backgroundImageUrl,
+      backgroundOpacity,
+      handleCreatePoem,
+      handleDailyPoem,
+    };
+  }
+});
+</script>
 
 <style scoped>
 /* 基础字体大小 */

@@ -5,7 +5,7 @@
       :content-style="{ padding: '32px' }"
     >
       <div class="flex justify-between items-center mb-8">
-        <BigTitle class="text-4xl font-bold text-gray-800" text="诗歌解析" />
+        <BigTitle text="诗歌解析" />
         <CreateButton 
           @click="goToNewExplanation"
         >
