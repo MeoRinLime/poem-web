@@ -209,11 +209,13 @@ const handleLogin = async () => {
     const bio = data.user.bio;
     const createTime = data.user.createTime;
     const email = data.user.email;
-    useAuthStore().login(token, username, bio, createTime, email);
+    const userId = data.user.id;
+    const rememberMe = document.getElementById('remember-me') as HTMLInputElement;
+    useAuthStore().login(token, username, bio, createTime, email,rememberMe.checked, userId);
     message.success(
           '登录成功！欢迎回到诗词的世界！'
         );
-    console.log('登录成功', data);
+    //console.log('登录成功', data);
   } catch (error: any) {
     message.error(
           '登录失败，请检查用户名和密码是否正确！'

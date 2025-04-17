@@ -56,3 +56,53 @@ export const getUserFavorites = async (userName: string) => {
         throw new Error(error.response?.data?.message || '获取收藏列表失败');
     }
 };
+
+// 新用户信息
+export const updateUserInfo = async (id: string, bio: string, email: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/api/webUsers/info`, {
+        id,
+        bio,
+        email,
+        });
+        return response.data; // 返回更新成功的数据
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '更新用户信息失败');
+    }
+}
+
+// 头像获取
+export const getUserAvatar = async (id: number) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
+            params: {
+                id
+            },
+            responseType: 'blob', // 设置响应类型为 blob
+        });
+        return URL.createObjectURL(new Blob([response.data])); // 返回头像的 URL
+    }
+    catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取用户头像失败');
+    }
+};
+
+//修改用户头像
+export const updateUserAvatar = async (file: File, id: number, username: string, email: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('id', id.toString());
+    formData.append('username', username);
+    formData.append('email', email);
+
+    try {
+        const response = await axios.post(`${BASE_URL}/api/webUsers/avatar`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data; // 返回更新成功的数据
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '更新用户头像失败');
+    }
+};
