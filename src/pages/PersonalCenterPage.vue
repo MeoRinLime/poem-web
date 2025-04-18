@@ -1,7 +1,7 @@
 
 <template>
   <div class="min-h-screen p-4 md:p-24">
-    <PersonalCenterLoader v-show="isLoading" class="z-50" />
+    <PersonalCenterLoader v-show="isLoading" />
     <div 
       class="p-4 md:p-24 transition-all duration-300"
       :class="{'blur-sm pointer-events-none': isLoading}"

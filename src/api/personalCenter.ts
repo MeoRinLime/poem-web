@@ -80,7 +80,8 @@ export const getUserAvatar = async (id: number) => {
             },
             responseType: 'blob', // 设置响应类型为 blob
         });
-        return URL.createObjectURL(new Blob([response.data])); // 返回头像的 URL
+        const base64 = await blobToBase64(response.data);
+        return base64; // 返回 base64 字符串
     }
     catch (error: any) {
         throw new Error(error.response?.data?.message || '获取用户头像失败');
@@ -90,17 +91,26 @@ export const getUserAvatar = async (id: number) => {
 export const getUserAvatarByUsername = async (username: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
-            params: {
-                username
-            },
-            responseType: 'blob', // 设置响应类型为 blob
+            params: { username },
+            responseType: 'blob',
         });
-        return URL.createObjectURL(new Blob([response.data])); // 返回头像的 URL
-    }
-    catch (error: any) {
+
+        const base64 = await blobToBase64(response.data);
+        return base64; // 返回 base64 字符串
+    } catch (error: any) {
         throw new Error(error.response?.data?.message || '获取用户头像失败');
     }
 };
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+};
+
 
 //修改用户头像
 export const updateUserAvatar = async (file: File, id: number, username: string, email: string) => {

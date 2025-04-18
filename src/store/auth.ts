@@ -11,6 +11,8 @@ interface AuthState {
   avatar: string | null;
 }
 
+const DEFAULT_AVATAR = '/default-avatar.png'
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     isLoggedIn: false,  // 默认用户未登录
@@ -20,7 +22,7 @@ export const useAuthStore = defineStore('auth', {
     createTime: null, // 用户创建时间
     email : null, // 用户邮箱
     userId: 0, // 用户 ID
-    avatar: null, // 用户头像
+    avatar: DEFAULT_AVATAR, // 用户头像
   }),
   actions: {
     setUserInfo(bio: string, email: string) {
@@ -90,6 +92,7 @@ export const useAuthStore = defineStore('auth', {
       this.createTime = null;  // 清除用户创建时间
       this.email = null; // 清除用户邮箱
       this.userId = 0; // 清除用户 ID
+      this.avatar = DEFAULT_AVATAR; // 清除用户头像
 
       // 清除 localStorage 中的登陆状态和登录信息
       localStorage.removeItem('isLoggedIn');
@@ -99,6 +102,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('createTime');
       localStorage.removeItem('email');
       localStorage.removeItem('userId');
+      localStorage.removeItem('avatar');
 
       // 清除 sessionStorage 中的登陆状态和登录信息
       sessionStorage.removeItem('isLoggedIn');
@@ -108,6 +112,7 @@ export const useAuthStore = defineStore('auth', {
       sessionStorage.removeItem('createTime');
       sessionStorage.removeItem('email');
       sessionStorage.removeItem('userId');
+      sessionStorage.removeItem('avatar');
     },
     setLoginStatus(status: boolean) {
       this.isLoggedIn = status;  // 设置登录状态
@@ -120,6 +125,7 @@ export const useAuthStore = defineStore('auth', {
       const createTime = localStorage.getItem('createTime') || sessionStorage.getItem('createTime');
       const email = localStorage.getItem('email') || sessionStorage.getItem('email');
       const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+      const avatar = localStorage.getItem('avatar') || sessionStorage.getItem('avatar');
       if (status === 'true' && token && username && bio !== null) {
         this.setLoginStatus(true);
         this.token = token;
@@ -128,6 +134,7 @@ export const useAuthStore = defineStore('auth', {
         this.createTime = createTime;
         this.email = email;
         this.userId = Number(userId);
+        this.avatar = avatar;
       }      
     }
   },

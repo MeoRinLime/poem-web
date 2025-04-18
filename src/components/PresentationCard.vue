@@ -2,7 +2,7 @@
   <div class="task" draggable="true">
     <div class="task-header">
       <h3 class="title">{{ title }}</h3>
-      <p v-if="subtitle" class="subtitle">{{ subtitle }}</p>
+      <p v-if="subTitle" class="subtitle">{{ subTitle }}</p>
     </div>
     
     <div class="tags-container">
@@ -56,87 +56,53 @@
   </div>
 </template>  
 
-<script>
-export default {
-  props: {
-    title: {
-      type: String,
-      required: true
-    },
-    subtitle: {
-      type: String,
-      default: ''
-    },
-    content: {
-      type: String,
-      required: true
-    },
-    tags: {
-      type: Array,
-      default: () => ['Draggable']
-    },
-    tagColors: {
-      type: Array,
-      default: () => []
-    },
-    likes: {
-      type: [Number, String],
-      default: 0
-    },
-    comments: {
-      type: [Number, String],
-      default: 0
-    },
-    favorites: {
-      type: [Number, String],
-      default: 0
-    },
-    uploadDate: {
-      type: String,
-      default: 'Jan 1'
-    },
-    username: {
-      type: String,
-      required: true
-    },
-    userAvatar: {
-      type: String,
-      required: true
-    }
-  },
-  computed: {
-    truncatedContent() {
-      if (this.content.length > 50) {
-        return this.content.slice(0, 50) + '...';
-      }
-      return this.content;
-    }
-  },
-  methods: {
-    getTagColor(index) {
-      // 预定义的颜色数组，如果没有提供tagColors
-      const defaultColors = [
-        '#1389eb', // 蓝色
-        '#27ae60', // 绿色
-        '#e74c3c', // 红色
-        '#f39c12', // 橙色
-        '#9b59b6', // 紫色
-        '#16a085', // 青绿色
-        '#3498db', // 天蓝色
-        '#e67e22'  // 橙红色
-      ];
+<script setup lang="ts">
+import { computed } from 'vue'
 
-      // 如果提供了颜色，则使用提供的颜色
-      if (this.tagColors.length > index) {
-        return this.tagColors[index];
-      }
+interface Props {
+  title: string
+  subTitle?: string
+  content: string
+  tags?: string[]
+  tagColors?: string[]
+  likes?: number | string
+  comments?: number | string
+  favorites?: number | string
+  uploadDate?: string
+  username: string
+  userAvatar: string
+}
 
-      // 否则使用默认颜色循环
-      return defaultColors[index % defaultColors.length];
-    }
+const props = defineProps<Props>()
+
+const defaultTags = ['']
+const defaultColors = [
+  '#1389eb', // 蓝色
+  '#27ae60', // 绿色
+  '#e74c3c', // 红色
+  '#f39c12', // 橙色
+  '#9b59b6', // 紫色
+  '#16a085', // 青绿色
+  '#3498db', // 天蓝色
+  '#e67e22'  // 橙红色
+]
+
+const tags = computed(() => props.tags ?? defaultTags)
+
+const truncatedContent = computed(() => {
+  return props.content.length > 50
+    ? props.content.slice(0, 50) + '...'
+    : props.content
+})
+
+function getTagColor(index: number): string {
+  if (props.tagColors && props.tagColors.length > index) {
+    return props.tagColors[index]
   }
+  return defaultColors[index % defaultColors.length]
 }
 </script>
+
 
 <style scoped>
   .task {
