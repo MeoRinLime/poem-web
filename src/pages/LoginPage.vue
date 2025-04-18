@@ -174,12 +174,13 @@ import { login, register } from '@/api/auth'
 import router from '@/router';
 import { useAuthStore } from '@/store/auth';
 import { useMessage } from 'naive-ui'
+import { getUserAvatar } from '@/api/personalCenter'
 
 const message = useMessage()
 const isLoginForm = ref(true)
 const registerError = ref('')
 const isLoading = ref(false)
-
+let avatarUrl = ref('');
 const loginForm = reactive({
   username: '', // 用户名或邮箱
   password: '',
@@ -212,6 +213,8 @@ const handleLogin = async () => {
     const userId = data.user.id;
     const rememberMe = document.getElementById('remember-me') as HTMLInputElement;
     useAuthStore().login(token, username, bio, createTime, email,rememberMe.checked, userId);
+    avatarUrl.value = await getUserAvatar(userId);
+    useAuthStore().setUserAvatar(avatarUrl.value);
     message.success(
           '登录成功！欢迎回到诗词的世界！'
         );

@@ -191,8 +191,8 @@ const submitPoem = async () => {
       await writePoem(
         newPoem.title, 
         newPoem.author,
+        newPoem.content,
         newPoem.subtitle,
-        newPoem.content, 
       )
     } catch (error) {
       message.error('诗词创作失败，请稍后再试')

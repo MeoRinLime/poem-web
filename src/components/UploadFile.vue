@@ -11,7 +11,6 @@
 </template>
   
 <script lang="ts" setup>
-import { uploadRecitation } from '@/api/recitation/uploadRecitation'
 
 
 </script>

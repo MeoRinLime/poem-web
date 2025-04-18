@@ -43,6 +43,18 @@
     <div v-if="uploadStatus" :class="['status', uploadStatus.type]">
       {{ uploadStatus.message }}
     </div>
+    <PresentationCard
+      title="设计团队周会"
+      subtitle="讨论下周产品设计方案"
+      content="本次会议我们将讨论新产品的UI设计方案，包括颜色系统、组件库和交互模式。请所有团队成员提前准备相关资料。"
+      :tags="['设计', '会议', '高优先级']"
+      :tagColors="['#1389eb', '#27ae60', '#e74c3c']"
+      likes="24"
+      comments="8"
+      favorites="5"
+      uploadDate="Apr 18"
+      username="设计主管"
+      userAvatar="/path/to/avatar.jpg" />
   </div>
 </template>
 

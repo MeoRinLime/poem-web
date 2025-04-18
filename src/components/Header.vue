@@ -287,6 +287,7 @@ import { useAuthStore } from '@/store/auth'
 import { logout } from '@/api/auth'
 import { useMessage } from 'naive-ui'
 import router from '@/router'
+import {getUserAvatar} from '@/api/personalCenter'
 
 const message = useMessage()
 const DEFAULT_AVATAR = '/default-avatar.png'
@@ -307,7 +308,7 @@ const navigationItems = [
 
 // Computed properties
 const userAvatar = computed(() => {
-  return authStore.userAvatar || DEFAULT_AVATAR
+  return authStore.avatar || DEFAULT_AVATAR
 })
 
 // Methods
@@ -379,9 +380,3 @@ a, button {
   align-items: center;
 }
 </style>
-
-<script>
-export default {
-  name: 'Header',
-}
-</script>

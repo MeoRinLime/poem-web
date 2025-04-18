@@ -131,9 +131,9 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
-const handleClick = (e) => {
+const handleClick = (event: Event) => {
   if (!props.disabled) {
-    emit('click', e)
+    emit('click', event)
   }
 }
 </script>

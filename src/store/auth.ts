@@ -8,6 +8,7 @@ interface AuthState {
   createTime: string | null;
   email: string | null;
   userId: number;
+  avatar: string | null;
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -19,6 +20,7 @@ export const useAuthStore = defineStore('auth', {
     createTime: null, // 用户创建时间
     email : null, // 用户邮箱
     userId: 0, // 用户 ID
+    avatar: null, // 用户头像
   }),
   actions: {
     setUserInfo(bio: string, email: string) {
@@ -33,6 +35,18 @@ export const useAuthStore = defineStore('auth', {
         } else {
           sessionStorage.setItem('bio', bio);
           sessionStorage.setItem('email', email);
+        }
+      }
+    },
+
+    setUserAvatar(avatar: string) {
+      this.avatar = avatar;  // 设置用户头像
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || sessionStorage.getItem('isLoggedIn') === 'true';
+      if (isLoggedIn) {
+        if (localStorage.getItem('isLoggedIn')) {
+          localStorage.setItem('avatar', avatar);
+        }else {
+          sessionStorage.setItem('avatar', avatar);
         }
       }
     },
