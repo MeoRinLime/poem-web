@@ -87,6 +87,21 @@ export const getUserAvatar = async (id: number) => {
     }
 };
 
+export const getUserAvatarByUsername = async (username: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
+            params: {
+                username
+            },
+            responseType: 'blob', // 设置响应类型为 blob
+        });
+        return URL.createObjectURL(new Blob([response.data])); // 返回头像的 URL
+    }
+    catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取用户头像失败');
+    }
+};
+
 //修改用户头像
 export const updateUserAvatar = async (file: File, id: number, username: string, email: string) => {
     const formData = new FormData();
