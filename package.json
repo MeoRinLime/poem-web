@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "cross-env DEBUG=0 vite",
     "build": "vite build",
-    // "build": "run-p type-check \"build-only {@}\" --",
     "build-only": "vite build",
     "preview": "vite build && vite preview",
     "start": "pnpm dev & wait-on tcp:5173 -v",
