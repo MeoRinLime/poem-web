@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000/api/poem';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const getPoemRecommend = () => {
-    return axios.get(`${BASE_URL}/poemrecommend`);
+    return axios.get(`${BASE_URL}/api/poem/poemrecommend`);
 };

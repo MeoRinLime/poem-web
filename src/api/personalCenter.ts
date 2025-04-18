@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // 获取用户诗歌、帖子、评论数量
 export const getUserCountInfo = async (userName: string) => {

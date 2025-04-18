@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // 创建诗歌解析帖子
 export const createPost = async (title: string, userName: string, poemTitle: string, poemAuthor: string, content: string, type: number, tag: string[]) => {

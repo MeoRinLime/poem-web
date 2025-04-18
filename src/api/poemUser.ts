@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // 获取所有用户的诗歌
 export const getAllUserPoems = async () => {

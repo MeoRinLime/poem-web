@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000/api/recitation';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // 上传朗读文件
 export const uploadRecitation = async (file: File, poemId: number, authorId: number, authorName: string, title: string, content: string) => {
@@ -13,7 +13,7 @@ export const uploadRecitation = async (file: File, poemId: number, authorId: num
   formData.append('content', content);
 
   try {
-    const response = await axios.post(`${BASE_URL}`, formData, {
+    const response = await axios.post(`${BASE_URL}/api/recitation`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -28,7 +28,7 @@ export const uploadRecitation = async (file: File, poemId: number, authorId: num
 // 删除朗读文件
 export const deleteRecitation = async (recitationId: number) => {
   try {
-    const response = await axios.delete(`${BASE_URL}`, {
+    const response = await axios.delete(`${BASE_URL}/api/recitation`, {
         params: {
             recitationId: recitationId,
         },
