@@ -17,14 +17,17 @@
           </svg>
         </div>
       </div>
-      <span>保存并发送</span>
+      <span>{{ text }}</span>
     </button>
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps } from 'vue'
 
 const props = defineProps({
+  text: {
+    type: String,
+    default: '保存并发送',
+  },
   disabled: {
     type: Boolean,
     default: false,

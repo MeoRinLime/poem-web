@@ -93,14 +93,10 @@ import {
   NEmpty 
 } from 'naive-ui'
 import { getDailyPoem, getRelatedPoem } from '@/api/recommendPoem'
+import type { Poem } from '@/types/poem'
 
 // 定义接口以增强类型安全
-interface Poem {
-  id: number
-  title: string
-  author: string
-  content: string
-  dynasty: string
+interface DailyPoem extends Poem {
   relatedPosts?: RelatedPost[]
 }
 
@@ -131,7 +127,7 @@ interface RelatedPostAPI {
 }
 
 // 响应式状态
-const dailyPoem = ref<Poem | null>(null)
+const dailyPoem = ref<DailyPoem | null>(null)
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 

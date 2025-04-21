@@ -1,3 +1,174 @@
+
+<template>
+  <div class="min-h-screen flex flex-col items-center p-4">
+    <n-card 
+      class="max-w-full mx-auto shadow-2xl rounded-2xl mt-12"
+      :content-style="{ padding: '16px' }"
+    >
+      <!-- 返回按钮 -->
+      <div class="flex justify-between items-center mb-4">
+        <n-button 
+          type="success"
+          round 
+          class="text-white hover:text-yellow-500"
+          @click="goBack"
+        >
+          ← 返回日常交流贴列表
+        </n-button>
+      </div>
+
+      <!-- 解释标题和诗词信息 -->
+      <div class="text-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+          {{ postDetail?.title }}
+        </h1>
+        <n-space justify="center" align="center" class="mb-2">
+          <n-tag 
+            v-for="tag in postDetail?.tag" 
+            :key="tag" 
+            type="success" 
+            size="small"
+          >
+            {{ tag }}
+          </n-tag>
+        </n-space>
+      </div>
+
+      <!-- 作者信息 -->
+      <div class="flex items-center mb-4">
+        <n-avatar 
+          :src="DEFAULT_AVATAR" 
+          size="medium" 
+          class="mr-2"
+        />
+        <div>
+          <div class="font-bold text-gray-800">
+            {{ postDetail?.userName }}
+          </div>
+          <div class="text-xs text-gray-500">
+            发布于 {{ postDetail?.createdAt.toLocaleString() }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 解释正文 -->
+      <div class="prose max-w-full mb-4 text-gray-700 leading-relaxed">
+        {{ postDetail?.content }}
+      </div>
+
+      <!-- 交互按钮 -->
+      <div class="flex justify-center space-x-2 mb-6">
+        <n-button 
+          :type="likeButtonType"
+          @click="toggleLike"
+        >
+          <template #icon>
+            <n-icon :component="isLiked ? HeartIcon : HeartDislikeOutline" />
+          </template>
+          点赞 ({{ postDetail?.likeCount }})
+        </n-button>
+
+        <n-button 
+          :type="collectButtonType"
+          @click="toggleCollect"
+        >
+          <template #icon>
+            <n-icon :component="BookmarkOutline" />
+          </template>
+          收藏 ({{ postDetail?.favoriteCount }})
+        </n-button>
+
+        <n-popover trigger="hover">
+          <template #trigger>
+            <n-button>
+              <template #icon>
+                <n-icon :component="ShareSocialOutline" />
+              </template>
+              分享
+            </n-button>
+          </template>
+          分享功能开发中
+        </n-popover>
+      </div>
+
+      <!-- 评论区 -->
+      <n-divider title-placement="left">
+        <n-icon :component="CommentIcon" class="mr-2" />
+        评论区
+      </n-divider>
+
+      <!-- 发表评论 -->
+      <div class="mb-4">
+        <n-input 
+          v-model:value="newComment"
+          type="textarea"
+          placeholder="分享您对这篇解析的看法..."
+          :autosize="{ minRows: 2, maxRows: 4 }"
+        />
+        <div class="text-right mt-2">
+          <n-button 
+            type="primary" 
+            :disabled="!newComment.trim()"
+            @click="sendComment"
+          >
+            <template #icon>
+              <n-icon :component="SendIcon" />
+            </template>
+            发布评论
+          </n-button>
+        </div>
+      </div>
+
+      <!-- 现有评论 -->
+      <div v-if="postDetail?.comments.length" class="space-y-2">
+        <div 
+          v-for="comment in postDetail?.comments" 
+          :key="comment.commentId" 
+          class="bg-white p-2 rounded-lg shadow-sm"
+        >
+          <div class="flex items-center mb-2">
+            <n-avatar 
+              :src="DEFAULT_AVATAR" 
+              size="small" 
+              class="mr-2"
+            />
+            <div>
+              <div class="font-semibold text-gray-800">
+                {{ comment.userName }}
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ new Date(comment.createdAt).toLocaleString() }}
+              </div>
+            </div>
+            <div class="ml-auto flex items-center">
+              <n-button 
+                quaternary 
+                size="small"
+                :type="comment.isLiked ? 'primary' : 'default'"
+                class="mr-2"
+                @click="toggleCommentLike(comment)"
+              >
+                <template #icon>
+                  <n-icon :component="comment.isLiked ? HeartIcon : HeartDislikeOutline" />
+                </template>
+                {{ comment.countLike }}
+              </n-button>
+            </div>
+          </div>
+          <div class="text-gray-700">
+            {{ comment.content }}
+          </div>
+        </div>
+      </div>
+      <n-empty 
+        v-else 
+        description="暂无评论，快来抢沙发！"
+        class="my-4"
+      />
+    </n-card>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { 
@@ -34,38 +205,12 @@ import {
 import { postComment } from '@/api/comment'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
+import type { PostDetail } from '@/types/post'
+import type { Comment } from '@/types/comment'
 
 // 常量
 const DEFAULT_AVATAR = '/default-avatar.png'
 const message = useMessage()
-
-// 评论接口
-interface Comment {
-  commentId: number
-  userName: string
-  content: string
-  createdAt: string
-  countLike: number
-  isLiked: boolean
-  likeId?: string
-}
-
-// 帖子详情接口
-interface PostDetail {
-  postId: number
-  poemTitle: string
-  poemAuthor: string
-  title: string
-  content: string
-  userName: string
-  tag: string[]
-  createdAt: string
-  comments: Comment[]
-  likeCount: number
-  favoriteCount: number
-  likeId?: string
-  favoritesId?: string
-}
 
 // 从路由中获取帖子 ID
 const route = useRoute()
@@ -280,175 +425,6 @@ const goBack = () => {
 }
 </script>
 
-<template>
-  <div class="min-h-screen flex flex-col items-center p-4">
-    <n-card 
-      class="max-w-full mx-auto shadow-2xl rounded-2xl mt-12"
-      :content-style="{ padding: '16px' }"
-    >
-      <!-- 返回按钮 -->
-      <div class="flex justify-between items-center mb-4">
-        <n-button 
-          type="success"
-          round 
-          class="text-white hover:text-yellow-500"
-          @click="goBack"
-        >
-          ← 返回日常交流贴列表
-        </n-button>
-      </div>
-
-      <!-- 解释标题和诗词信息 -->
-      <div class="text-center mb-4">
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">
-          {{ postDetail?.title }}
-        </h1>
-        <n-space justify="center" align="center" class="mb-2">
-          <n-tag 
-            v-for="tag in postDetail?.tag" 
-            :key="tag" 
-            type="success" 
-            size="small"
-          >
-            {{ tag }}
-          </n-tag>
-        </n-space>
-      </div>
-
-      <!-- 作者信息 -->
-      <div class="flex items-center mb-4">
-        <n-avatar 
-          :src="DEFAULT_AVATAR" 
-          size="medium" 
-          class="mr-2"
-        />
-        <div>
-          <div class="font-bold text-gray-800">
-            {{ postDetail?.userName }}
-          </div>
-          <div class="text-xs text-gray-500">
-            发布于 {{ postDetail?.createdAt.toLocaleString() }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 解释正文 -->
-      <div class="prose max-w-full mb-4 text-gray-700 leading-relaxed">
-        {{ postDetail?.content }}
-      </div>
-
-      <!-- 交互按钮 -->
-      <div class="flex justify-center space-x-2 mb-6">
-        <n-button 
-          :type="likeButtonType"
-          @click="toggleLike"
-        >
-          <template #icon>
-            <n-icon :component="isLiked ? HeartIcon : HeartDislikeOutline" />
-          </template>
-          点赞 ({{ postDetail?.likeCount }})
-        </n-button>
-
-        <n-button 
-          :type="collectButtonType"
-          @click="toggleCollect"
-        >
-          <template #icon>
-            <n-icon :component="BookmarkOutline" />
-          </template>
-          收藏 ({{ postDetail?.favoriteCount }})
-        </n-button>
-
-        <n-popover trigger="hover">
-          <template #trigger>
-            <n-button>
-              <template #icon>
-                <n-icon :component="ShareSocialOutline" />
-              </template>
-              分享
-            </n-button>
-          </template>
-          分享功能开发中
-        </n-popover>
-      </div>
-
-      <!-- 评论区 -->
-      <n-divider title-placement="left">
-        <n-icon :component="CommentIcon" class="mr-2" />
-        评论区
-      </n-divider>
-
-      <!-- 发表评论 -->
-      <div class="mb-4">
-        <n-input 
-          v-model:value="newComment"
-          type="textarea"
-          placeholder="分享您对这篇解析的看法..."
-          :autosize="{ minRows: 2, maxRows: 4 }"
-        />
-        <div class="text-right mt-2">
-          <n-button 
-            type="primary" 
-            :disabled="!newComment.trim()"
-            @click="sendComment"
-          >
-            <template #icon>
-              <n-icon :component="SendIcon" />
-            </template>
-            发布评论
-          </n-button>
-        </div>
-      </div>
-
-      <!-- 现有评论 -->
-      <div v-if="postDetail?.comments.length" class="space-y-2">
-        <div 
-          v-for="comment in postDetail?.comments" 
-          :key="comment.commentId" 
-          class="bg-white p-2 rounded-lg shadow-sm"
-        >
-          <div class="flex items-center mb-2">
-            <n-avatar 
-              :src="DEFAULT_AVATAR" 
-              size="small" 
-              class="mr-2"
-            />
-            <div>
-              <div class="font-semibold text-gray-800">
-                {{ comment.userName }}
-              </div>
-              <div class="text-xs text-gray-500">
-                {{ new Date(comment.createdAt).toLocaleString() }}
-              </div>
-            </div>
-            <div class="ml-auto flex items-center">
-              <n-button 
-                quaternary 
-                size="small"
-                :type="comment.isLiked ? 'primary' : 'default'"
-                class="mr-2"
-                @click="toggleCommentLike(comment)"
-              >
-                <template #icon>
-                  <n-icon :component="comment.isLiked ? HeartIcon : HeartDislikeOutline" />
-                </template>
-                {{ comment.countLike }}
-              </n-button>
-            </div>
-          </div>
-          <div class="text-gray-700">
-            {{ comment.content }}
-          </div>
-        </div>
-      </div>
-      <n-empty 
-        v-else 
-        description="暂无评论，快来抢沙发！"
-        class="my-4"
-      />
-    </n-card>
-  </div>
-</template>
 
 <style scoped>
 .prose {

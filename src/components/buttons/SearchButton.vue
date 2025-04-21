@@ -1,8 +1,6 @@
 <template>
     <button class="Btn">
-  
       <div class="sign"><svg t="1744737525072" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1595" width="200" height="200"><path d="M456.5504 51.2a405.3504 405.3504 0 0 1 315.2384 660.1216l156.672 156.7744a42.6496 42.6496 0 0 1-55.9616 64.1536l-4.4032-3.7888-156.7744-156.672A405.3504 405.3504 0 1 1 456.4992 51.2z m0 85.3504a320 320 0 1 0 0 640 320 320 0 0 0 0-640z" fill="#333333" p-id="1596"></path></svg></div>
-  
       <div class="text">搜索</div>
     </button>
 </template>

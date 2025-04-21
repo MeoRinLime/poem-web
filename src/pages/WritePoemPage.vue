@@ -98,7 +98,6 @@ import {
   NForm, 
   NFormItem, 
   NInput, 
-  NCard, 
   NSpace,
   NGrid,
   NGridItem,
@@ -108,15 +107,9 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { writePoem } from '@/api/writePoem'
 import { useRouter } from 'vue-router'
+import type { WritePoem } from '@/types/poem';
 
 const router = useRouter()
-// 诗词数据接口
-interface Poem {
-  title: string
-  subtitle?: string
-  content: string
-  author: string
-}
 
 // 用户信息, 从Store中获取
 const username = useAuthStore().username || 'Unknown Author'
@@ -180,7 +173,7 @@ const submitPoem = async () => {
     }
 
     // 创建诗词对象
-    const newPoem: Poem = {
+    const newPoem: WritePoem = {
       title: poemForm.value.title,
       subtitle: poemForm.value.subtitle || undefined,
       content: poemForm.value.content,

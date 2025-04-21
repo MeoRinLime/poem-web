@@ -1,21 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { SearchOutlined } from '@vicons/antd'
-import { useRouter } from 'vue-router'
-
-const searchQuery = ref('')
-const router = useRouter()
-
-const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push({ 
-      name: 'SearchResultsPage', 
-      // eslint-disable-next-line id-length
-      query: { keyWord: searchQuery.value.trim() } 
-    })
-  }
-}
-</script>
 
 <template>
   <div class="min-h-screen flex flex-col items-center p-4">
@@ -49,3 +31,22 @@ const handleSearch = () => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { SearchOutlined } from '@vicons/antd'
+import { useRouter } from 'vue-router'
+
+const searchQuery = ref('')
+const router = useRouter()
+
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({ 
+      name: 'SearchResultsPage', 
+      // eslint-disable-next-line id-length
+      query: { keyWord: searchQuery.value.trim() } 
+    })
+  }
+}
+</script>

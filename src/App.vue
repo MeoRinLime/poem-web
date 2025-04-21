@@ -30,7 +30,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from './store/auth';
-import MeteorsStars from './components/MeteorsStars.vue';
 
 const route = useRoute();
 

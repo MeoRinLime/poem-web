@@ -1,64 +1,3 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
-
-// 定义搜索结果的接口类型
-interface SearchResult {
-  poemId?: number
-  title: string
-  subTitle?: string
-  content: string
-  poemAuthor: string
-  userName: string
-  createdAt: string
-  type?: number
-  postId?: number 
-}
-
-const route = useRoute()
-const router = useRouter()
-const searchQuery = ref(route.query.keyWord as string || '')
-const searchResults = ref<SearchResult[]>([])
-const isLoading = ref(true)
-const errorMessage = ref('')
-
-// 执行搜索的函数
-const performSearch = async () => {
-  if (!searchQuery.value) {
-    errorMessage.value = '请输入搜索关键词'
-    isLoading.value = false
-    return
-  }
-
-  try {
-    const response = await axios.get('http://localhost:8000/api/poem/query', {
-      params: {
-        keyWord: searchQuery.value
-      }
-    })
-
-    searchResults.value = response.data
-    isLoading.value = false
-  } catch (error: any) {
-    errorMessage.value = error.response?.data?.message || '搜索失败'
-    isLoading.value = false
-  }
-}
-
-// 跳转到详情页的方法
-const navigateToDetail = (result: SearchResult) => {
-  // 根据不同的类型跳转到不同的详情页
-  if (result.type === 1) {  //解释帖子
-    router.push('/poem-explanation/' + result.postId)
-  } else if (result.poemId) {  
-    router.push('/user-poem-detail/' + result.poemId)
-  }
-}
-
-// 在组件挂载时执行搜索
-onMounted(performSearch)
-</script>
 
 <template>
   <div class="container mx-auto pt-24">
@@ -134,6 +73,69 @@ onMounted(performSearch)
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
+
+// 定义搜索结果的接口类型
+interface SearchResult {
+  poemId?: number
+  title: string
+  subTitle?: string
+  content: string
+  poemAuthor: string
+  userName: string
+  createdAt: string
+  type?: number
+  postId?: number 
+}
+
+const route = useRoute()
+const router = useRouter()
+const searchQuery = ref(route.query.keyWord as string || '')
+const searchResults = ref<SearchResult[]>([])
+const isLoading = ref(true)
+const errorMessage = ref('')
+
+// 执行搜索的函数
+const performSearch = async () => {
+  if (!searchQuery.value) {
+    errorMessage.value = '请输入搜索关键词'
+    isLoading.value = false
+    return
+  }
+
+  try {
+    const response = await axios.get('http://localhost:8000/api/poem/query', {
+      params: {
+        keyWord: searchQuery.value
+      }
+    })
+
+    searchResults.value = response.data
+    isLoading.value = false
+  } catch (error: any) {
+    errorMessage.value = error.response?.data?.message || '搜索失败'
+    isLoading.value = false
+  }
+}
+
+// 跳转到详情页的方法
+const navigateToDetail = (result: SearchResult) => {
+  // 根据不同的类型跳转到不同的详情页
+  if (result.type === 1) {  //解释帖子
+    router.push('/poem-explanation/' + result.postId)
+  } else if (result.poemId) {  
+    router.push('/user-poem-detail/' + result.poemId)
+  }
+}
+
+// 在组件挂载时执行搜索
+onMounted(performSearch)
+</script>
+
 
 <style scoped>
 .line-clamp-3 {

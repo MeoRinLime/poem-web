@@ -92,23 +92,9 @@ import {
 } from '@vicons/ionicons5'
 import router from '@/router'
 import { getCommunicationList } from '@/api/post'
-import CreateButton from '@/components/CreateButton.vue'
-import LoadingComponent from '@/components/LoadingComponent.vue'
+import type { Post } from '@/types/post'
 
-// 诗歌交流帖子接口
-interface Communication {
-  commentCount: number
-  content: string
-  createdAt: String
-  poemAuthor: string
-  poemTitle: string
-  postId: number
-  tags: string[]
-  title: string
-  userName: string
-}
-
-const CommunicationList = ref<Communication[]>([])
+const CommunicationList = ref<Post[]>([])
 
 onMounted(() => {
   getCommunicationList().then((response: { data: any }) => {

@@ -37,3 +37,16 @@ export const getUserPoem = async (poemId: number) => {
         throw new Error(error.response?.data?.message || '获取失败');
     }
 };
+
+// 删除用户的诗歌
+export const deleteUserPoem = async (poemIds: number[]) => {
+    try {
+        const response = await axios.delete(`${BASE_URL}/api/poemUser`, {
+            data: poemIds,
+            
+        });
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '删除失败');
+    }
+};

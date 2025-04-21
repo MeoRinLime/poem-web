@@ -1,4 +1,3 @@
-
 <template>
   <div class="min-h-screen p-4 md:p-24">
     <PersonalCenterLoader v-show="isLoading" />
@@ -13,6 +12,7 @@
             :size="80" 
             :class="['md:mr-6 mb-4 md:mb-0', { 'border-blue-200': activeTab === 'profile' }]"
             :src="userData.avatar" 
+            round
           />
           <div class="flex-grow w-full md:w-auto text-center md:text-left">
             <h1 class="text-2xl md:text-3xl font-semibold text-gray-800">
@@ -68,7 +68,7 @@
                   </div>
                 </NUploadDragger>
               </NUpload>
-              <div v-if="editProfileForm.avatar" class="mt-2 flex justify-center">
+              <div v-if="editProfileForm.avatar && !showCropper" class="mt-2 flex justify-center">
                 <NAvatar :size="80" :src="editProfileForm.avatar" />
               </div>
             </NFormItem>
@@ -81,6 +81,34 @@
               </NButton>
             </div>
           </NForm>
+        </NModal>
+
+        <!-- 头像裁剪弹窗 -->
+        <NModal v-model:show="showCropper" preset="card" title="裁剪头像" class="max-w-3xl" :style="{ width: '90%' }">
+          <div class="text-center">
+            <div class="mb-4">
+              <p class="text-sm text-gray-500 mb-2">请调整头像，确保最佳效果</p>
+              <div class="cropper-container mx-auto" style="max-width: 400px; height: 400px;">
+                <VueCropper
+                  ref="cropperRef"
+                  :img="cropperImg"
+                  :auto-crop="true"
+                  :fixed-box="true"
+                  :fixed="true"
+                  :auto-crop-width="300"
+                  :auto-crop-height="300"
+                  :center-box="true"
+                  :info="true"
+                  :full="true"
+                  :output-type="'png'"
+                />
+              </div>
+            </div>
+            <div class="flex justify-center space-x-4">
+              <NButton @click="showCropper = false">取消</NButton>
+              <NButton type="primary" @click="confirmCrop">确认裁剪</NButton>
+            </div>
+          </div>
         </NModal>
 
         <!-- Tabs Navigation - 调整为移动端布局 -->
@@ -200,9 +228,9 @@
                   <span>诗歌: {{ favorite.poemTitle }}</span>
                   <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>
                 </div>
-                <div v-if="favorite.tag && favorite.tag.length > 0" class="mb-2 flex flex-wrap">
+                <div v-if="favorite.tags && favorite.tags.length > 0" class="mb-2 flex flex-wrap">
                   <NTag 
-                    v-for="tag in favorite.tag" 
+                    v-for="tag in favorite.tags" 
                     :key="tag" 
                     size="small" 
                     class="mr-1 mb-1"
@@ -263,35 +291,10 @@ import {
 import { useAuthStore } from '@/store/auth';
 import {getUserPosts, getUserPoems, getUserComments, getUserFavorites, updateUserInfo, updateUserAvatar, getUserAvatar } from '@/api/personalCenter';
 import { useRouter } from 'vue-router';
-
-interface Post {
-  postId: number
-  title: string
-  content: string
-  createdAt: string
-  likeCount: number
-  commentCount: number
-  poemTitle?: string
-  poemAuthor?: string
-  tag?: string[]
-}
-
-interface Comment {
-  commentId: number
-  objectId: number
-  content: string
-  createdAt: string
-  title: string
-}
-
-interface Poetry {
-  poemId: number
-  title: string
-  content: string
-  createdAt: string
-  likeCount: number
-  commentCount: number
-}
+import { VueCropper } from 'vue-cropper';
+import type { Comment } from '@/types/comment';
+import type { Post } from '@/types/post';
+import type { Poem } from '@/types/poem';
 
 const userStore = useAuthStore()
 const router = useRouter()
@@ -314,7 +317,7 @@ const editProfileForm = reactive({
 
 const posts = ref<Post[]>([]);
 const comments = ref<Comment[]>([]);
-const poetry = ref<Poetry[]>([]);
+const poetry = ref<Poem[]>([]);
 const favorites = ref<Post[]>([]);
 
 const activeTab = ref('profile')
@@ -340,10 +343,55 @@ const fetchUserAvatar = async () => {
   }
 }
 
+const showCropper = ref(false)
+const cropperImg = ref('')
+const cropperRef = ref<any>(null)
+
 const handleAvatarUpload = (data: { file: { file: File } }) => {
   const file = data.file.file
-  editProfileForm.avatar = URL.createObjectURL(file)
+  
+  // 验证文件类型
+  if (!file.type.startsWith('image/')) {
+    message.error('请选择图片文件');
+    return;
+  }
+  
+  // 显示裁剪界面
+  cropperImg.value = URL.createObjectURL(file)
+  showCropper.value = true
+  
+  // 保存原始文件以备后续处理
   editProfileForm.avatarFile = file
+
+  // 确保在下一个渲染周期中裁剪组件能够正确初始化
+  setTimeout(() => {
+    if (cropperRef.value) {
+      cropperRef.value.refresh();
+    }
+  }, 100);
+}
+
+const confirmCrop = () => {
+  if (!cropperRef.value) {
+    message.error('裁剪组件未初始化');
+    return;
+  }
+  
+  // 获取裁剪后的图像数据
+  cropperRef.value.getCropBlob((blob: Blob) => {
+    // 将Blob转换为File对象
+    const file = new File([blob], 'avatar.png', { type: 'image/png' })
+    
+    // 更新表单中的头像文件
+    editProfileForm.avatarFile = file
+    
+    // 创建一个临时URL用于预览
+    const previewUrl = URL.createObjectURL(blob)
+    editProfileForm.avatar = previewUrl
+    
+    // 关闭裁剪界面
+    showCropper.value = false
+  })
 }
 
 const handleEditProfile = async () => {
@@ -374,13 +422,25 @@ const handleEditProfile = async () => {
 const updateAvatar = async (userId: string) => {
   try {
     isLoading.value = true // 全局加载状态
+    
+    if (!editProfileForm.avatarFile) {
+      throw new Error('头像文件不存在')
+    }
+    
     await updateUserAvatar(
-      editProfileForm.avatarFile!,
+      editProfileForm.avatarFile,
       userId,
       userData.value.username,
-      userData.value.email,
+      userData.value.email || '',
     )
-    await fetchUserAvatar() // 重新获取最新头像
+    
+    // 重新获取最新头像
+    await fetchUserAvatar() 
+    
+    // 更新 auth store 中的头像，这样导航栏也会更新
+    if (userData.value.avatar) {
+      userStore.setUserAvatar(userData.value.avatar)
+    }
   } finally {
     isLoading.value = false
   }
@@ -480,6 +540,7 @@ pre {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -487,7 +548,15 @@ pre {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 裁剪组件样式 */
+.cropper-container {
+  background-color: #f5f5f5;
+  border-radius: 4px;
   overflow: hidden;
 }
 </style>

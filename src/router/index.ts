@@ -18,6 +18,7 @@ import SearchResultsPage from '@/pages/SearchResultsPage.vue';
 import CommunicationDetailPage from '@/pages/CommunicationDetailPage.vue';
 import CreateCommunication from '@/pages/CreateCommunication.vue';
 import RecitationList from '@/pages/RecitationList.vue';
+import TestPlay from '@/pages/TestPlay.vue';
 
 const routes = [
   {
@@ -145,6 +146,14 @@ const routes = [
     props: true,
     meta: {
       title: '用户诗歌详情',
+    },
+  },
+  {
+    path: '/test/just-for-test',
+    component: TestPlay,
+    name: 'TestPlay',
+    meta: {
+      title: '测试页面',
     },
   },
   {

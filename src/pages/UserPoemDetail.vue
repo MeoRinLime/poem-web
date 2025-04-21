@@ -1,3 +1,171 @@
+<template>
+  <div class="min-h-screen flex justify-center p-24">
+    <n-card 
+      class="max-w-4xl w-full shadow-xl rounded-2xl"
+      :content-style="{ padding: '32px' }"
+    >
+      <!-- 返回按钮和删除按钮 -->
+      <div class="flex justify-between items-center mb-8">
+        <n-button 
+          type="success"
+          round
+          class="text-white hover:text-yellow-500"
+          @click="goBack"
+        >
+          ← 返回诗歌长廊
+        </n-button>
+        <n-button v-if="canDelete" type="error" ghost @click="showDeleteConfirm">
+          删除
+        </n-button>
+      </div>
+
+      <!-- 确认删除对话框 -->
+      <n-modal v-model:show="showDeleteModal" preset="dialog" title="确认删除"
+        positive-text="确认删除" negative-text="取消"
+        @positive-click="handleDeletePoem"
+        @negative-click="hideDeleteModal"
+      >
+        <template #default>
+          <div class="py-2">
+            确定要删除《{{ poem.title }}》吗？此操作不可撤销。
+          </div>
+        </template>
+      </n-modal>
+
+      <!-- 诗歌标题区域，含作者头像 -->
+      <div class="flex flex-col items-center mb-10">
+        <div class="flex items-center justify-center mb-2">
+          <n-avatar :src="authorAvatar" round size="large" class="mr-3" />
+          <h1 class="text-4xl font-bold text-gray-800">
+            {{ poem.title }}
+          </h1>
+        </div>
+        <div class="flex justify-center items-center space-x-2">
+          <n-tag 
+            v-if="poem.subtitle" 
+            size="small" 
+            type="info"
+          >
+            {{ poem.subtitle }}
+          </n-tag>
+          <span class="text-gray-500 text-sm">
+            {{ poem.authorName }} · {{ poem.createdAt }}
+          </span>
+        </div>
+      </div>
+
+      <!-- 诗歌内容 -->
+      <div class="prose prose-lg text-center text-gray-700 whitespace-pre-line mb-10">
+        {{ poem.content }}
+      </div>
+
+      <!-- 交互按钮 -->
+      <div class="flex justify-center space-x-6 mb-10">
+        <n-button 
+          :type="isLiked ? 'primary' : 'default'"
+          @click="toggleLike"
+        >
+          <template #icon>
+            <n-icon :component="isLiked ? HeartOutline : HeartDislikeOutline" />
+          </template>
+          点赞 ({{ poem.likeCount }})
+        </n-button>
+
+        <n-button 
+          :type="isCollected ? 'primary' : 'default'"
+          @click="toggleCollect"
+        >
+          <template #icon>
+            <n-icon :component="BookmarkOutline" />
+          </template>
+          收藏 ({{ poem.favoriteCount }})
+        </n-button>
+
+        <n-button @click="handleShare">
+          <template #icon>
+            <n-icon :component="ShareSocialOutline" />
+          </template>
+          分享
+        </n-button>
+      </div>
+
+      <!-- 评论区 -->
+      <n-divider>评论 ({{ poem?.comments.length }})</n-divider>
+
+      <!-- 发布评论 -->
+      <div class="mb-6">
+        <n-input 
+          v-model:value="newComment"
+          type="textarea" 
+          placeholder="分享您的想法..."
+          :autosize="{ minRows: 3, maxRows: 6 }"
+          class="mb-3"
+        />
+        <div class="flex justify-end">
+          <n-button 
+            type="primary" 
+            :disabled="!newComment.trim()"
+            @click="sendComment"
+          >
+            发布评论
+          </n-button>
+        </div>
+      </div>
+
+      <!-- 评论列表 -->
+      <div v-if="poem?.comments.length" class="space-y-4">
+        <div 
+          v-for="comment in poem?.comments" 
+          :key="comment.commentId" 
+          class="bg-white p-4 rounded-lg shadow-sm"
+        >
+          <div class="flex items-center mb-2">
+            <n-avatar 
+              :src="comment.userAvatar || DEFAULT_AVATAR" 
+              size="small" 
+              class="mr-3"
+              round
+              lazy
+            />
+            <div>
+              <div class="font-semibold text-gray-800">
+                {{ comment.userName }}
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ formatDate(comment.createdAt) }}
+              </div>
+            </div>
+            <!-- 点赞按钮 -->
+            <div class="ml-auto flex items-center">
+              <n-button 
+                quaternary 
+                size="tiny"
+                :type="comment.isLiked ? 'primary' : 'default'"
+                class="mr-2"
+                @click="toggleCommentLike(comment)"
+              >
+                <template #icon>
+                  <n-icon :component="HeartOutline" />
+                </template>
+                {{ comment.countLike }}
+              </n-button>
+            </div>
+          </div>
+          <div class="text-gray-700">
+            {{ comment.content }}
+          </div>
+        </div>
+      </div>
+      <div 
+        v-else 
+        class="text-center text-gray-500 py-8"
+      >
+        还没有评论，快来抢沙发吧！
+      </div>
+    </n-card>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { 
@@ -8,8 +176,8 @@ import {
   NDivider, 
   NInput,
   NTag,
-  NPopover,
   useMessage,
+  NModal
 } from 'naive-ui'
 import { 
   HeartOutline, 
@@ -18,9 +186,10 @@ import {
   BookmarkOutline,
 } from '@vicons/ionicons5'
 import { useRouter, useRoute } from 'vue-router'
-import { getUserPoem } from '@/api/poemUser'
+import { getUserPoem, deleteUserPoem } from '@/api/poemUser'
 import { useAuthStore } from '@/store/auth'
 import { postComment } from '@/api/comment'
+import { getUserAvatarByUsername } from '@/api/personalCenter'
 import { 
   likeUserPoem, 
   subscribeUserPoem, 
@@ -31,6 +200,8 @@ import {
   cancelLike,
   cancelSubscribe
 } from '@/api/likeAndSub'
+import type { Poem } from '@/types/poem'
+import type { Comment } from '@/types/comment'
 
 const DEFAULT_AVATAR = '/default-avatar.png'
 const message = useMessage()
@@ -39,38 +210,11 @@ const route = useRoute()
 const poemId = Number(route.params.poemId)
 const authStore = useAuthStore()
 
-// 评论接口
-interface Comment {
-  commentId: number
-  userName: string
-  content: string
-  createdAt: string
-  countLike: number
-  isLiked: boolean
-  likeId?: number
-}
-
-// 定义诗歌类型
-interface Poem {
-  poemId: number
-  authorName: string
-  title: string
-  subtitle?: string
-  content: string
-  createdAt: string
-  likeCount: number
-  favoriteCount: number
-  commentCount: number
-  comments: Comment[]
-  likeId?: number
-  favoritesId?: number
-}
-
 const poem = ref<Poem>({
   poemId: 0,
   authorName: '',
   title: '',
-  subtitle: '',
+  subTitle: '',
   content: '',
   createdAt: '',
   likeCount: 0,
@@ -79,17 +223,21 @@ const poem = ref<Poem>({
   comments: []
 })
 
+const authorAvatar = ref<string>(DEFAULT_AVATAR)
+
 // 状态管理
 const isLiked = ref(false)
 const isCollected = ref(false)
 const newComment = ref('')
+const showDeleteModal = ref(false)
 
 // 计算属性
 const likeButtonType = computed(() => (isLiked.value ? 'primary' : 'default'))
 const collectButtonType = computed(() => (isCollected.value ? 'primary' : 'default'))
+const canDelete = computed(() => authStore.username && poem.value.authorName === authStore.username)
 
 const checkCommentLikeStatus = async () => {
-  if (!authStore.username) return
+  if (!authStore.username || !poem.value.comments) return
   
   try {
     const updatedComments = await Promise.all(
@@ -129,13 +277,76 @@ const checkPoemLikeStatus = async () => {
   }
 }
 
+const fetchAuthorAvatar = async () => {
+  try {
+    if (poem.value.authorName) {
+      authorAvatar.value = await getUserAvatarByUsername(poem.value.authorName)
+    }
+  } catch {
+    authorAvatar.value = DEFAULT_AVATAR
+  }
+}
+
+const fetchCommentAvatars = async () => {
+  const promises = poem.value.comments.map(async (comment) => {
+    try {
+      comment.userAvatar = await getUserAvatarByUsername(comment.userName)
+    } catch {
+      comment.userAvatar = DEFAULT_AVATAR
+    }
+    return comment
+  })
+  poem.value.comments = await Promise.all(promises)
+}
+
+const formatDate = (date: string) => {
+  if (!date) return ''
+  try {
+    const dateOfPoem = new Date(date)
+    return dateOfPoem.toLocaleString()
+  } catch {
+    return date
+  }
+}
+
+const handleShare = async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href)
+    message.success('已复制网址，可以分享给其他用户')
+  } catch {
+    message.error('复制失败，请手动复制网址')
+  }
+}
+
+const handleDeletePoem = async () => {
+  if (!poem.value.poemId) return
+  try {
+    const poemId = [poem.value.poemId];
+    await deleteUserPoem(poemId);
+    message.success('删除成功')
+    router.push({ name: 'UserPoemList' })
+  } catch (error) {
+    message.error('删除失败')
+  }
+}
+
+const showDeleteConfirm = () => {
+  showDeleteModal.value = true
+}
+
+const hideDeleteModal = () => {
+  showDeleteModal.value = false
+}
+
 onMounted(async () => {
   try {
     const response = await getUserPoem(poemId)
     poem.value = response.data
     await Promise.all([
       checkCommentLikeStatus(),
-      checkPoemLikeStatus()
+      checkPoemLikeStatus(),
+      fetchAuthorAvatar(),
+      fetchCommentAvatars()
     ])
   } catch (error) {
     message.error('加载诗歌详情失败')
@@ -264,162 +475,15 @@ const goBack = () => {
 }
 </script>
 
-
-<template>
-  <div class="min-h-screen flex justify-center p-24">
-    <n-card 
-      class="max-w-4xl w-full shadow-xl rounded-2xl"
-      :content-style="{ padding: '32px' }"
-    >
-      <!-- 返回按钮 -->
-      <div class="flex justify-between items-center mb-8">
-        <n-button 
-          type="success"
-          round
-          class="text-white hover:text-yellow-500"
-          @click="goBack"
-        >
-          ← 返回诗歌长廊
-        </n-button>
-      </div>
-
-      <!-- 诗歌标题区域 -->
-      <div class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">
-          {{ poem.title }}
-        </h1>
-        <div class="flex justify-center items-center space-x-2">
-          <n-tag 
-            v-if="poem.subtitle" 
-            size="small" 
-            type="info"
-          >
-            {{ poem.subtitle }}
-          </n-tag>
-          <span class="text-gray-500 text-sm">
-            {{ poem.authorName }} · {{ poem.createdAt }}
-          </span>
-        </div>
-      </div>
-
-      <!-- 诗歌内容 -->
-      <div class="prose prose-lg text-center text-gray-700 whitespace-pre-line mb-10">
-        {{ poem.content }}
-      </div>
-
-      <!-- 交互按钮 -->
-      <div class="flex justify-center space-x-6 mb-10">
-        <n-button 
-          :type="isLiked ? 'primary' : 'default'"
-          @click="toggleLike"
-        >
-          <template #icon>
-            <n-icon :component="isLiked ? HeartOutline : HeartDislikeOutline" />
-          </template>
-          点赞 ({{ poem.likeCount }})
-        </n-button>
-
-        <n-button 
-          :type="isCollected ? 'primary' : 'default'"
-          @click="toggleCollect"
-        >
-          <template #icon>
-            <n-icon :component="BookmarkOutline" />
-          </template>
-          收藏 ({{ poem.favoriteCount }})
-        </n-button>
-
-        <n-popover trigger="hover">
-          <template #trigger>
-            <n-button>
-              <template #icon>
-                <n-icon :component="ShareSocialOutline" />
-              </template>
-              分享
-            </n-button>
-          </template>
-          分享功能开发中
-        </n-popover>
-      </div>
-
-      <!-- 评论区 -->
-      <n-divider>评论 ({{ poem?.comments.length }})</n-divider>
-
-      <!-- 发布评论 -->
-      <div class="mb-6">
-        <n-input 
-          v-model:value="newComment"
-          type="textarea" 
-          placeholder="分享您的想法..."
-          :autosize="{ minRows: 3, maxRows: 6 }"
-          class="mb-3"
-        />
-        <div class="flex justify-end">
-          <n-button 
-            type="primary" 
-            :disabled="!newComment.trim()"
-            @click="sendComment"
-          >
-            发布评论
-          </n-button>
-        </div>
-      </div>
-
-      <!-- 评论列表 -->
-      <div v-if="poem?.comments.length" class="space-y-4">
-        <div 
-          v-for="comment in poem?.comments" 
-          :key="comment.commentId" 
-          class="bg-white p-4 rounded-lg shadow-sm"
-        >
-          <div class="flex items-center mb-2">
-            <n-avatar 
-              :src="DEFAULT_AVATAR" 
-              size="small" 
-              class="mr-3"
-            />
-            <div>
-              <div class="font-semibold text-gray-800">
-                {{ comment.userName }}
-              </div>
-              <div class="text-xs text-gray-500">
-                {{ comment.createdAt.toLocaleString() }}
-              </div>
-            </div>
-            <!-- 点赞按钮 -->
-            <div class="ml-auto flex items-center">
-              <n-button 
-                quaternary 
-                size="tiny"
-                :type="comment.isLiked ? 'primary' : 'default'"
-                class="mr-2"
-                @click="toggleCommentLike(comment)"
-              >
-                <template #icon>
-                  <n-icon :component="HeartOutline" />
-                </template>
-                {{ comment.countLike }}
-              </n-button>
-            </div>
-          </div>
-          <div class="text-gray-700">
-            {{ comment.content }}
-          </div>
-        </div>
-      </div>
-      <div 
-        v-else 
-        class="text-center text-gray-500 py-8"
-      >
-        还没有评论，快来抢沙发吧！
-      </div>
-    </n-card>
-  </div>
-</template>
-
 <style scoped>
 .prose {
   max-width: 100%;
-  line-height: 1.8;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .prose {
+    font-size: 14px;
+  }
 }
 </style>

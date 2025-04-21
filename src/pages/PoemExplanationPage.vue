@@ -93,23 +93,9 @@ import {
 } from '@vicons/ionicons5'
 import router from '@/router'
 import { getPoemExplanationList } from '@/api/post'
-import CreateButton from '@/components/CreateButton.vue'
-import LoadingComponent from '@/components/LoadingComponent.vue'
+import type { Post } from '@/types/post'
 
-// 诗歌解释帖子接口
-interface PoemExplanation {
-  commentCount: number
-  content: string
-  createdAt: String
-  poemAuthor: string
-  poemTitle: string
-  postId: number
-  tags: string[]
-  title: string
-  userName: string
-}
-
-const explanationList = ref<PoemExplanation[]>([])
+const explanationList = ref<Post[]>([])
 
 onMounted(() => {
   getPoemExplanationList().then((response: { data: any }) => {

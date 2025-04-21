@@ -113,10 +113,10 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 
 
 //修改用户头像
-export const updateUserAvatar = async (file: File, id: number, username: string, email: string) => {
+export const updateUserAvatar = async (file: File, id: string, username: string, email: string) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('id', id.toString());
+    formData.append('id', id);
     formData.append('username', username);
     formData.append('email', email);
 

@@ -26,35 +26,18 @@
           class="cursor-pointer hover:scale-105 transition-transform"
           @click="goToDetail(poem.poemId)"
         >
-          <n-card 
+          <PresentationCard 
             :title="poem.title"
-            class="h-full"
-            hoverable
-          >
-            <!-- 优化标题和副标题显示 -->
-            <template v-if="poem.subtitle" #header-extra>
-              <n-tag size="small" type="info">
-                {{ poem.subtitle }}
-              </n-tag>
-            </template>
-
-            <div class="mb-4 text-gray-600">
-              {{ poem.content.length > 100 ? poem.content.slice(0, 100) + '...' : poem.content }}
-            </div>
-
-            <n-divider class="my-4" />
-
-            <div class="flex justify-between items-center text-sm text-gray-500">
-              <div class="flex items-center space-x-1">
-                <n-icon :component="PersonOutline" class="w-4 h-4" />
-                <span>{{ poem.authorName }}</span>
-              </div>
-              <div class="flex items-center space-x-1">
-                <n-icon :component="CalendarOutline" class="w-4 h-4" />
-                <span>{{ poem.createdAt }}</span>
-              </div>
-            </div>
-          </n-card>
+            :sub-title="poem.subTitle || ''"
+            :content="poem.content"
+            :likes="poem.likeCount || 0"
+            :comments="poem.commentCount || 0"
+            :favorites="poem.favoriteCount || 0"
+            :upload-date="poem.createdAt"
+            :username="poem.authorName"
+            :user-avatar="poem.avatarUrl || null"
+            :avatar-loading="!poem.avatarLoaded"
+          />
         </n-grid-item>
       </n-grid>
 
@@ -76,48 +59,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import {
   NCard,
   NGrid,
   NGridItem,
-  NTag,
   NPagination,
-  NIcon,
-  NDivider
 } from 'naive-ui'
-import {
-  PersonOutline,
-  CalendarOutline
-} from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
 import { getPagedUserPoems } from '@/api/poemUser'
-import CreateButton from '@/components/CreateButton.vue'
-import LoadingComponent from '@/components/LoadingComponent.vue'
-
-// 定义诗歌类型
-interface Poem {
-  poemId: number
-  authorName: string
-  title: string
-  subtitle?: string
-  content: string
-  createdAt: string
-  commentCount: number
-  likeCount: number
-}
+import { getUserAvatarByUsername } from '@/api/personalCenter'
+import type { Poem } from '@/types/poem'
 
 interface PaginationResult {
-  items: Poem[]
-  total: number
+  content: any[]
+  totalElements: number
 }
 
+const DEFAULT_AVATAR = '/default-avatar.png'
 const router = useRouter()
 
 const poems = ref<Poem[]>([])
 const isMobile = ref(false)
 const total = ref(0)
 const loading = ref(false)
+const avatarCache = new Map<string, string>()
 
 // 分页相关
 const currentPage = ref(1)
@@ -126,20 +92,86 @@ const pageSize = 6
 // 计算总页数
 const pageCount = computed(() => Math.ceil(total.value / pageSize))
 
+// 在组件顶部添加一个专门用于跟踪进行中请求的Map
+const pendingAvatarRequests = new Map<string, Promise<string>>();
+
 const fetchPoems = async (page: number) => {
-  loading.value = true
+  loading.value = true;
   try {
-    const response = await getPagedUserPoems(page, pageSize)
-    const data = response.data as PaginationResult
-    poems.value = data.content
-    //console.log('获取诗歌列表:', poems.value)
-    total.value = data.totalElements
+    const response = await getPagedUserPoems(page, pageSize);
+    const data = response.data as PaginationResult;
+
+    // 先使用默认头像显示诗歌列表
+    poems.value = data.content.map(poem => ({
+      ...poem,
+      avatarUrl: DEFAULT_AVATAR,
+      avatarLoaded: false
+    }));
+    //console.log('poems', poems.value)
+    total.value = data.totalElements;
+    
+    // 收集需要加载的唯一作者名称
+    const uniqueAuthors = new Set(data.content.map(poem => poem.authorName));
+    
+    // 对每个唯一作者只发起一次请求
+    for (const authorName of uniqueAuthors) {
+      // 创建一个函数来负责获取或创建头像请求
+      const getOrCreateAvatarRequest = async () => {
+        // 如果缓存中已有结果，直接返回
+        if (avatarCache.has(authorName)) {
+          return avatarCache.get(authorName)!;
+        }
+        
+        try {
+          // 请求头像
+          const avatarUrl = await getUserAvatarByUsername(authorName);
+          // 存入缓存
+          avatarCache.set(authorName, avatarUrl);
+          return avatarUrl;
+        } catch (error) {
+          console.error('获取头像失败:', authorName, error);
+          avatarCache.set(authorName, DEFAULT_AVATAR);
+          return DEFAULT_AVATAR;
+        } finally {
+          // 请求完成后，移除进行中的请求记录
+          pendingAvatarRequests.delete(authorName);
+        }
+      };
+      
+      // 如果已经有进行中的请求，使用该请求
+      if (pendingAvatarRequests.has(authorName)) {
+        const pendingRequest = pendingAvatarRequests.get(authorName)!;
+        pendingRequest.then(avatarUrl => {
+          // 更新所有具有相同作者的诗歌
+          poems.value.forEach((poem, idx) => {
+            if (poem.authorName === authorName) {
+              poems.value[idx].avatarUrl = avatarUrl;
+              poems.value[idx].avatarLoaded = true;
+            }
+          });
+        });
+      } else {
+        // 否则创建新请求并保存
+        const newRequest = getOrCreateAvatarRequest();
+        pendingAvatarRequests.set(authorName, newRequest);
+        
+        newRequest.then(avatarUrl => {
+          // 更新所有具有相同作者的诗歌
+          poems.value.forEach((poem, idx) => {
+            if (poem.authorName === authorName) {
+              poems.value[idx].avatarUrl = avatarUrl;
+              poems.value[idx].avatarLoaded = true;
+            }
+          });
+        });
+      }
+    }
   } catch (error) {
-    console.error('获取诗歌列表失败:', error)
+    console.error('获取诗歌列表失败:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
@@ -157,16 +189,20 @@ const goToNewPoem = () => {
 }
 
 // 监听窗口大小变化
-window.addEventListener('resize', () => {
+const updateMobileStatus = () => {
   isMobile.value = window.innerWidth < 768
-})
-
-isMobile.value = window.innerWidth < 768
+}
 
 onMounted(() => {
+  updateMobileStatus()
+  window.addEventListener('resize', updateMobileStatus)
   fetchPoems(1)
 })
 
+// 组件卸载时移除事件监听
+const onUnmounted = () => {
+  window.removeEventListener('resize', updateMobileStatus)
+}
 </script>
 
 <style scoped>
@@ -214,4 +250,3 @@ onMounted(() => {
   }
 }
 </style>
-

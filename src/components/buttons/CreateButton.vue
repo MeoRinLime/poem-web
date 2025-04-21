@@ -120,7 +120,6 @@
   
 
 <script lang="ts" setup>
-import { defineEmits, defineProps } from 'vue'
 
 const props = defineProps({
   disabled: {
@@ -144,7 +143,7 @@ button {
   padding: 12px 35px;
   background: #fec195;
   font-size: 17px;
-  font-weight: 500;
+  font-weight: bold;
   color: #181818;
   border: 3px solid #fec195;
   border-radius: 8px;

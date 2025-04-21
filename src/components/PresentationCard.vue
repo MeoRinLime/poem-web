@@ -2,7 +2,7 @@
   <div class="task" draggable="true">
     <div class="task-header">
       <h3 class="title">{{ title }}</h3>
-      <p v-if="subTitle" class="subtitle">{{ subTitle }}</p>
+      <p class="subtitle">{{ subTitle }}</p>
     </div>
     
     <div class="tags-container">
@@ -70,7 +70,7 @@ interface Props {
   favorites?: number | string
   uploadDate?: string
   username: string
-  userAvatar: string
+  userAvatar: string | null
 }
 
 const props = defineProps<Props>()
