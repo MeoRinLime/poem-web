@@ -6,7 +6,7 @@ export interface Comment {
     createdAt: string;
     countLike: number;
     isLiked: boolean;
-    likeId?: number | string;
+    likeId?: number;
     userAvatar?: string;
     objectId: number;
 }

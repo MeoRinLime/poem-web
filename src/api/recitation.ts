@@ -2,6 +2,22 @@ import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
+// 获取朗读列表
+export const getRecitationList = async (current: number, size: number = 6) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/recitation`, {
+      params: {
+        current,
+        size,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recitation list:', error);
+    throw error;
+  }
+};
+
 // 上传朗读文件
 export const uploadRecitation = async (file: File, poemId: number, authorId: number, authorName: string, title: string, content: string) => {
   const formData = new FormData();

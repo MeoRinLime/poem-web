@@ -58,7 +58,7 @@ export const likeComment = async (objectId: number, userName: string) => {
 // {
 //     ids: Number
 // } 
-export const cancelLike = async (ids: string) => {
+export const cancelLike = async (ids: number) => {
     try {
         const response = await axios.delete(`${BASE_URL}/api/objectLike?ids=${ids}`
         );

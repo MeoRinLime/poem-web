@@ -74,32 +74,84 @@ export const updateUserInfo = async (id: string, bio: string, email: string) => 
 // 头像获取
 export const getUserAvatar = async (id: number) => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
-            params: {
-                id
-            },
-            responseType: 'blob', // 设置响应类型为 blob
-        });
-        const base64 = await blobToBase64(response.data);
-        return base64; // 返回 base64 字符串
+    // 从本地存储中获取缓存的 ETag 和 Last-Modified
+    const eTag = localStorage.getItem(`avatar-etag-${id}`);
+    const lastModified = localStorage.getItem(`avatar-lastModified-${id}`);
+    // 构建请求头
+    const headers: Record<string, string> = {};
+    if (eTag) headers['If-None-Match'] = eTag;
+    if (lastModified) headers['If-Modified-Since'] = lastModified;
+     
+    // 发送请求
+    const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
+        params: { id },
+        headers,
+        responseType: 'blob',
+        validateStatus: (status) => status === 200 || status === 304,
+    });
+     
+    if (response.status === 304) {
+         // 资源未修改，可使用缓存
+        const cachedBase64 = localStorage.getItem(`avatar-base64-${id}`);
+        if (cachedBase64) return cachedBase64;
+        throw new Error('缓存中未找到头像数据');
     }
-    catch (error: any) {
-        throw new Error(error.response?.data?.message || '获取用户头像失败');
-    }
+     
+    // 资源已更新，处理新的头像数据
+    const base64 = await blobToBase64(response.data);
+     
+    // 更新本地存储的缓存数据
+    const newETag = response.headers['etag'];
+    const newLastModified = response.headers['last-modified'];
+    if (newETag) localStorage.setItem(`avatar-etag-${id}`, newETag);
+    if (newLastModified) localStorage.setItem(`avatar-lastModified-${id}`, newLastModified);
+    localStorage.setItem(`avatar-base64-${id}`, base64);
+     
+    return base64;
+    } catch (error: any) {
+    throw new Error(error.response?.data?.message || '获取用户头像失败');
+      }
 };
 
 export const getUserAvatarByUsername = async (username: string) => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
-            params: { username },
-            responseType: 'blob',
-        });
-
-        const base64 = await blobToBase64(response.data);
-        return base64; // 返回 base64 字符串
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || '获取用户头像失败');
+    // 从本地存储中获取缓存的 ETag 和 Last-Modified
+    const eTag = localStorage.getItem(`avatar-etag-${username}`);
+    const lastModified = localStorage.getItem(`avatar-lastModified-${username}`);
+    // 构建请求头
+    const headers: Record<string, string> = {};
+    if (eTag) headers['If-None-Match'] = eTag;
+    if (lastModified) headers['If-Modified-Since'] = lastModified;
+     
+    // 发送请求
+    const response = await axios.get(`${BASE_URL}/api/webUsers/avatar`, {
+        params: { username },
+        headers,
+        responseType: 'blob',
+        validateStatus: (status) => status === 200 || status === 304,
+    });
+     
+    if (response.status === 304) {
+         // 资源未修改，可使用缓存
+        const cachedBase64 = localStorage.getItem(`avatar-base64-${username}`);
+        if (cachedBase64) return cachedBase64;
+        throw new Error('缓存中未找到头像数据');
     }
+     
+    // 资源已更新，处理新的头像数据
+    const base64 = await blobToBase64(response.data);
+     
+    // 更新本地存储的缓存数据
+    const newETag = response.headers['etag'];
+    const newLastModified = response.headers['last-modified'];
+    if (newETag) localStorage.setItem(`avatar-etag-${username}`, newETag);
+    if (newLastModified) localStorage.setItem(`avatar-lastModified-${username}`, newLastModified);
+    localStorage.setItem(`avatar-base64-${username}`, base64);
+     
+    return base64;
+    } catch (error: any) {
+    throw new Error(error.response?.data?.message || '获取用户头像失败');
+      }
 };
 
 const blobToBase64 = (blob: Blob): Promise<string> => {

@@ -30,7 +30,7 @@ const handleClick = (event: Event) => {
 <style scoped>
   .Btn {
     width: 130px;
-    height: 40px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,7 +61,7 @@ const handleClick = (event: Event) => {
     content: "";
     background-color: white;
     border-radius: 50%;
-    left: -100%;
+    left: -130%;
     top: 0;
     transition-duration: .3s;
     mix-blend-mode: difference;

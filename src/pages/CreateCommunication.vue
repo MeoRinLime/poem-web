@@ -1,23 +1,79 @@
+<template>
+  <div class="create-communication-container">
+    <div class="form-container">
+      <BigTitle
+      class="page-title"
+      text="新建日常交流贴" />
+      <div class="form-group">
+        <label for="title">标题</label>
+        <input 
+          id="title" 
+          v-model="formData.title" 
+          type="text" 
+          placeholder="随便起一个标题" 
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="content">内容</label>
+        <textarea 
+          id="content" 
+          v-model="formData.content" 
+          placeholder="随便说一些什么" 
+          class="form-textarea"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="tags">标签</label>
+        <div class="tags-input-container">
+          <input 
+            id="tags" 
+            v-model="tagInput" 
+            type="text" 
+            placeholder="也许你会需要一些标签" 
+            class="form-input"
+            @keyup.enter="addTag"
+          />
+          <AddTagsButton 
+            @click="addTag"
+          >
+            添加
+          </AddTagsButton>
+        </div>
+        <div v-if="formData.tags.length > 0" class="tags-container">
+          <span 
+            v-for="tag in formData.tags" 
+            :key="tag.name"
+            class="tag-item"
+            :style="{ backgroundColor: getTagColorStyle(tag.color) }"
+          >
+            {{ tag.name }}
+            <span class="tag-close" @click="removeTag(tag)">×</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <BackButton 
+          @click="cancelCreation"
+        >
+          取消
+        </BackButton>
+        <SendButton 
+          :disabled="!isFormValid" 
+          @click="submitExplanation"
+        >
+          发布
+        </SendButton>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { 
-  NCard, 
-  NForm,
-  NFormItem,
-  NInput,
-  NButton,
-  NSpace,
-  NTag,
-  NIcon,
-  useMessage
-} from 'naive-ui'
-import { 
-  PencilOutline, 
-  TextOutline, 
-  PricetagOutline,
-  AddOutline,
-  CloseOutline
-} from '@vicons/ionicons5'
 import router from '@/router'
 import { useAuthStore } from '@/store/auth'
 import { createPost } from '@/api/post'
@@ -29,6 +85,18 @@ const tagColors = [
 
 const getRandomColor = () => {
   return tagColors[Math.floor(Math.random() * tagColors.length)]
+}
+
+// 标签颜色转换
+const getTagColorStyle = (colorType: string) => {
+  const colorMap = {
+    'success': '#18a058',
+    'warning': '#f0a020',
+    'error': '#d03050',
+    'info': '#2080f0',
+    'default': '#d9d9d9'
+  }
+  return colorMap[colorType] || '#d9d9d9'
 }
 
 // 新增解释帖子的表单数据
@@ -49,11 +117,16 @@ const formData = ref<FormData>({
 })
 
 const tagInput = ref('')
-const message = useMessage()
+
+// 检查表单是否有效
+const isFormValid = computed(() => {
+  return formData.value.title.trim() !== '' && 
+         formData.value.content.trim() !== '';
+})
 
 const addTag = () => {
   const trimmedTag = tagInput.value.trim()
-  if (trimmedTag && !formData.value.tags.some(t => t.name === trimmedTag)) {
+  if (trimmedTag && !formData.value.tags.some(tag => tag.name === trimmedTag)) {
     formData.value.tags.push({
       name: trimmedTag,
       color: getRandomColor()
@@ -63,47 +136,43 @@ const addTag = () => {
 }
 
 const removeTag = (tagToRemove: { name: string, color: string }) => {
-  formData.value.tags = formData.value.tags.filter(t => t.name !== tagToRemove.name)
+  formData.value.tags = formData.value.tags.filter(tag => tag.name !== tagToRemove.name)
 }
 
-const submitExplanation = () => {
-  // 验证表单
-  const validations = [
-    { field: 'title', message: '请输入标题' },
-    { field: 'content', message: '请输入内容' }
-  ]
+const submitExplanation = async () => {
+  if (!isFormValid.value) {
+    alert('请填写标题和内容');
+    return;
+  }
 
-  for (const validation of validations) {
-    if (!formData.value[validation.field]) {
-      message.error(validation.message)
-      return
+  try {
+    const username = useAuthStore().username || ''
+    const newPost = {
+      title: formData.value.title,
+      content: formData.value.content,
+      tags: formData.value.tags.map(tag => tag.name),
+      username: username,
+      poemTitle: formData.value.poemTitle,
+      poemAuthor: formData.value.poemAuthor,
+      type: 0
     }
-  }
+    
+    await createPost(
+      newPost.title,
+      newPost.username,
+      newPost.poemTitle,
+      newPost.poemAuthor,
+      newPost.content,
+      newPost.type,
+      newPost.tags,
+    );
 
-  const username = useAuthStore().username || ''
-  const newPost = {
-    title: formData.value.title,
-    content: formData.value.content,
-    tags: formData.value.tags.map(t => t.name),
-    username: username,
-    poemTitle: formData.value.poemTitle,
-    poemAuthor: formData.value.poemAuthor,
-    type: 0
+    // 返回列表页
+    router.push({ name: 'Communication' })
+  } catch (error) {
+    console.error('发布失败:', error);
+    alert('发布失败，请稍后再试');
   }
-  createPost(
-    newPost.title,
-    newPost.username,
-    newPost.poemTitle,
-    newPost.poemAuthor,
-    newPost.content,
-    newPost.type,
-    newPost.tags,
-  );
-
-  message.success('发布成功！')
-  
-  // 返回列表页
-  router.push({ name: 'Communication' })
 }
 
 const cancelCreation = () => {
@@ -111,120 +180,96 @@ const cancelCreation = () => {
 }
 </script>
 
-<template>
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <n-card 
-      class="w-full max-w-2xl shadow-2xl rounded-2xl"
-      :content-style="{ padding: '16px' }"
-    >
-      <div class="flex items-center justify-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-800 mr-4">
-          今天也聊点什么吧
-        </h1>
-        <n-icon :component="PencilOutline" size="24" class="text-gray-600" />
-      </div>
-
-      <n-form>
-
-        <n-form-item label="标题">
-          <n-input 
-            v-model:value="formData.title"
-            placeholder="随便起一个标题"
-          >
-            <template #prefix>
-              <n-icon :component="TextOutline" />
-            </template>
-          </n-input>
-        </n-form-item>
-
-        <n-form-item label="内容">
-          <n-input 
-            v-model:value="formData.content"
-            type="textarea"
-            placeholder="随便说一些什么"
-            :autosize="{ minRows: 2, maxRows: 6 }"
-          />
-        </n-form-item>
-
-        <n-form-item label="标签">
-          <div class="w-full">
-            <div class="flex mb-2">
-              <n-input 
-                v-model:value="tagInput"
-                placeholder="也许你会需要一些标签"
-                class="mr-2"
-                @keyup.enter="addTag"
-              >
-                <template #prefix>
-                  <n-icon :component="PricetagOutline" />
-                </template>
-              </n-input>
-              <n-button 
-                type="primary" 
-                class="flex items-center"
-                @click="addTag"
-              >
-                <n-icon :component="AddOutline" class="mr-1" />
-                添加
-              </n-button>
-            </div>
-            <n-space>
-              <n-tag 
-                v-for="tag in formData.tags" 
-                :key="tag.name"
-                :type="tag.color"
-                closable
-                @close="removeTag(tag)"
-              >
-                {{ tag.name }}
-              </n-tag>
-            </n-space>
-          </div>
-        </n-form-item>
-
-        <div class="flex justify-end space-x-2 mt-4">
-          <n-button 
-            class="mr-2"
-            @click="cancelCreation"
-          >
-            <template #icon>
-              <n-icon :component="CloseOutline" />
-            </template>
-            取消
-          </n-button>
-          <n-button 
-            type="primary" 
-            @click="submitExplanation"
-          >
-            发布
-          </n-button>
-        </div>
-      </n-form>
-    </n-card>
-  </div>
-</template>
-
 <style scoped>
-/* 输入框获取焦点时的阴影效果 */
-:deep(.n-input__state-border) {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+.create-communication-container {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  padding: 2rem;
 }
 
-@media (max-width: 768px) {
-  .text-2xl {
-    font-size: 18px;
-  }
-  .text-xl {
-    font-size: 16px;
-  }
-  .text-lg {
-    font-size: 14px;
-  }
-  .text-sm {
-    font-size: 12px;
-  }
-  .text-xs {
-    font-size: 10px;
-  }
+.page-title {
+  margin-left: 1rem;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.tags-input-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.tag-close {
+  margin-left: 0.3rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submit-button:disabled {
+  background-color: #a5a6f6;
+  cursor: not-allowed;
 }
 </style>

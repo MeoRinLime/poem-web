@@ -1,136 +1,110 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 relative">
-    <LoadingComponent v-if="loading" class="absolute inset-0 z-50 flex items-center justify-center bg-white/70" />
-    <n-card 
-      class="w-full max-w-2xl shadow-2xl rounded-2xl relative overflow-hidden"
-      :content-style="{ padding: '16px', background: 'rgba(255,255,255,0.95)' }"
-    >
-      <!-- 古诗词灵感引导 -->
-      <div class="flex flex-col items-center justify-center mb-6">
-        <span class="text-gray-500 text-sm italic mb-2">“落霞与孤鹜齐飞，秋水共长天一色。”</span>
-        <span class="text-xs text-gray-400 mb-2">—— 王勃《滕王阁序》</span>
-      </div>
-      <div class="flex items-center justify-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-800 mr-4 tracking-wide">
-          挥毫泼墨，留下你的独特见解
-        </h1>
-        <n-icon :component="PencilOutline" size="24" class="text-gray-600" />
+  <div class="create-explanation-container">
+    <div class="form-container">
+      <div class="form-group">
+        <BigTitle 
+        text= "新建诗歌解读贴"
+        class="page-title" />
+        <label for="poemTitle">诗歌标题</label>
+        <input 
+          id="poemTitle" 
+          v-model="formData.poemTitle" 
+          type="text" 
+          placeholder="请输入相关诗歌的标题（如：静夜思）" 
+          class="form-input"
+        />
       </div>
 
-      <n-form>
+      <div class="form-group">
+        <label for="poemAuthor">诗歌作者</label>
+        <input 
+          id="poemAuthor" 
+          v-model="formData.poemAuthor" 
+          type="text" 
+          placeholder="请输入相关诗歌的作者（如：李白）" 
+          class="form-input"
+        />
+      </div>
 
-        <n-form-item label="诗歌标题">
-          <n-input
-            v-model:value="formData.poemTitle"
-            placeholder="请输入相关诗歌的标题（如：静夜思）"
-          >
-            <template #prefix>
-              <n-icon :component="BookOutline" />
-            </template>
-          </n-input>
-        </n-form-item>
+      <div class="form-group">
+        <label for="title">帖子标题</label>
+        <input 
+          id="title" 
+          v-model="formData.title" 
+          type="text" 
+          placeholder="为你的解读赋予一个标题" 
+          class="form-input"
+        />
+      </div>
 
-        <n-form-item label="诗歌作者">
-          <n-input
-            v-model:value="formData.poemAuthor"
-            placeholder="请输入相关诗歌的作者（如：李白）"
-          >
-            <template #prefix>
-              <n-icon :component="PersonOutline" />
-            </template>
-          </n-input>
-        </n-form-item>
+      <div class="form-group">
+        <label for="content">解读内容</label>
+        <textarea 
+          id="content" 
+          v-model="formData.content" 
+          placeholder="分享你对诗歌的见解或感悟，亦可抒发诗心" 
+          class="form-textarea"
+        ></textarea>
+      </div>
 
-        <n-form-item label="帖子标题">
-          <n-input
-            v-model:value="formData.title"
-            placeholder="为你的解读赋予一个标题"
-          >
-            <template #prefix>
-              <n-icon :component="TextOutline" />
-            </template>
-          </n-input>
-        </n-form-item>
-
-        <n-form-item label="解读内容">
-          <n-input
-            v-model:value="formData.content"
-            type="textarea"
-            placeholder="分享你对诗歌的见解或感悟，亦可抒发诗心"
-            :autosize="{ minRows: 3, maxRows: 8 }"
+      <div class="form-group">
+        <label for="tags">墨香标签</label>
+        <div class="tags-input-container">
+          <input 
+            id="tags" 
+            v-model="tagInput" 
+            type="text" 
+            placeholder="如：思乡、写景、咏史……" 
+            class="form-input"
+            list="tag-suggestions"
+            @keyup.enter="addTag"
           />
-        </n-form-item>
-
-        <n-form-item label="墨香标签">
-          <div class="w-full">
-            <div class="flex mb-2">
-              <n-auto-complete
-                v-model:value="tagInput"
-                :options="filteredTagOptions"
-                placeholder="如：思乡、写景、咏史……"
-                class="mr-2"
-                :input-props="{ autocomplete: 'off' }"
-                @keyup.enter="addTag"
-                @select="onTagSelect"
-              >
-                <template #prefix>
-                  <n-icon :component="PricetagOutline" />
-                </template>
-              </n-auto-complete>
-              <AddTagsButton 
-                text="添加标签"
-                @click="addTag"
-              />
-            </div>
-            <n-space>
-              <n-tag 
-                v-for="tag in formData.tags" 
-                :key="tag.name"
-                :type="tag.color as any"
-                closable
-                @close="removeTag(tag)"
-              >
-                {{ tag.name }}
-              </n-tag>
-            </n-space>
-          </div>
-        </n-form-item>
-
-        <div class="flex justify-end space-x-2 mt-4">
-          <BackButton 
-            text="收笔"
-            @click="cancelCreation"/>
-
-          <SendButton 
-            text="挥毫直书"
-            :loading="loading"
-            @click="submitExplanation" />
+          <datalist id="tag-suggestions">
+            <option v-for="option in tagOptions" :key="option" :value="option"></option>
+          </datalist>
+          <AddTagsButton 
+            @click="addTag" 
+          >
+            添加
+          </AddTagsButton>
         </div>
-      </n-form>
-    </n-card>
+        <div v-if="formData.tags.length > 0" class="tags-container">
+          <span 
+            v-for="tag in formData.tags" 
+            :key="tag.name"
+            class="tag-item"
+            :style="{ backgroundColor: getTagColorStyle(tag.color) }"
+          >
+            {{ tag.name }}
+            <span class="tag-close" @click="removeTag(tag)">×</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <BackButton 
+          @click="cancelCreation" 
+        >
+          收笔
+        </BackButton>
+        <SendButton 
+          :disabled="loading || !isFormValid" 
+          @click="submitExplanation"
+        >
+          {{ loading ? '提交中...' : '挥毫直书' }}
+        </SendButton>
+      </div>
+
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { 
-  NCard, 
-  NForm,
-  NFormItem,
-  NInput,
-  NSpace,
-  NTag,
-  NIcon,
-  useMessage,
-  NAutoComplete
-} from 'naive-ui'
-import { 
-  PencilOutline, 
-  TextOutline, 
-  PricetagOutline,
-  BookOutline,
-  PersonOutline
-} from '@vicons/ionicons5'
+import BackButton from '@/components/buttons/BackButton.vue'
 import router from '@/router'
 import { useAuthStore } from '@/store/auth'
 import { createPost } from '@/api/post'
@@ -143,6 +117,24 @@ const tagColors = [
 const getRandomColor = () => {
   return tagColors[Math.floor(Math.random() * tagColors.length)]
 }
+
+// 标签颜色转换
+const getTagColorStyle = (colorType: string) => {
+  const colorMap = {
+    'success': '#18a058',
+    'warning': '#f0a020',
+    'error': '#d03050',
+    'info': '#2080f0',
+    'default': '#d9d9d9'
+  }
+  return colorMap[colorType] || '#d9d9d9'
+}
+
+// 常用标签联想列表
+const tagOptions = [
+  '思乡', '写景', '咏史', '抒情', '送别', '友情', '爱情', '哲理', '田园', '边塞', 
+  '怀古', '励志', '节令', '自然', '人生', '山水', '写人', '咏物', '怀人', '感怀'
+]
 
 // 新增解释帖子的表单数据
 interface FormData {
@@ -162,68 +154,51 @@ const formData = ref<FormData>({
 })
 
 const tagInput = ref('')
-const message = useMessage()
 const loading = ref(false)
+const errorMessage = ref('')
 
-// 常用标签联想列表
-const tagOptions = [
-  '思乡', '写景', '咏史', '抒情', '送别', '友情', '爱情', '哲理', '田园', '边塞', '怀古', '励志', '节令', '自然', '人生', '山水', '写人', '咏物', '怀人', '感怀'
-]
-// 计算过滤后的联想标签
-const filteredTagOptions = computed(() => {
-  const input = tagInput.value.trim()
-  if (!input) return tagOptions
-  return tagOptions.filter(option => option.includes(input) && !formData.value.tags.some(tag => tag.name === option))
+// 检查表单是否有效
+const isFormValid = computed(() => {
+  return formData.value.title.trim() !== '' && 
+         formData.value.content.trim() !== '';
 })
-// 选择联想标签时直接填充输入框
-const onTagSelect = (val: string) => {
-  tagInput.value = val
-  addTag()
-}
 
 const addTag = () => {
   const trimmedTag = tagInput.value.trim()
-  if (trimmedTag && !formData.value.tags.some(existingTag => existingTag.name === trimmedTag)) {
+  if (trimmedTag && !formData.value.tags.some(tag => tag.name === trimmedTag)) {
     formData.value.tags.push({
       name: trimmedTag,
       color: getRandomColor()
     })
-    tagInput.value = '';
-    console.log(tagInput.value);
+    tagInput.value = ''
   }
 }
 
 const removeTag = (tagToRemove: { name: string, color: string }) => {
-  formData.value.tags = formData.value.tags.filter(tagItem => tagItem.name !== tagToRemove.name)
+  formData.value.tags = formData.value.tags.filter(tag => tag.name !== tagToRemove.name)
 }
 
 const submitExplanation = async () => {
-  // 验证表单
-  const validations = [
-    { field: 'title', message: '请输入帖子标题' },
-    { field: 'content', message: '请输入解读内容' }
-  ]
-
-  for (const validation of validations) {
-    if (!(formData.value as any)[validation.field]) {
-      message.error(validation.message)
-      return
-    }
+  if (!isFormValid.value) {
+    errorMessage.value = '请填写标题和内容';
+    return;
   }
 
-  loading.value = true
+  loading.value = true;
+  errorMessage.value = '';
+
   try {
     const username = useAuthStore().username || ''
     const newPost = {
       title: formData.value.title,
       content: formData.value.content,
-      tags: formData.value.tags.map(tagItem => tagItem.name),
+      tags: formData.value.tags.map(tag => tag.name),
       username: username,
       poemTitle: formData.value.poemTitle || '',
       poemAuthor: formData.value.poemAuthor || '',
-      type: 0
+      type: 1
     }
-
+    
     await createPost(
       newPost.title,
       newPost.username,
@@ -234,16 +209,13 @@ const submitExplanation = async () => {
       newPost.tags,
     );
 
-    message.success('发布成功！')
-    
     // 返回列表页
     router.push({ name: 'PoemExplanationList' })
-
   } catch (error) {
-    console.error('发布失败:', error)
-    message.error('发布失败，请稍后重试')
+    console.error('发布失败:', error);
+    errorMessage.value = '发布失败，请稍后再试';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
@@ -253,27 +225,102 @@ const cancelCreation = () => {
 </script>
 
 <style scoped>
-/* 输入框获取焦点时的阴影效果 */
-:deep(.n-input__state-border) {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+.create-explanation-container {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  padding: 2rem;
 }
 
-@media (max-width: 768px) {
-  .text-2xl {
-    font-size: 18px;
-  }
-  .text-xl {
-    font-size: 16px;
-  }
-  .text-lg {
-    font-size: 14px;
-  }
-  .text-sm {
-    font-size: 12px;
-  }
-  .text-xs {
-    font-size: 10px;
-  }
+.page-title {
+  margin-left: 1rem;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.tags-input-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.tag-close {
+  margin-left: 0.3rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submit-button:disabled {
+  background-color: #a5a6f6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  margin-top: 1rem;
+  color: #ef4444;
+  text-align: center;
 }
 </style>
 

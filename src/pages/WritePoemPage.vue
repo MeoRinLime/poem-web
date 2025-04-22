@@ -25,67 +25,64 @@
 
         <!-- 右侧表单区域 -->
         <n-grid-item class="bg-white p-4 md:p-8 overflow-y-auto">
-          <n-form 
-            ref="formRef"
-            :model="poemForm"
-            :rules="rules"
-            label-placement="top"
-            require-mark-placement="right"
-          >
-            <div class="space-y-4 md:space-y-6">
-              <n-form-item label="标题" path="title">
-                <n-input 
-                  v-model:value="poemForm.title" 
+          <div class="form-container">
+            <form @submit.prevent="submitPoem">
+              <div class="form-group">
+                <label for="title">标题</label>
+                <input
+                  id="title"
+                  v-model="poemForm.title"
+                  type="text"
                   placeholder="诗词的主题或灵感"
-                  clearable
-                  :maxlength="50"
-                  class="poem-input"
+                  class="form-input"
+                  maxlength="50"
                 />
-              </n-form-item>
+              </div>
 
-              <n-form-item label="副标题（可选）" path="subtitle">
-                <n-input 
-                  v-model:value="poemForm.subtitle" 
+              <div class="form-group">
+                <label for="subtitle">副标题（可选）</label>
+                <input
+                  id="subtitle"
+                  v-model="poemForm.subtitle"
+                  type="text"
                   placeholder="为您的诗词增添一丝微妙的意蕴"
-                  clearable
-                  :maxlength="30"
-                  class="poem-input"
+                  class="form-input"
+                  maxlength="30"
                 />
-              </n-form-item>
+              </div>
 
-              <n-form-item label="内容" path="content">
-                <n-input 
-                  v-model:value="poemForm.content"
-                  type="textarea"
+              <div class="form-group">
+                <label for="content">内容</label>
+                <textarea
+                  id="content"
+                  v-model="poemForm.content"
                   placeholder="在这里倾诉您的诗意..."
-                  :autosize="{
-                    minRows: 5,
-                    maxRows: 8
-                  }"
-                  :maxlength="1000"
-                  show-count
-                  class="poem-textarea"
-                />
+                  class="form-textarea"
+                  maxlength="1000"
+                ></textarea>
                 <div class="text-right text-xs md:text-sm text-gray-500 mt-1">
                   剩余 {{ contentRemainingChars }} 字
                 </div>
-              </n-form-item>
+              </div>
 
-              <n-form-item label="作者">
-                <n-input 
-                  v-model:value="username" 
-                  disabled 
+              <div class="form-group">
+                <label for="author">作者</label>
+                <input
+                  id="author"
+                  v-model="username"
+                  type="text"
                   placeholder="登录用户名"
-                  class="poem-input"
+                  class="form-input"
+                  disabled
                 />
-              </n-form-item>
+              </div>
 
-              <n-space justify="center" class="mt-4 md:mt-6">
-                <SendButton @click="submitPoem"></SendButton>
+              <div class="button-container">
                 <BackButton @click="$router.push('/')"></BackButton>
-              </n-space>
-            </div>
-          </n-form>
+                <SendButton @click="submitPoem"></SendButton>
+              </div>
+            </form>
+          </div>
         </n-grid-item>
       </n-grid>
     </div>
@@ -219,19 +216,45 @@ const checkScreenSize = () => {
 </script>
 
 <style scoped>
-.poem-input, .poem-textarea {
-  border-bottom: 2px solid #e0e0e0;
-  border-radius: 0;
-  transition: border-color 0.3s ease;
+.form-container {
+  width: 100%;
 }
 
-.poem-input:hover, .poem-textarea:hover {
-  border-bottom-color: #FFAB91;
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
-.poem-input:focus, .poem-textarea:focus {
-  border-bottom-color: #FFAB91;
-  box-shadow: none;
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #FFAB91;
+}
+
+.button-container {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 @media (max-width: 767px) {

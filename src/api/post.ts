@@ -49,3 +49,16 @@ export const getCommunicationList = async () => {
         throw new Error(error.response?.data?.message || '获取失败');
     }
 };
+
+// 删除帖子
+export const deletePost = async (postIds: number[]) => {
+    try {
+        const response = await axios.delete(`${BASE_URL}/api/post`, {
+            data: postIds,
+            
+        });
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '删除失败');
+    }
+};

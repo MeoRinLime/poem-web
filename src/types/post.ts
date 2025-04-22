@@ -1,3 +1,4 @@
+import type { Comment } from './comment'
 export interface Post {
     postId: number
     title: string
@@ -16,6 +17,6 @@ export interface PostDetail extends Post {
     comments: Comment[]
     likeCount: number
     favoriteCount: number
-    likeId?: string
+    likeId?: number
     favoritesId?: string
 }

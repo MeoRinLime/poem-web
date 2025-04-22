@@ -1,3 +1,5 @@
+import type { Comment } from './comment'
+
 // 创作诗歌
 export interface WritePoem {
     title: string
