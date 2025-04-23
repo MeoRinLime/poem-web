@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 interface AuthState {
   isLoggedIn: boolean;
   token: string | null;
-  username: string | null;
+  username: string;
   bio: string | null;
   createTime: string | null;
   email: string | null;
@@ -17,7 +17,7 @@ export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     isLoggedIn: false,  // 默认用户未登录
     token: null,  // 登录 token
-    username: null,  // 用户名
+    username: "",  // 用户名
     bio: null, // 用户简介
     createTime: null, // 用户创建时间
     email : null, // 用户邮箱
@@ -87,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.isLoggedIn = false;  // 退出时设置为未登录
       this.token = null;  // 清除 token
-      this.username = null;  // 清除用户名
+      this.username = "";  // 清除用户名
       this.bio = null;  // 清除用户简介
       this.createTime = null;  // 清除用户创建时间
       this.email = null; // 清除用户邮箱

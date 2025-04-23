@@ -1,9 +1,9 @@
 <template>
     <content-detail-page
-      content-type="poem"
-      :content-id="poemId"
-      back-text="返回诗歌长廊"
-      :show-audio-player="false"
+      content-type="recitation"
+      :content-id="recitationId"
+      back-text="返回朗读列表"
+      :show-audio-player="true"
     />
 </template>
   
@@ -12,5 +12,5 @@ import { useRoute } from 'vue-router'
 import ContentDetailPage from '@/components/ContentDetailPage.vue'
 
 const route = useRoute()
-const poemId = Number(route.params.poemId)
+const recitationId = Number(route.params.recitationId)
 </script>

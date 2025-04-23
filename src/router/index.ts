@@ -2,24 +2,26 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/store/auth';  // 引入 Pinia 的 auth store
 
 import HomePage from '@/pages/HomePage.vue';
-import SearchPage from '@/pages/SearchPage.vue';
-import CommunicationPage from '@/pages/CommunicationList.vue';
+import SearchPage from '@/pages/Search/SearchPage.vue';
+import CommunicationPage from '@/pages/Communication/CommunicationList.vue';
 import DailyPoemPage from '@/pages/DailyPoemPage.vue';
 import PersonalCenterPage from '@/pages/PersonalCenterPage.vue';
-import WritePoemPage from '@/pages/WritePoemPage.vue';
-import PoemExplanationPage from '@/pages/PoemExplanationList.vue';
+import WritePoemPage from '@/pages/UserPoem/WritePoemPage.vue';
+import PoemExplanationPage from '@/pages/Explanation/PoemExplanationList.vue';
 import LoginPage from '@/pages/LoginPage.vue';
-import PoemExplanationDetailPage from '@/pages/PoemExplanationDetailPage.vue';
-import NotFoundPage from '@/pages/NotFoundPage.vue';
-import CreatePoemExplanation from '@/pages/CreatePoemExplanation.vue';
-import UserPoemList from '@/pages/UserPoemList.vue';
-import UserPoemDetail from '@/pages/UserPoemDetail.vue';
-import SearchResultsPage from '@/pages/SearchResultsPage.vue';
-import CommunicationDetailPage from '@/pages/CommunicationDetailPage.vue';
-import CreateCommunication from '@/pages/CreateCommunication.vue';
-import RecitationList from '@/pages/RecitationList.vue';
-import RecitationDetailPage from '@/pages/RecitationDetailPage.vue';
-import CreateRecitation from '@/pages/CreateRecitation.vue';
+import PoemExplanationDetailPage from '@/pages/Explanation/PoemExplanationDetailPage.vue';
+import NotFoundPage from '@/pages/NotFound/NotFoundPage.vue';
+import CreatePoemExplanation from '@/pages/Explanation/CreatePoemExplanation.vue';
+import UserPoemList from '@/pages/UserPoem/UserPoemList.vue';
+import UserPoemDetail from '@/pages/UserPoem/UserPoemDetail.vue';
+import SearchResultsPage from '@/pages/Search/SearchResultsPage.vue';
+import CommunicationDetailPage from '@/pages/Communication/CommunicationDetailPage.vue';
+import CreateCommunication from '@/pages/Communication/CreateCommunication.vue';
+import RecitationList from '@/pages/Recitation/RecitationList.vue';
+import RecitationDetailPage from '@/pages/Recitation/RecitationDetailPage.vue';
+import CreateRecitation from '@/pages/Recitation/CreateRecitation.vue';
+import PoetPoemListPage from '@/pages/PoetPoem/PoetPoemListPage.vue';
+import PoetPoemDetailPage from '@/pages/PoetPoem/PoetPoemDetailPage.vue';
 import TestPlay from '@/pages/TestPlay.vue';
 
 const routes = [
@@ -64,7 +66,7 @@ const routes = [
     },
   },
   {
-    path: '/recitation/:recitationId',  // 修复拼写错误，从peth改为path
+    path: '/recitation/:recitationId',
     component: RecitationDetailPage,
     name: 'RecitationDetail',
     props: true,
@@ -108,6 +110,23 @@ const routes = [
     name: 'CommunicationDetail',
     component: CommunicationDetailPage,
     props: true
+  },
+  {
+    path: '/poem-list',
+    component: PoetPoemListPage,
+    name: 'PoetPoemList',
+    meta: {
+      title: '诗歌列表',
+    },
+  },
+  {
+    path: '/poem-detail/:poemId',
+    component: PoetPoemDetailPage,
+    name: 'PoetPoemDetail',
+    props: true,
+    meta: {
+      title: '诗歌详情',
+    },
   },
   {
     path: '/search',

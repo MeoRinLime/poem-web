@@ -142,12 +142,6 @@ const submitRecitation = async () => {
     return;
   }
 
-  if (!authStore.user) {
-    errorMessage.value = '您需要登录才能上传朗诵';
-    router.push('/login');
-    return;
-  }
-
   try {
     isSubmitting.value = true;
     errorMessage.value = '';
@@ -155,8 +149,8 @@ const submitRecitation = async () => {
     await uploadRecitation(
       selectedFile.value as File,
       recitationData.value.poemId as number,
-      authStore.user.userId,
-      authStore.user.username,
+      authStore.userId,
+      authStore.username,
       recitationData.value.title,
       recitationData.value.content
     );

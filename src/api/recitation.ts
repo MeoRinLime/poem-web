@@ -18,6 +18,21 @@ export const getRecitationList = async (current: number, size: number = 6) => {
   }
 };
 
+// 获取朗读详情
+export const getRecitationDetail = async (recitationId: number) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/recitation`, {
+      params: {
+        recitationId,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recitation detail:', error);
+    throw error;
+  }
+};
+
 // 上传朗读文件
 export const uploadRecitation = async (file: File, poemId: number, authorId: number, authorName: string, title: string, content: string) => {
   const formData = new FormData();

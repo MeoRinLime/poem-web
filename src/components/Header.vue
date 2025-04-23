@@ -30,7 +30,7 @@
       <!-- Desktop navigation -->
       <PopoverGroup class="hidden lg:flex lg:gap-x-8 xl:gap-x-12 items-center justify-center">
         <!-- Poetry Exchange Dropdown -->
-        <Popover class="relative" v-slot="{ open }">
+        <Popover v-slot="{ open }" class="relative">
           <PopoverButton 
             class="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 outline-none"
             :class="{ 'text-gray-900': isScrolled, 'text-gray-800': !isScrolled }"
@@ -103,12 +103,12 @@
         </router-link>
 
         <!-- User Avatar and Dropdown (Logged in) -->
-        <div class="relative ml-4 flex items-center" v-if="authStore.isLoggedIn">
+        <div v-if="authStore.isLoggedIn" class="relative ml-4 flex items-center">
           <button 
-            @click="toggleUserMenu" 
-            class="flex items-center focus:outline-none"
+            class="flex items-center focus:outline-none" 
             aria-expanded="userMenuOpen"
             aria-label="User menu"
+            @click="toggleUserMenu"
           >
             <img 
               :src="userAvatar" 
@@ -303,7 +303,7 @@ const navigationItems = [
   { name: '诗歌解读', description: '横看成岭侧成峰，远近高低各不同', href: '/poem-explanation', icon: SparklesIcon },
   { name: '日常交流', description: '尘世难逢开口笑，菊花须插满头归', href: '/communication', icon: StarIcon },
   { name: '诗歌朗读', description: '闲事愁人人易老，得高歌处且高歌', href: '/recitation', icon: PaperAirplaneIcon },
-
+  { name: '诗歌列表', description: '千古诗词浩如烟，文人墨客竞翩跹', href: 'poem-list', icon: GlobalOutlined}
 ]
 
 // Computed properties

@@ -145,6 +145,7 @@
   import type { Comment } from '@/types/comment'
   import type { Poem } from '@/types/poem'
   import type { PostDetail } from '@/types/post'
+  import type { Recitation } from '@/types/recitation'
   
   import {
   likePost, cancelLike, isLikePost, likeUserPoem, isLikeUserPoem,
@@ -154,6 +155,8 @@
   import { postComment } from '@/api/comment'
   import { getPostById, deletePost } from '@/api/post'
   import { getUserPoem, deleteUserPoem } from '@/api/poemUser'
+  import { getRecitationDetail } from '@/api/recitation'
+  import { getPoetPoem } from '@/api/poemPoet'
   
   const props = defineProps({
     contentType: {
@@ -233,13 +236,19 @@
       let response
       if (props.contentType === 'poem') {
         response = await getUserPoem(Number(props.contentId))
-      } else {
+      } else if (props.contentType === 'post') {
         response = await getPostById(Number(props.contentId))
+      } else if (props.contentType === 'recitation') {
+        response = await getRecitationDetail(Number(props.contentId))
+      } else {
+        throw new Error('未知的内容类型')
       }
       
-      // 统一处理返回的数据格式
-      detail.value = transformData(response.data)
-      
+      if (!response.data) {
+        detail.value = transformData(response)
+      } else {
+        detail.value = transformData(response.data)
+      }
       // 检查点赞和收藏状态
       await checkLikeCollectStatus()
       
@@ -271,7 +280,7 @@
         favoritesId: data.favoritesId,
         audioUrl: data.audioUrl
       }
-    } else {
+    } else if (props.contentType === 'post') {
       return {
         id: data.postId,
         title: data.title,
@@ -288,7 +297,27 @@
         likeId: data.likeId,
         favoritesId: data.favoritesId
       }
+    } else if (props.contentType === 'recitation') {
+      return {
+        id: data.recitationId,
+        title: data.title,
+        content: data.content,
+        type: 'poem',
+        author: {
+          name: data.authorName,
+          createdAt: data.createdAt
+        },
+        comments: data.comments || [],
+        likeCount: data.likeCount || 0,
+        favoriteCount: data.favoriteCount || 0,
+        likeId: data.likeId,
+        favoritesId: data.favoritesId,
+        audioUrl: data.url
+      }
     }
+    
+    // 默认返回空对象
+    return detail.value
   }
   
   // 检查点赞收藏状态
