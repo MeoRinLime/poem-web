@@ -23,37 +23,41 @@
 
       <!-- 主内容区域 -->
       <div class="flex flex-col items-center px-4 md:px-0">
-        <h1 class="md:text-7xl text-4xl font-bold text-transparent bg-clip-text 
-                  bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 opacity-90 font-serif" 
-            style="font-family: Georgia, 'SimSun', serif">
+        <h1
+          class="md:text-7xl text-4xl font-bold text-transparent bg-clip-text 
+          bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 opacity-90 font-serif" 
+          style="font-family: Georgia, 'SimSun', serif">
           诗韵Poemre
         </h1>
         <h2 class="md:text-2xl text-lg mt-4 text-amber-700 opacity-80 font-serif">Welcome to 诗歌世界</h2>
 
         <!-- 随机一诗 -->
-        <div class="text-center md:mt-20 mt-10 p-4 md:p-6 border-2 border-amber-200 rounded-lg 
+        <div
+          class="text-center md:mt-20 mt-10 p-4 md:p-6 border-2 border-amber-200 rounded-lg 
                   bg-amber-50 bg-opacity-70 shadow-md max-w-md mx-auto font-mono w-[90%] relative z-30">
-          <span id="hitokoto" class="md:text-xl text-base text-amber-900" 
-                style="font-family: 'Courier New', Courier, monospace"></span>
-          <div id="hitokoto-From" class="text-sm text-amber-800 mt-2 italic" 
-               style="font-family: 'Courier New', Courier, monospace"></div>
+          <span
+            id="hitokoto" class="md:text-xl text-base text-amber-900" 
+            style="font-family: 'Courier New', Courier, monospace"></span>
+          <div
+            id="hitokoto-From" class="text-sm text-amber-800 mt-2 italic" 
+            style="font-family: 'Courier New', Courier, monospace"></div>
         </div>
 
         <!-- 按钮区域 -->
         <div class="flex md:space-x-10 space-x-4 md:mt-16 mt-10 z-30 mb-10 md:mb-0">
           <button 
-            @click="handleCreatePoem" 
             class="px-6 py-2 md:px-8 md:py-3 text-base md:text-lg bg-gradient-to-r 
                   from-amber-600 to-amber-700 text-white rounded-lg hover:opacity-90 
                   transition-opacity font-serif shadow-md active:scale-95" 
+            @click="handleCreatePoem" 
           >
             开始创作
           </button>
           <button 
-            @click="handleDailyPoem" 
             class="px-6 py-2 md:px-8 md:py-3 text-base md:text-lg bg-gradient-to-r 
                   from-amber-700 to-amber-800 text-white rounded-lg hover:opacity-90 
                   transition-opacity font-serif shadow-md active:scale-95" 
+            @click="handleDailyPoem" 
           >
             每日一诗
           </button>
@@ -73,72 +77,60 @@
   </div>
 </template>
 
-<script lang="ts">
-import { ref, onMounted, onUnmounted, defineComponent } from 'vue';
+<script lang="ts" setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import Typed from 'typed.js';
 import router from '@/router';
 import { getPoemRecommend } from '@/api/hitopoem';
 
-export default defineComponent({
-  name: 'HomePage',
-  setup() {
-    const backgroundImageUrl = ref('');
-    const backgroundOpacity = ref(0);
+const backgroundImageUrl = ref('');
+const backgroundOpacity = ref(0);
 
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        backgroundImageUrl.value = '/img/mobile-bg.jpg';
-      } else {
-        backgroundImageUrl.value = '/img/desktop-bg.jpg';
-      }
-    };
+const handleResize = () => {
+  if (window.innerWidth < 768) {
+    backgroundImageUrl.value = '/img/mobile-bg.jpg';
+  } else {
+    backgroundImageUrl.value = '/img/desktop-bg.jpg';
+  }
+};
 
-    onMounted(async () => {
-      try {
-        handleResize();
-        window.addEventListener('resize', handleResize);
+onMounted(async () => {
+  try {
+    handleResize();
+    window.addEventListener('resize', handleResize);
 
-        setTimeout(() => {
-          backgroundOpacity.value = 1;
-        }, 100);
+    setTimeout(() => {
+      backgroundOpacity.value = 1;
+    }, 100);
 
-        const responseHitokoto = await getPoemRecommend();
-        new Typed('#hitokoto', {
-          strings: [responseHitokoto.data.content],
-          typeSpeed: 50,
-          showCursor: false,
-        });
-        new Typed('#hitokoto-From', {
-          strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
-          typeSpeed: 50,
-          showCursor: false,
-          startDelay: 1000,
-        });
-      } catch (error) {
-        console.error('Failed to fetch hitokoto:', error);
-      }
+    const responseHitokoto = await getPoemRecommend();
+    new Typed('#hitokoto', {
+      strings: [responseHitokoto.data.content],
+      typeSpeed: 50,
+      showCursor: false,
     });
-
-    onUnmounted(() => {
-      window.removeEventListener('resize', handleResize);
+    new Typed('#hitokoto-From', {
+      strings: [`——  ${responseHitokoto.data.authorName} ${responseHitokoto.data.dynasty}`],
+      typeSpeed: 50,
+      showCursor: false,
+      startDelay: 1000,
     });
-
-    const handleCreatePoem = () => {
-      router.push('/write-poem');
-    };
-
-    const handleDailyPoem = () => {
-      router.push('/daily-poem');
-    };
-
-    return {
-      backgroundImageUrl,
-      backgroundOpacity,
-      handleCreatePoem,
-      handleDailyPoem,
-    };
+  } catch (error) {
+    console.error('Failed to fetch hitokoto:', error);
   }
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
+const handleCreatePoem = () => {
+  router.push('/write-poem');
+};
+
+const handleDailyPoem = () => {
+  router.push('/daily-poem');
+};
 </script>
 
 <style scoped>
