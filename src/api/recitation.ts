@@ -21,7 +21,7 @@ export const getRecitationList = async (current: number, size: number = 6) => {
 // 获取朗读详情
 export const getRecitationDetail = async (recitationId: number) => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/recitation`, {
+    const response = await axios.get(`${BASE_URL}/api/recitation/getById`, {
       params: {
         recitationId,
       },

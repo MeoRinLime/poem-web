@@ -235,7 +235,13 @@
       // 根据contentType决定使用哪个API
       let response
       if (props.contentType === 'poem') {
-        response = await getUserPoem(Number(props.contentId))
+        // 根据路由参数判断是用户诗歌还是诗人诗歌
+        const isUserPoem = route.path.includes('user-poem')
+        if (isUserPoem) {
+          response = await getUserPoem(Number(props.contentId))
+        } else {
+          response = await getPoetPoem(Number(props.contentId))
+        }
       } else if (props.contentType === 'post') {
         response = await getPostById(Number(props.contentId))
       } else if (props.contentType === 'recitation') {
@@ -263,6 +269,7 @@
   // 统一数据格式
   const transformData = (data: any): DetailContent => {
     if (props.contentType === 'poem') {
+      //console.log('poem', data)
       return {
         id: data.poemId,
         title: data.title,
@@ -298,6 +305,7 @@
         favoritesId: data.favoritesId
       }
     } else if (props.contentType === 'recitation') {
+      //console.log('recitation', data)
       return {
         id: data.recitationId,
         title: data.title,

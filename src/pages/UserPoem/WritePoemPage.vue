@@ -26,62 +26,61 @@
         <!-- 右侧表单区域 -->
         <n-grid-item class="bg-white p-4 md:p-8 overflow-y-auto">
           <div class="form-container">
-            <form @submit.prevent="submitPoem">
-              <div class="form-group">
-                <label for="title">标题</label>
-                <input
-                  id="title"
-                  v-model="poemForm.title"
-                  type="text"
+            <n-form
+              ref="formRef"
+              :model="poemForm"
+              :rules="rules"
+              class="custom-form"
+            >
+              <n-form-item label="标题" path="title" class="custom-form-item">
+                <n-input
+                  v-model:value="poemForm.title"
                   placeholder="诗词的主题或灵感"
-                  class="form-input"
                   maxlength="50"
+                  class="custom-input"
                 />
-              </div>
+              </n-form-item>
 
-              <div class="form-group">
-                <label for="subtitle">副标题（可选）</label>
-                <input
-                  id="subtitle"
-                  v-model="poemForm.subtitle"
-                  type="text"
+              <n-form-item label="副标题（可选）" path="subtitle" class="custom-form-item">
+                <n-input
+                  v-model:value="poemForm.subtitle"
                   placeholder="为您的诗词增添一丝微妙的意蕴"
-                  class="form-input"
                   maxlength="30"
+                  class="custom-input"
                 />
-              </div>
+              </n-form-item>
 
-              <div class="form-group">
-                <label for="content">内容</label>
-                <textarea
-                  id="content"
-                  v-model="poemForm.content"
+              <n-form-item label="内容" path="content" class="custom-form-item">
+                <n-input
+                  v-model:value="poemForm.content"
                   placeholder="在这里倾诉您的诗意..."
-                  class="form-textarea"
+                  type="textarea"
+                  :autosize="{
+                    minRows: 5,
+                    maxRows: 10
+                  }"
                   maxlength="1000"
-                ></textarea>
+                  class="custom-textarea"
+                />
                 <div class="text-right text-xs md:text-sm text-gray-500 mt-1">
                   剩余 {{ contentRemainingChars }} 字
                 </div>
-              </div>
+              </n-form-item>
 
-              <div class="form-group">
-                <label for="author">作者</label>
-                <input
-                  id="author"
-                  v-model="username"
-                  type="text"
+              <n-form-item label="作者" class="custom-form-item">
+                <n-input
+                  v-model:value="username"
                   placeholder="登录用户名"
-                  class="form-input"
                   disabled
+                  class="custom-input"
                 />
-              </div>
+              </n-form-item>
 
               <div class="button-container">
                 <BackButton @click="$router.push('/')"></BackButton>
-                <SendButton @click="submitPoem"></SendButton>
+                <SendButton @click="handleSubmit"></SendButton>
               </div>
-            </form>
+            </n-form>
           </div>
         </n-grid-item>
       </n-grid>
@@ -92,19 +91,21 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { 
-  NForm, 
-  NFormItem, 
-  NInput, 
-  NSpace,
   NGrid,
   NGridItem,
+  NForm,
+  NFormItem,
+  NInput,
   useMessage,
-  type FormRules
+  type FormRules,
+  type FormInst
 } from 'naive-ui'
 import { useAuthStore } from '@/store/auth';
 import { writePoem } from '@/api/writePoem'
 import { useRouter } from 'vue-router'
 import type { WritePoem } from '@/types/poem';
+import BackButton from '@/components/buttons/BackButton.vue'
+import SendButton from '@/components/buttons/SendButton.vue'
 
 const router = useRouter()
 
@@ -157,13 +158,11 @@ const rules: FormRules = {
 }
 
 // 表单引用
-import type { FormInst } from 'naive-ui'
-
 const formRef = ref<FormInst | null>(null)
 
-// 提交诗词处理
-const submitPoem = async () => {
-  await formRef.value?.validate(async (errors: any) => {
+// 表单提交处理
+const handleSubmit = () => {
+  formRef.value?.validate(async (errors) => {
     if (errors) {
       message.error('请检查表单内容')
       return
@@ -184,16 +183,15 @@ const submitPoem = async () => {
         newPoem.content,
         newPoem.subtitle,
       )
+      message.success('诗词创作成功！')
+      router.push('/user-poem-list')
+      // 重置表单
+      poemForm.value.title = ''
+      poemForm.value.subtitle = ''
+      poemForm.value.content = ''
     } catch (error) {
       message.error('诗词创作失败，请稍后再试')
-      return
     }
-    message.success('诗词创作成功！')
-    router.push('/user-poem-list')
-    // 重置表单
-    poemForm.value.title = ''
-    poemForm.value.subtitle = ''
-    poemForm.value.content = ''
   })
 }
 
@@ -220,34 +218,53 @@ const checkScreenSize = () => {
   width: 100%;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
+/* 自定义 Naive UI 表单样式 */
+.custom-form :deep(.n-form-item-label) {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #333;
+  padding: 0;
+  height: auto;
+  font-size: inherit;
 }
 
-.form-input, .form-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
+.custom-form :deep(.n-form-item) {
+  margin-bottom: 1.5rem;
+  grid-template-columns: 100% !important;
+  grid-template-areas: 
+    "label"
+    "blank"
+    "feedback";
+}
+
+.custom-form :deep(.n-form-item-feedback-wrapper) {
+  min-height: auto;
+}
+
+.custom-form :deep(.n-input) {
   border-radius: 8px;
-  font-size: 1rem;
   transition: border-color 0.3s;
 }
 
-.form-textarea {
-  min-height: 150px;
-  resize: vertical;
+.custom-form :deep(.n-input__input) {
+  padding: 0.75rem;
+  font-size: 1rem;
 }
 
-.form-input:focus, .form-textarea:focus {
-  outline: none;
+.custom-form :deep(.n-input__textarea) {
+  min-height: 150px;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.custom-form :deep(.n-input--focused) {
   border-color: #FFAB91;
+}
+
+.custom-form :deep(.n-input:focus-within) {
+  border-color: #FFAB91;
+  box-shadow: none;
 }
 
 .button-container {

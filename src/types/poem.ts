@@ -22,7 +22,15 @@ export interface Poem {
     likeId?: number
     favoriteCount: number
     favoritesId?: number
-    dynasty?: string
-    avatarUrl?: string
-    avatarLoaded?: boolean
   }
+
+// 用户诗歌
+export interface UserPoem extends Poem {
+    avatarUrl: string
+    avatarLoaded: boolean
+}
+
+// 诗人诗歌
+export interface PoetPoem extends Poem {
+    dynasty: string
+}
