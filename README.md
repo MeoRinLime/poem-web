@@ -1,6 +1,6 @@
 # 诗韵Poemre - 古韵今风，诗意共享 - Web端
 
-## [🚀 在线访问快速开始](https://poemre.meorin.top)
+## [🚀 在线访问](https://poemre.meorin.top)  [📖 本地部署指南](https://gitee.com/meorin/poem-web/wikis/%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97?sort_id=14019500)
 
 ## 📖 项目概述
 ### **项目定位**: 以中华传统诗歌文化为核心的社交化社区平台，集成诗歌鉴赏、朗诵分享、知识问答、创作交流等功能模块，采用前后端分离架构，支持PC/移动端自适应访问。
