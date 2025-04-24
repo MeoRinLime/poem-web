@@ -33,6 +33,32 @@ export const getRecitationDetail = async (recitationId: number) => {
   }
 };
 
+// 播放朗读文件
+export const playRecitation = async (recitationId: number) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/recitation/play`, {
+      params: {
+        recitationId,
+      },
+      responseType: 'blob',
+    });
+    console.log('Response:', response);
+    const audioUrl = URL.createObjectURL(response.data);
+    return {
+      code: 0,
+      msg: '获取音频成功',
+      data: audioUrl
+    }
+  } catch (error) {
+    console.error('Error playing recitation:', error);
+    return {
+      code: -1,
+      msg: '获取音频失败',
+      data: null
+    }
+  }
+};
+
 // 上传朗读文件
 export const uploadRecitation = async (file: File, poemId: number, authorId: number, authorName: string, title: string, content: string) => {
   const formData = new FormData();

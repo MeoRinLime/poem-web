@@ -95,7 +95,8 @@
           :src="detail.audioUrl"
           :title="detail.title"
           :author="detail.author?.name"
-          @upload="handleAudioUpload"
+          :recitation-id="Number(props.contentId)"
+          :use-play-api="props.contentType === 'recitation'"
         />
   
         <!-- 交互按钮 -->
@@ -133,7 +134,6 @@
   } from 'naive-ui'
   import { useAuthStore } from '@/store/auth'
   import { getUserAvatarByUsername } from '@/api/personalCenter'
-  import { uploadRecitation } from '@/api/recitation'
   
   // 引入子组件
   import AudioPlayer from '@/components/detail/AudioPlayer.vue'
@@ -155,7 +155,7 @@
   import { postComment } from '@/api/comment'
   import { getPostById, deletePost } from '@/api/post'
   import { getUserPoem, deleteUserPoem } from '@/api/poemUser'
-  import { getRecitationDetail } from '@/api/recitation'
+  import { getRecitationDetail, deleteRecitation } from '@/api/recitation'
   import { getPoetPoem } from '@/api/poemPoet'
   
   const props = defineProps({
@@ -578,7 +578,11 @@
         await deletePost([detail.value.id])
         message.success('帖子删除成功')
         router.push({ name: 'Home' })
-      } 
+      } else if (props.contentType === 'recitation') {
+        await deleteRecitation(detail.value.id)
+        message.success('朗读删除成功')
+        router.push({ name: 'RecitationList' })
+      }
       else {
         // 帖子删除API待实现
         message.info('删除帖子功能开发中')
@@ -588,45 +592,6 @@
       console.error(error)
     }
   }
-  
-  // 音频上传
-  const handleAudioUpload = async (file: File) => {
-    if (!file || !authStore.username) {
-      message.warning('请先登录')
-      return
-    }
-    
-    try {
-      const formData = new FormData()
-      formData.append('audio', file)
-      formData.append('poemId', detail.value.id.toString())
-      formData.append('authorId', authStore.userId)
-      formData.append('authorName', authStore.username)
-      formData.append('title', detail.value.title)
-      formData.append('content', detail.value.content)
-      
-      message.loading('正在上传音频...')
-      
-      const result = await uploadRecitation(
-        file,
-        detail.value.id,
-        authStore.userId,
-        authStore.username,
-        detail.value.title,
-        detail.value.content
-      )
-      
-      message.success('音频上传成功')
-      
-      // 重新加载数据以获取新的音频URL
-      await loadDetail()
-      
-    } catch (error) {
-      console.error('音频上传失败', error)
-      message.error('音频上传失败')
-    }
-  }
-  
   // 格式化日期
   const formatDate = (date: string | undefined) => {
     if (!date) return ''
