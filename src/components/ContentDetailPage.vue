@@ -30,7 +30,7 @@
         <div class="flex flex-col items-center mb-6">
           <div class="flex items-center justify-center mb-2">
             <n-avatar 
-              v-if="detail.type === 'poem'" 
+              v-if="!route.path.includes('/poet-poem')" 
               :src="detail.author?.avatar || DEFAULT_AVATAR" 
               round 
               size="large" 
@@ -58,24 +58,10 @@
           
           <!-- 作者和日期 -->
           <div class="text-gray-500 text-sm mt-2">
-            {{ detail.author?.name }} · {{ formatDate(detail.author?.createdAt) }}
-          </div>
-        </div>
-  
-        <!-- 作者信息（仅在帖子模式下显示） -->
-        <div v-if="detail.type === 'post'" class="flex items-center mb-4">
-          <n-avatar 
-            :src="detail.author?.avatar || DEFAULT_AVATAR" 
-            size="medium" 
-            class="mr-2"
-          />
-          <div>
-            <div class="font-bold text-gray-800">
-              {{ detail.author?.name }}
-            </div>
-            <div class="text-xs text-gray-500">
-              发布于 {{ formatDate(detail.author?.createdAt) }}
-            </div>
+            {{ detail.author?.name }}
+            <template v-if="!route.path.includes('/poet-poem')">
+              · {{ formatDate(detail.author?.createdAt) }}
+            </template>
           </div>
         </div>
   
@@ -259,7 +245,9 @@
       await checkLikeCollectStatus()
       
       // 加载用户头像
-      await loadAvatars()
+      if (!route.path.includes('poet-poem')) {
+        await loadAvatars()
+      }
     } catch (error) {
       console.error('加载详情失败', error)
       message.error('加载详情失败')

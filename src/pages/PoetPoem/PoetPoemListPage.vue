@@ -174,7 +174,7 @@ const onCreateClick = () => {
 const onPoemClick = (poem: Poem) => {
   emit('poem-click', poem)
   // 可以根据需要导航到诗歌详情页
-  router.push(`/poem-detail/${poem.poemId}`)
+  router.push(`/poet-poem-detail/${poem.poemId}`)
 }
 
 // 监听窗口大小变化

@@ -303,7 +303,7 @@ const navigationItems = [
   { name: '诗歌解读', description: '横看成岭侧成峰，远近高低各不同', href: '/poem-explanation', icon: SparklesIcon },
   { name: '日常交流', description: '尘世难逢开口笑，菊花须插满头归', href: '/communication', icon: StarIcon },
   { name: '诗歌朗读', description: '闲事愁人人易老，得高歌处且高歌', href: '/recitation', icon: PaperAirplaneIcon },
-  { name: '诗歌列表', description: '千古诗词浩如烟，文人墨客竞翩跹', href: 'poem-list', icon: GlobalOutlined}
+  { name: '诗歌列表', description: '千古诗词浩如烟，文人墨客竞翩跹', href: '/poet-poem-list', icon: GlobalOutlined}
 ]
 
 // Computed properties

@@ -112,7 +112,7 @@ const routes = [
     props: true
   },
   {
-    path: '/poem-list',
+    path: '/poet-poem-list',
     component: PoetPoemListPage,
     name: 'PoetPoemList',
     meta: {
@@ -120,7 +120,7 @@ const routes = [
     },
   },
   {
-    path: '/poem-detail/:poemId',
+    path: '/poet-poem-detail/:poemId',
     component: PoetPoemDetailPage,
     name: 'PoetPoemDetail',
     props: true,
