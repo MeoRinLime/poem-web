@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+  <div class="min-h-screen flex flex-col items-center justify-center p-4" :class="{ 'dark-mode': isDarkMode }">
     <n-card 
       class="w-full max-w-md shadow-lg rounded-lg"
       :content-style="{ padding: '16px' }"
@@ -27,7 +27,7 @@
         </div>
 
         <!-- 诗词内容 -->
-        <div class="bg-white p-4 rounded-lg shadow-inner mb-4">
+        <div class="bg-white p-4 rounded-lg shadow-inner mb-4" :class="{ 'dark-mode': isDarkMode }">
           <pre class="whitespace-pre-wrap text-center text-base text-gray-700" style="font-family: Georgia, serif;">
             {{ dailyPoem?.content }}
           </pre>
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { 
   NCard, 
   NDivider, 
@@ -186,6 +186,22 @@ const fetchDailyPoem = async () => {
 onMounted(() => {
   fetchDailyPoem()
 })
+
+// 监听主题变化
+const isDarkMode = ref(false);
+watch(() => isDarkMode.value, (newValue) => {
+  if (newValue) {
+    document.documentElement.classList.add('dark-mode');
+  } else {
+    document.documentElement.classList.remove('dark-mode');
+  }
+});
+
+// 从父组件注入主题状态
+const injectedIsDarkMode = inject('isDarkMode');
+if (injectedIsDarkMode) {
+  isDarkMode.value = injectedIsDarkMode;
+}
 </script>
 
 <style scoped>
@@ -197,5 +213,81 @@ onMounted(() => {
 pre {
   font-family: var(--poem-font);
   line-height: 1.6;
+}
+
+/* 暗夜模式的样式 */
+.dark-mode {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.dark-mode .text-gray-800 {
+  color: #d4d4d4;
+}
+
+.dark-mode .text-gray-600 {
+  color: #b4b4b4;
+}
+
+.dark-mode .bg-white {
+  background-color: #2a2a2a !important; /* 使用 !important 确保覆盖 */
+}
+
+.dark-mode .shadow-lg {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .shadow-inner {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .hover\:bg-gray-100:hover {
+  background-color: #333;
+}
+
+.dark-mode .n-card {
+  background-color: #2a2a2a;
+  border-color: #333;
+}
+
+.dark-mode .n-empty {
+  background-color: #2a2a2a;
+  border-color: #333;
+}
+
+.dark-mode .n-divider {
+  border-color: #333;
+}
+
+.dark-mode .n-tag {
+  background-color: #333;
+  color: #d4d4d4;
+}
+
+.dark-mode .n-pagination {
+  background-color: #2a2a2a;
+  border-color: #333;
+}
+
+.dark-mode .n-pagination .n-base-pagination__page {
+  background-color: #333;
+  color: #d4d4d4;
+  border-color: #333;
+}
+
+.dark-mode .n-pagination .n-base-pagination__page--active {
+  background-color: #444;
+}
+
+.dark-mode .n-pagination .n-base-pagination__prev,
+.dark-mode .n-pagination .n-base-pagination__next {
+  background-color: #333;
+  color: #d4d4d4;
+  border-color: #333;
+}
+
+.dark-mode pre {
+  color: #d4d4d4;
+  background-color: #2a2a2a;
 }
 </style>

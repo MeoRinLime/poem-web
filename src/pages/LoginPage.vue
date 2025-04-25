@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen p-4">
+  <div class="flex items-center justify-center min-h-screen p-4" :class="{ 'dark-mode': isDarkMode }">
     <div class="bg-white shadow-lg rounded-lg w-full max-w-md md:max-w-4xl md:h-auto md:flex overflow-hidden">
       <!-- 左侧欢迎区域 - 移动端隐藏，平板及以上显示 -->
       <div class="hidden md:block md:w-1/2 bg-gradient-to-r from-amber-500 to-amber-500 rounded-l-lg flex items-center justify-center"> 
@@ -31,7 +31,7 @@
           leave-to-class="opacity-0 -translate-x-full"
         >
           <div v-if="isLoginForm" key="login" class="w-full" style="font-family: Courier New, Courier, monospace">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6 md:mb-10 text-center">登录</h2>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 md:mb-10 text-center dark:text-white">登录</h2>
             <form @submit.prevent="handleLogin" class="space-y-4 w-full md:w-4/5 mx-auto">
               <div>
                 <input 
@@ -92,8 +92,8 @@
           </div>
 
           <div v-else key="register" class="w-full" style="font-family: Courier New, Courier, monospace">
-            <h2 class="text-3xl font-bold mb-4 text-center">注册</h2>
-            <h4 class="mb-6 text-center opacity-50">让我们的旅途从这里开始吧</h4>
+            <h2 class="text-3xl font-bold mb-4 text-center dark:text-white">注册</h2>
+            <h4 class="mb-6 text-center opacity-50 dark:text-white">让我们的旅途从这里开始吧</h4>
             <form @submit.prevent="handleRegister" class="space-y-4 w-full md:w-4/5 mx-auto">
               <div>
                 <input 
@@ -169,17 +169,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { login, register } from '@/api/auth'
+import { ref, reactive, watch, inject } from 'vue';
+import { login, register } from '@/api/auth';
 import router from '@/router';
 import { useAuthStore } from '@/store/auth';
-import { useMessage } from 'naive-ui'
-import { getUserAvatar } from '@/api/personalCenter'
+import { useMessage } from 'naive-ui';
+import { getUserAvatar } from '@/api/personalCenter';
 
-const message = useMessage()
-const isLoginForm = ref(true)
-const registerError = ref('')
-const isLoading = ref(false)
+const message = useMessage();
+const isLoginForm = ref(true);
+const registerError = ref('');
+const isLoading = ref(false);
 let avatarUrl = ref('');
 const loginForm = reactive({
   username: '', // 用户名或邮箱
@@ -191,15 +191,15 @@ const registerForm = reactive({
   email: '',
   password: '',
   confirmPassword: ''
-})
+});
 
 const switchToRegister = () => {
-  isLoginForm.value = false
-}
+  isLoginForm.value = false;
+};
 
 const switchToLogin = () => {
-  isLoginForm.value = true
-}
+  isLoginForm.value = true;
+};
 
 const handleLogin = async () => {
   try {
@@ -212,24 +212,19 @@ const handleLogin = async () => {
     const email = data.user.email;
     const userId = data.user.id;
     const rememberMe = document.getElementById('remember-me') as HTMLInputElement;
-    useAuthStore().login(token, username, bio, createTime, email,rememberMe.checked, userId);
+    useAuthStore().login(token, username, bio, createTime, email, rememberMe.checked, userId);
     avatarUrl.value = await getUserAvatar(userId);
     useAuthStore().setUserAvatar(avatarUrl.value);
-    message.success(
-          '登录成功！欢迎回到诗词的世界！'
-        );
-    //console.log('登录成功', data);
+    message.success('登录成功！欢迎回到诗词的世界！');
   } catch (error: any) {
-    message.error(
-          '登录失败，请检查用户名和密码是否正确！'
-        );
+    message.error('登录失败，请检查用户名和密码是否正确！');
     console.error('登录失败:', error.message);
   }
 };
 
 const handleRegister = async () => {
-  registerError.value = ''
-  isLoading.value = true
+  registerError.value = '';
+  isLoading.value = true;
   try {
     const data = await register(
       registerForm.username,
@@ -242,9 +237,25 @@ const handleRegister = async () => {
   } catch (error: any) {
     message.error(error.message + ' · 名称或邮箱已被占用');
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 };
+
+// 监听主题变化
+const isDarkMode = ref(false);
+watch(() => isDarkMode.value, (newValue) => {
+  if (newValue) {
+    document.documentElement.classList.add('dark-mode');
+  } else {
+    document.documentElement.classList.remove('dark-mode');
+  }
+});
+
+// 从父组件注入主题状态
+const injectedIsDarkMode = inject('isDarkMode');
+if (injectedIsDarkMode) {
+  isDarkMode.value = injectedIsDarkMode;
+}
 </script>
 
 <style scoped>
@@ -267,5 +278,71 @@ button {
 .v-leave-to {
   opacity: 0;
   transform: translateX(10px);
+}
+
+/* 暗夜模式的样式 */
+.dark-mode {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.dark-mode .bg-white {
+  background-color: #2a2a2a !important; /* 使用 !important 确保覆盖 */
+}
+
+.dark-mode .text-gray-600 {
+  color: #b4b4b4;
+}
+
+.dark-mode .text-gray-800 {
+  color: #d4d4d4;
+}
+
+.dark-mode .text-amber-600 {
+  color: #ffda79;
+}
+
+.dark-mode .bg-gradient-to-r {
+  background: linear-gradient(to right, #ffda79, #ffda79);
+}
+
+.dark-mode .border-gray-300 {
+  border-color: #333;
+}
+
+.dark-mode .placeholder-gray-400 {
+  color: #777;
+}
+
+.dark-mode .text-white {
+  color: #fff;
+}
+
+.dark-mode .bg-amber-600 {
+  background-color: #ffda79;
+}
+
+.dark-mode .hover:bg-amber-700 {
+  background-color: #f0b96e;
+}
+
+.dark-mode .focus:ring-amber-500 {
+  border-color: #ffda79;
+}
+
+.dark-mode .focus:ring-offset-2 {
+  box-shadow: 0 0 0 2px #ffda79;
+}
+
+.dark-mode .text-red-500 {
+  color: #ff4d4d;
+}
+
+.dark-mode .text-white {
+  color: #fff;
+}
+
+.dark-mode .text-sm {
+  color: #fff;
 }
 </style>

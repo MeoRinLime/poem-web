@@ -1,5 +1,6 @@
 <template>
   <n-message-provider>
+    <button @click="toggleTheme"></button>
     <div :class="['app-container', isFullScreenPage ? 'fixed-container' : 'scroll-container', { 'dark-mode': isDark }]">
       <!-- 导航栏 - 添加事件监听 -->
       <Header class="flex-shrink-0" @theme-change="handleThemeChange"></Header>
@@ -70,6 +71,12 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
     handleThemeChange(e.matches);
   }
 };
+
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  // 发射事件通知子组件
+  this.$emit('theme-change', isDark?.value);
+}
 
 onMounted(() => {
   checkSystemTheme();

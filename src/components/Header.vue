@@ -163,27 +163,36 @@
           leave-from-class="transform opacity-100 scale-100"
           leave-to-class="transform opacity-0 scale-95"
         >
-          <div 
-            v-if="userMenuOpen" 
-            class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
-            :class="{ 'bg-white': !isDark, 'bg-gray-900/95 backdrop-blur-md ring-white/10': isDark }"
-            style="top: 100%;"
-          >
-            <router-link 
-              to="/personal-center" 
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              :class="{ 'text-gray-700': !isDark, 'text-white': isDark }"
-              @click="closeUserMenu"
-            >
-              个人中心
-            </router-link>
-            <button 
-              @click="handleLogout"
-              class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              :class="{ 'text-gray-700': !isDark, 'text-white': isDark }"
-            >
-              退出登录
-            </button>
+        <div 
+      v-if="userMenuOpen" 
+      class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md"
+      :class="{
+       'bg-white shadow-lg ring-1 ring-black ring-opacity-5': !isDark,
+        'bg-gray-900/95 backdrop-blur-md ring-white/10': isDark
+      }"
+       style="top: 100%;"
+>
+<router-link 
+                to="/personal-center" 
+                class="block px-4 py-2 text-sm"
+                :class="{ 
+                  'text-gray-700 hover:bg-gray-100': !isDark, 
+                  'text-white hover:bg-gray-700': isDark 
+                }"
+                @click="closeUserMenu"
+              >
+                个人中心
+              </router-link>
+              <button 
+                @click="handleLogout"
+                class="w-full text-left block px-4 py-2 text-sm"
+                :class="{ 
+                  'text-gray-700 hover:bg-gray-100': !isDark, 
+                  'text-white hover:bg-gray-700': isDark 
+                }"
+              >
+                退出登录
+              </button>
           </div>
         </transition>
       </div>
