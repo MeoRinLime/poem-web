@@ -292,6 +292,7 @@ import { useAuthStore } from '@/store/auth';
 import {getUserPosts, getUserPoems, getUserComments, getUserFavorites, updateUserInfo, updateUserAvatar, getUserAvatar } from '@/api/personalCenter';
 import { useRouter } from 'vue-router';
 import { VueCropper } from 'vue-cropper';
+import 'vue-cropper/dist/index.css';
 import type { Comment } from '@/types/comment';
 import type { Post } from '@/types/post';
 import type { Poem } from '@/types/poem';
@@ -345,7 +346,8 @@ const fetchUserAvatar = async () => {
 
 const showCropper = ref(false)
 const cropperImg = ref('')
-const cropperRef = ref<any>(null)
+// 使用更明确的类型定义，根据vue-cropper.d.ts中的定义
+const cropperRef = ref<InstanceType<typeof VueCropper> | null>(null)
 
 const handleAvatarUpload = (data: { file: { file: File } }) => {
   const file = data.file.file
@@ -363,12 +365,14 @@ const handleAvatarUpload = (data: { file: { file: File } }) => {
   // 保存原始文件以备后续处理
   editProfileForm.avatarFile = file
 
-  // 确保在下一个渲染周期中裁剪组件能够正确初始化
-  setTimeout(() => {
-    if (cropperRef.value) {
-      cropperRef.value.refresh();
-    }
-  }, 100);
+  // 使用nextTick确保组件完全渲染后再初始化
+  import('vue').then(({ nextTick }) => {
+    nextTick(() => {
+      if (cropperRef.value) {
+        cropperRef.value.refresh();
+      }
+    });
+  });
 }
 
 const confirmCrop = () => {
