@@ -23,6 +23,7 @@
               <NText depth="3" class="text-xs md:text-sm">帖子: {{ posts.length }}</NText>
               <NText depth="3" class="text-xs md:text-sm">评论: {{ comments.length }}</NText>
               <NText depth="3" class="text-xs md:text-sm">诗歌: {{ poetry.length }}</NText>
+              <NText depth="3" class="text-xs md:text-sm">朗诵: {{ recitations.length }}</NText>
               <NText depth="3" class="text-xs md:text-sm">收藏: {{ favorites.length }}</NText>
             </NSpace>
           </div>
@@ -171,11 +172,14 @@
                   <span class="text-sm md:text-base">评论列表</span>
                 </div>
               </template>
-              <div v-for="comment in comments" :key="comment.objectId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToCommentDetail(comment.objectId)">
-                <p class="text-gray-700 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
-                <h3 class="text-lg md:text-xl font-medium text-gray-800 text-right">FROM——{{ comment.title }}</h3>
-                <div class="text-right text-gray-500 text-xs md:text-sm">
-                  {{ comment.createdAt }}
+              <div v-for="(comment, index) in comments" :key="index" class="mb-4 pb-4 border-b">
+                <div class="flex justify-between items-center mb-2">
+                  <NTag size="small" type="info">{{ comment.commentType }}</NTag>
+                  <span class="text-xs text-gray-500">{{ comment.createdAt }}</span>
+                </div>
+                <div class="cursor-pointer" @click="navigateToCommentDetail(comment.objectId)">
+                  <p class="text-gray-700 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
+                  <h3 class="text-lg md:text-xl font-medium text-gray-800 text-right">FROM——{{ comment.title }}</h3>
                 </div>
               </div>
               <NPagination 
@@ -213,6 +217,23 @@
             </NCard>
           </NTabPane>
 
+          <NTabPane name="recitations" tab="朗诵">
+            <NCard>
+              <template #header>
+                <div class="flex items-center">
+                  <VolumeHighOutline class="mr-2 w-4 h-4 md:w-5 md:h-5" />
+                  <span class="text-sm md:text-base">朗诵列表</span>
+                </div>
+              </template>
+              <div v-for="rec in recitations" :key="rec.recitationId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToRecitationDetail(rec.recitationId)">
+                <h3 class="text-lg md:text-xl font-medium">{{ rec.title }}</h3>
+                <p class="text-gray-600 text-sm md:text-base line-clamp-2">{{ rec.content }}</p>
+                <div class="text-right text-gray-500 text-xs md:text-sm">{{ rec.createdAt }}</div>
+              </div>
+              <NPagination v-model:page="currentPage" :page-size="pageSize" :total="recitations.length" size="small" />
+            </NCard>
+          </NTabPane>
+
           <NTabPane name="favorites" tab="收藏">
             <NCard>
               <template #header>
@@ -221,34 +242,30 @@
                   <span class="text-sm md:text-base">收藏列表</span>
                 </div>
               </template>
-              <div v-for="favorite in favorites" :key="favorite.postId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPostDetail(favorite.postId)">
-                <h3 class="text-lg md:text-xl font-medium text-gray-800">{{ favorite.title }}</h3>
-                <p class="text-gray-600 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
-                <div v-if="favorite.poemTitle" class="text-xs md:text-sm text-gray-500 mb-2">
-                  <span>诗歌: {{ favorite.poemTitle }}</span>
-                  <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>
+              <div v-for="(favorite, index) in favorites" :key="index" class="mb-4 pb-4 border-b">
+                <div class="flex justify-between items-center mb-2">
+                  <NTag size="small" type="info">{{ favorite.favoriteType }}</NTag>
+                  <span class="text-xs text-gray-500">{{ favorite.createdAt }}</span>
                 </div>
-                <div v-if="favorite.tags && favorite.tags.length > 0" class="mb-2 flex flex-wrap">
-                  <NTag 
-                    v-for="tag in favorite.tags" 
-                    :key="tag" 
-                    size="small" 
-                    class="mr-1 mb-1"
-                  >
-                    {{ tag }}
-                  </NTag>
-                </div>
-                <div class="text-right text-gray-500 text-xs md:text-sm">
-                  {{ favorite.createdAt }}
+                <div class="cursor-pointer" @click="navigateToPostDetail(favorite.postId)">
+                 <h3 class="text-lg md:text-xl font-medium text-gray-800">{{ favorite.title }}</h3>
+                 <p class="text-gray-600 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
+                 <div v-if="favorite.poemTitle" class="text-xs md:text-sm text-gray-500 mb-2">
+                   <span>诗歌: {{ favorite.poemTitle }}</span>
+                   <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>
+                 </div>
+                 <div v-if="favorite.tags && favorite.tags.length > 0" class="mb-2 flex flex-wrap">
+                   <NTag 
+                     v-for="tag in favorite.tags" 
+                     :key="tag" 
+                     size="small" 
+                     class="mr-1 mb-1"
+                   >
+                     {{ tag }}
+                   </NTag>
+                 </div>
                 </div>
               </div>
-              <NPagination 
-                v-model:page="currentPage"
-                :page-size="pageSize"
-                :total="favorites.length"
-                :page-slot="5"
-                size="small"
-              />
             </NCard>
           </NTabPane>
         </NTabs>
@@ -286,16 +303,21 @@ import {
   EllipsisVerticalOutline,
   CreateOutline,
   CloudUploadOutline,
-  HeartOutline
+  HeartOutline,
+  VolumeHighOutline
 } from '@vicons/ionicons5'
 import { useAuthStore } from '@/store/auth';
-import {getUserPosts, getUserPoems, getUserComments, getUserFavorites, updateUserInfo, updateUserAvatar, getUserAvatar } from '@/api/personalCenter';
+import { getUserPosts, getUserPoems, getUserRecitations,
+  getUserPoetPoemFavorites, getUserUserPoemFavorites, getUserPostFavorites, getUserReciteFavorites,
+  updateUserInfo, updateUserAvatar, getUserAvatar,
+  getUserPostComments, getUserPoemComments, getUserPoetComments, getUserReciteComments,
+} from '@/api/personalCenter';
+import type { Post } from '@/types/post';
+import type { Poem } from '@/types/poem';
+import type { Recitation } from '@/types/recitation';
 import { useRouter } from 'vue-router';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
-import type { Comment } from '@/types/comment';
-import type { Post } from '@/types/post';
-import type { Poem } from '@/types/poem';
 
 const userStore = useAuthStore()
 const router = useRouter()
@@ -317,9 +339,10 @@ const editProfileForm = reactive({
 })
 
 const posts = ref<Post[]>([]);
-const comments = ref<Comment[]>([]);
+const comments = ref<any[]>([]);
 const poetry = ref<Poem[]>([]);
-const favorites = ref<Post[]>([]);
+const recitations = ref<Recitation[]>([]);
+const favorites = ref<any[]>([]);
 
 const activeTab = ref('profile')
 const currentPage = ref(1)
@@ -349,7 +372,7 @@ const cropperImg = ref('')
 // 使用更明确的类型定义，根据vue-cropper.d.ts中的定义
 const cropperRef = ref<InstanceType<typeof VueCropper> | null>(null)
 
-const handleAvatarUpload = (data: { file: { file: File } }) => {
+const handleAvatarUpload = (data: any) => {
   const file = data.file.file
   
   // 验证文件类型
@@ -405,18 +428,18 @@ const handleEditProfile = async () => {
     
     // 并行处理基本信息更新和头像更新
     await Promise.all([
-      updateUserInfo(userId, editProfileForm.bio, editProfileForm.email),
+      updateUserInfo(userId, editProfileForm.bio, editProfileForm.email || ''),
       editProfileForm.avatarFile ? updateAvatar(userId) : Promise.resolve()
     ])
 
     // 更新本地数据
     userData.value.bio = editProfileForm.bio
     userData.value.email = editProfileForm.email
-    useAuthStore().setUserInfo(editProfileForm.bio, editProfileForm.email)
+    useAuthStore().setUserInfo(editProfileForm.bio, editProfileForm.email || '')
     
     message.success('个人信息更新成功')
     showEditProfileModal.value = false
-  } catch (error) {
+  } catch (error: any) {
     message.error(error.message || '更新失败')
   } finally {
     isUpdating.value = false
@@ -456,8 +479,21 @@ const fetchUserPosts = async () => {
 }
 
 const fetchUserComments = async () => {
-  const response = await getUserComments(userStore.username || '')
-  comments.value = response.data
+  try {
+    const [postRes, poemRes, poetRes, reciteRes] = await Promise.all([
+      getUserPostComments(userStore.username || ''),
+      getUserPoemComments(userStore.username || ''),
+      getUserPoetComments(userStore.username || ''),
+      getUserReciteComments(userStore.username || '')
+    ])
+    const postComments = postRes.data.map((item: any) => ({ ...item, commentType: '帖子' }))
+    const poemComments = poemRes.data.map((item: any) => ({ ...item, commentType: '用户诗歌' }))
+    const poetComments = poetRes.data.map((item: any) => ({ ...item, commentType: '诗人诗歌' }))
+    const reciteComments = reciteRes.data.map((item: any) => ({ ...item, commentType: '朗诵' }))
+    comments.value = [...postComments, ...poemComments, ...poetComments, ...reciteComments]
+  } catch (error) {
+    message.error('获取评论列表失败')
+  }
 }
 
 const fetchUserPoems = async () => {
@@ -465,20 +501,42 @@ const fetchUserPoems = async () => {
   poetry.value = response.data
 }
 
+const fetchUserRecitations = async () => {
+  try {
+    const response = await getUserRecitations(userStore.username || '')
+    recitations.value = response.data
+  } catch (error) {
+    message.error('获取朗诵列表失败')
+  }
+}
+
 const fetchUserFavorites = async () => {
-  const response = await getUserFavorites(userStore.username || '')
-  favorites.value = response.data
+  try {
+    const [userPoemRes, postRes, reciteRes, poetPoemRes] = await Promise.all([
+      getUserUserPoemFavorites(userStore.username || ''),
+      getUserPostFavorites(userStore.username || ''),
+      getUserReciteFavorites(userStore.username || ''),
+      getUserPoetPoemFavorites(userStore.username || '')
+    ])
+    const userPoemFav = userPoemRes.data.map((item: any) => ({ ...item, favoriteType: '用户诗歌' }))
+    const postFav = postRes.data.map((item: any) => ({ ...item, favoriteType: '帖子' }))
+    const reciteFav = reciteRes.data.map((item: any) => ({ ...item, favoriteType: '朗诵' }))
+    const poetPoemFav = poetPoemRes.data.map((item: any) => ({ ...item, favoriteType: '诗人诗歌' }))
+    favorites.value = [...userPoemFav, ...postFav, ...reciteFav, ...poetPoemFav]
+  } catch (error) {
+    message.error('获取收藏列表失败')
+  }
 }
 
 const loadInitialData = async () => {
   try {
     isLoading.value = true
-    
     // 并行请求所有初始数据
     await Promise.all([
       fetchUserPosts(),
       fetchUserComments(),
       fetchUserPoems(),
+      fetchUserRecitations(),
       fetchUserFavorites(),
       fetchUserAvatar()
     ])
@@ -501,6 +559,9 @@ const navigateToPoetryDetail = (poetryId: number) => {
   router.push({ name: 'UserPoemDetail', params: { poemId: poetryId } })
 }
 
+const navigateToRecitationDetail = (recitationId: number) => {
+  router.push({ name: 'RecitationDetail', params: { recitationId } })
+}
 
 onMounted(() => {
   loadInitialData()

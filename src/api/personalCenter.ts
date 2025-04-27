@@ -32,21 +32,105 @@ export const getUserPosts = async (userName: string) => {
     }
 };
 
-// 获取用户的评论
-export const getUserComments = async (userName: string) => {
+// 获取用户的朗诵
+export const getUserRecitations = async (userName: string) => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/comment/my?userName=${userName}`);
+        const response = await axios.get(`${BASE_URL}/api/recitation/my?userName=${userName}`);
         return response;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || '获取失败');
     }
 };
 
+// 获取用户的评论
+// type（帖子类型）: 0:post,1:poemUser,2:poemPoet,3:recitation
 
-// 获取用户收藏列表
-export const getUserFavorites = async (userName: string) => {
+// 获取用户帖子评论
+export const getUserPostComments = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/comment/my?userName=${userName}&type=0`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取失败');
+    }
+};
+
+// 获取用户用户诗歌评论
+export const getUserPoemComments = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/comment/my?userName=${userName}&type=1`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取失败');
+    }
+};
+
+// 获取用户诗人诗歌评论
+export const getUserPoetComments = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/comment/my?userName=${userName}&type=2`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取失败');
+    }
+};
+
+// 获取用户朗诵评论
+export const getUserReciteComments = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/comment/my?userName=${userName}&type=3`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取失败');
+    }
+};
+
+// 获取用户收藏诗人诗歌
+export const getUserPoetPoemFavorites = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/poemPoet/favorite`, {
+            params: {
+                userName
+            }
+        });
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取收藏列表失败');
+    }
+};
+
+// 获取用户收藏用户诗歌
+export const getUserUserPoemFavorites = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/poemUser/favorite`, {
+            params: {
+                userName
+            }
+        });
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取收藏列表失败');
+    }
+};
+
+// 获取用户收藏帖子
+export const getUserPostFavorites = async (userName: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/api/post/favorite`, {
+            params: {
+                userName
+            }
+        });
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || '获取收藏列表失败');
+    }
+};
+
+// 获取用户收藏朗诵
+export const getUserReciteFavorites = async (userName: string) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/recitation/favorite`, {
             params: {
                 userName
             }
