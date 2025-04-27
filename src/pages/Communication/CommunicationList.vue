@@ -6,6 +6,9 @@
     create-button-text="新建交流"
     item-key-field="postId"
     :field-mapping="fieldMapping"
+    :use-local-pagination="false"
+    :total-items="totalItems"
+    :page-size="pageSize"
     @create="goToNewCommunication"
     @item-click="goToDetail"
     @page-change="handlePageChange"
@@ -16,8 +19,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ContentListPage from '@/components/ContentListPage.vue'
-import { getCommunicationList } from '@/api/post'
+import { getPostList } from '@/api/post'
 import type { Post } from '@/types/post'
+
+// pagination state
+const currentPage = ref(1)
+const pageSize = 6
+const totalItems = ref(0)
 
 const router = useRouter()
 const communicationList = ref<Post[]>([])
@@ -37,32 +45,40 @@ const fieldMapping = {
   avatar: 'avatarUrl'
 }
 
-onMounted(async () => {
+// 加载列表函数
+async function loadList(page: number) {
+  loading.value = true
   try {
-    const response = await getCommunicationList()
-    communicationList.value = response.data
+    const resp = await getPostList(page, pageSize, 0)
+    communicationList.value = resp.content
+    totalItems.value = resp.totalElements
+    currentPage.value = page
   } catch (error) {
     console.error('获取交流列表失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+onMounted(() => {
+  loadList(currentPage.value)
 })
 
-const goToDetail = (post: Post) => {
+function goToDetail(post: Post) {
   router.push({ 
     name: 'CommunicationDetail', 
     params: { postId: post.postId } 
   })
 }
 
-const goToNewCommunication = () => {
+function goToNewCommunication() {
   router.push({ 
     name: 'CreateCommunication' 
   })
 }
 
-const handlePageChange = (page: number) => {
-  // 如果需要从服务器获取分页数据，可以在这里处理
-  console.log('当前页:', page)
+// 处理分页变化
+function handlePageChange(page: number) {
+  loadList(page)
 }
 </script>

@@ -20,11 +20,17 @@ export const createPost = async (title: string, userName: string, poemTitle: str
     }
 };
 
-// 获取诗歌解析帖子列表
-export const getPoemExplanationList = async () => {
+// 分页获取帖子列表  0:日常交流, 1:诗歌解析
+export const getPostList = async (current: number, size: number, type: number) => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/post/getPoemExplanation`);
-        return response;
+        const response = await axios.get(`${BASE_URL}/api/post/paged`, {
+            params: {
+                current,
+                size,
+                type
+            }
+        });
+        return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || '获取失败');
     }
@@ -39,16 +45,6 @@ export const getPostById = async (postId: number) => {
         throw new Error(error.response?.data?.message || '获取失败');
     }
 }
-
-// 获取日常交流帖子列表
-export const getCommunicationList = async () => {
-    try {
-        const response = await axios.get(`${BASE_URL}/api/post/getCommunication`);
-        return response;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || '获取失败');
-    }
-};
 
 // 删除帖子
 export const deletePost = async (postIds: number[]) => {

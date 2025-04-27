@@ -6,6 +6,9 @@
     create-button-text="新建解析"
     item-key-field="postId"
     :field-mapping="fieldMapping"
+    :use-local-pagination="false"
+    :total-items="totalItems"
+    :page-size="pageSize"
     @create="goToNewExplanation"
     @item-click="goToDetail"
     @page-change="handlePageChange"
@@ -16,8 +19,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ContentListPage from '@/components/ContentListPage.vue'
-import { getPoemExplanationList } from '@/api/post'
+import { getPostList } from '@/api/post'
 import type { Post } from '@/types/post'
+
+// pagination state
+const currentPage = ref(1)
+const pageSize = 6
+const totalItems = ref(0)
 
 const router = useRouter()
 const explanationList = ref<Post[]>([])
@@ -37,15 +45,23 @@ const fieldMapping = {
   avatar: 'avatarUrl'
 }
 
-onMounted(async () => {
+// 加载列表函数
+async function loadList(page: number) {
+  loading.value = true
   try {
-    const response = await getPoemExplanationList()
-    explanationList.value = response.data
+    const resp = await getPostList(page, pageSize, 1)
+    explanationList.value = resp.content
+    totalItems.value = resp.totalElements
+    currentPage.value = page
   } catch (error) {
     console.error('获取诗歌解析列表失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+onMounted(() => {
+  loadList(currentPage.value)
 })
 
 const goToDetail = (post: Post) => {
@@ -61,7 +77,8 @@ const goToNewExplanation = () => {
   })
 }
 
-const handlePageChange = (page: number) => {
-  console.log('当前页:', page)
+// 处理分页变化
+function handlePageChange(page: number) {
+  loadList(page)
 }
 </script>
