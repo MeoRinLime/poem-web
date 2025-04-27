@@ -134,9 +134,15 @@
   import type { Recitation } from '@/types/recitation'
   
   import {
-  likePost, cancelLike, isLikePost, likeUserPoem, isLikeUserPoem,
-  subscribePost, cancelSubscribe, isSubscribePost, subscribeUserPoem, isSubscribeUserPoem,
-  likeComment,isLikeComment,
+  likePost, cancelLike, isLikePost,
+  likeUserPoem, isLikeUserPoem,
+  likePoetPoem, isLikePoetPoem,
+  likeRecitation, isLikeRecitation,
+  subscribePost, cancelSubscribe, isSubscribePost,
+  subscribeUserPoem, isSubscribeUserPoem,
+  subscribePoetPoem, isSubscribePoetPoem,
+  subscribeRecitation, isSubscribeRecitation,
+  likeComment, isLikeComment,
   } from '@/api/likeAndSub'
   import { postComment } from '@/api/comment'
   import { getPostById, deletePost } from '@/api/post'
@@ -243,6 +249,8 @@
       }
       // 检查点赞和收藏状态
       await checkLikeCollectStatus()
+      // 检查评论点赞状态
+      await checkCommentLikeStatus()
       
       // 加载用户头像
       if (!route.path.includes('poet-poem')) {
@@ -273,7 +281,6 @@
         favoriteCount: data.favoriteCount || 0,
         likeId: data.likeId,
         favoritesId: data.favoritesId,
-        audioUrl: data.audioUrl
       }
     } else if (props.contentType === 'post') {
       return {
@@ -308,7 +315,7 @@
         favoriteCount: data.favoriteCount || 0,
         likeId: data.likeId,
         favoritesId: data.favoritesId,
-        audioUrl: data.url
+        audioUrl: "https://47.120.46.215" + data.filePath, 
       }
     }
     
@@ -318,14 +325,22 @@
   
   // 检查点赞收藏状态
   const checkLikeCollectStatus = async () => {
-    if (!authStore.username) return
-    
-    try {
+     if (!authStore.username) return
+     
+     try {
       let likeInfo, subscribeInfo
-      
       if (props.contentType === 'poem') {
-        likeInfo = await isLikeUserPoem(detail.value.id, authStore.username)
-        subscribeInfo = await isSubscribeUserPoem(detail.value.id, authStore.username)
+        const isUserPoem = route.path.includes('user-poem')
+        if (isUserPoem) {
+          likeInfo = await isLikeUserPoem(detail.value.id, authStore.username)
+          subscribeInfo = await isSubscribeUserPoem(detail.value.id, authStore.username)
+        } else {
+          likeInfo = await isLikePoetPoem(detail.value.id, authStore.username)
+          subscribeInfo = await isSubscribePoetPoem(detail.value.id, authStore.username)
+        }
+      } else if (props.contentType === 'recitation') {
+        likeInfo = await isLikeRecitation(detail.value.id, authStore.username)
+        subscribeInfo = await isSubscribeRecitation(detail.value.id, authStore.username)
       } else {
         likeInfo = await isLikePost(detail.value.id, authStore.username)
         subscribeInfo = await isSubscribePost(detail.value.id, authStore.username)
@@ -393,36 +408,49 @@
   
   // 点赞/取消点赞
   const toggleLike = async () => {
-    if (!authStore.username) {
-      message.warning('请先登录')
-      return
-    }
-  
-    const previousState = isLiked.value
-    isLiked.value = !isLiked.value
-    detail.value.likeCount += isLiked.value ? 1 : -1
-  
-    try {
+     if (!authStore.username) {
+       message.warning('请先登录')
+       return
+     }
+ 
+     const previousState = isLiked.value
+     isLiked.value = !isLiked.value
+     detail.value.likeCount += isLiked.value ? 1 : -1
+ 
+     try {
       if (props.contentType === 'poem') {
-        if (!isLiked.value && detail.value.likeId) {
-          // 取消点赞
-          await cancelLike(detail.value.likeId)
+        // 诗歌点赞
+        const isUserPoem = route.path.includes('user-poem')
+        const type = isUserPoem ? 1 : 2
+        if (!isLiked.value || detail.value.likeId) {
+          await cancelLike(type, [detail.value.likeId!])
           detail.value.likeId = undefined
         } else {
-          // 点赞
-          await likeUserPoem(detail.value.id, authStore.username)
-          const likeInfo = await isLikeUserPoem(detail.value.id, authStore.username)
-          detail.value.likeId = likeInfo?.data?.likeId
+          if (isUserPoem) await likeUserPoem(detail.value.id, authStore.username)
+          else await likePoetPoem(detail.value.id, authStore.username)
+          const info = isUserPoem
+            ? await isLikeUserPoem(detail.value.id, authStore.username)
+            : await isLikePoetPoem(detail.value.id, authStore.username)
+          detail.value.likeId = info?.data?.likeId
+        }
+      } else if (props.contentType === 'recitation') {
+        // 朗读点赞
+        if (!isLiked.value || detail.value.likeId) {
+          await cancelLike(3, [detail.value.likeId!])
+          detail.value.likeId = undefined
+        } else {
+          await likeRecitation(detail.value.id, authStore.username)
+          const info = await isLikeRecitation(detail.value.id, authStore.username)
+          detail.value.likeId = info?.data?.likeId
         }
       } else {
-        if (!isLiked.value && detail.value.likeId) {
-          // 取消点赞
-          await cancelLike(detail.value.likeId)
+        // 帖子点赞
+        if (!isLiked.value || detail.value.likeId) {
+          await cancelLike(0, [detail.value.likeId!])
           detail.value.likeId = undefined
         } else {
-          // 点赞
-          const likeData = await likePost(detail.value.id, authStore.username)
-          detail.value.likeId = likeData.likeId
+          const data = await likePost(detail.value.id, authStore.username)
+          detail.value.likeId = data.likeId
         }
       }
       
@@ -437,36 +465,49 @@
   
   // 收藏/取消收藏
   const toggleCollect = async () => {
-    if (!authStore.username) {
-      message.warning('请先登录')
-      return
-    }
-  
-    const previousState = isCollected.value
-    isCollected.value = !isCollected.value
-    detail.value.favoriteCount += isCollected.value ? 1 : -1
-  
-    try {
+     if (!authStore.username) {
+       message.warning('请先登录')
+       return
+     }
+ 
+     const previousState = isCollected.value
+     isCollected.value = !isCollected.value
+     detail.value.favoriteCount += isCollected.value ? 1 : -1
+ 
+     try {
       if (props.contentType === 'poem') {
-        if (!isCollected.value && detail.value.favoritesId) {
-          // 取消收藏
-          await cancelSubscribe(detail.value.favoritesId.toString())
+        // 诗歌收藏
+        const isUserPoem = route.path.includes('user-poem')
+        const type = isUserPoem ? 1 : 2
+        if (!isCollected.value || detail.value.favoritesId) {
+          await cancelSubscribe(type, [detail.value.favoritesId!])
           detail.value.favoritesId = undefined
         } else {
-          // 收藏
-          await subscribeUserPoem(detail.value.id, authStore.username)
-          const subscribeInfo = await isSubscribeUserPoem(detail.value.id, authStore.username)
-          detail.value.favoritesId = subscribeInfo?.data?.favoritesId
+          if (isUserPoem) await subscribeUserPoem(detail.value.id, authStore.username)
+          else await subscribePoetPoem(detail.value.id, authStore.username)
+          const info = isUserPoem
+            ? await isSubscribeUserPoem(detail.value.id, authStore.username)
+            : await isSubscribePoetPoem(detail.value.id, authStore.username)
+          detail.value.favoritesId = info?.data?.favoritesId
+        }
+      } else if (props.contentType === 'recitation') {
+        // 朗读收藏
+        if (!isCollected.value || detail.value.favoritesId) {
+          await cancelSubscribe(3, [detail.value.favoritesId!])
+          detail.value.favoritesId = undefined
+        } else {
+          await subscribeRecitation(detail.value.id, authStore.username)
+          const info = await isSubscribeRecitation(detail.value.id, authStore.username)
+          detail.value.favoritesId = info?.data?.favoritesId
         }
       } else {
-        if (!isCollected.value && detail.value.favoritesId) {
-          // 取消收藏
-          await cancelSubscribe(detail.value.favoritesId.toString())
+        // 帖子收藏
+        if (!isCollected.value || detail.value.favoritesId) {
+          await cancelSubscribe(0, [detail.value.favoritesId!])
           detail.value.favoritesId = undefined
         } else {
-          // 收藏
-          const collectData = await subscribePost(detail.value.id, authStore.username)
-          detail.value.favoritesId = collectData.favoritesId
+          const data = await subscribePost(detail.value.id, authStore.username)
+          detail.value.favoritesId = data.favoritesId
         }
       }
       
@@ -492,8 +533,8 @@
   
     try {
       if (!comment.isLiked && comment.likeId) {
-        // 取消点赞
-        await cancelLike(comment.likeId)
+        // 取消点赞，传递数组参数
+        await cancelLike(4, [comment.likeId])
         comment.likeId = undefined
       } else {
         // 点赞
@@ -523,11 +564,11 @@
   
     try {
       const postCommentData = {
-        objectId: detail.value.id, 
-        objectType: props.contentType === 'poem' ? 1 : 0, // 0表示帖子，1表示诗歌
-        userName: authStore.username,
-        content: newComment.value,
-      }
+        objectId: detail.value.id,
+        objectType: props.contentType === 'poem' ? 1 : props.contentType === 'recitation' ? 3 : 0,
+         userName: authStore.username,
+         content: newComment.value,
+       }
   
       await postComment(postCommentData)
       message.success('评论成功')

@@ -4,13 +4,13 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // interface LikeRequest {
 //     objectId: number; // 对象ID
-//     objectType: number; // 评论对象类型 (0: 帖子, 1: 用户诗歌, 2: 诗人诗歌, 3: 朗诵, 4: 评论)
+//     objectType: number; // 评论对象类型 (0: 帖子, 1: 用户诗歌, 2: 诗人诗歌, 3: 朗诵, 4: 评论, 5: 每日一诗讨论)
 //     userName: string; // 点赞用户的用户名
 // }
 
 // interface SubRequest {
 //     objectId: number; // 对象ID
-//     objectType: number; // 评论对象类型 (0: 帖子, 1: 用户诗歌, 2: 诗人诗歌, 3: 朗诵)
+//     objectType: number; // 评论对象类型 (0: 帖子, 1: 用户诗歌, 2: 诗人诗歌, 3: 朗诵, 4: 评论, 5: 每日一诗讨论)
 //     userName: string; // 关注用户的用户名
 // }
 
@@ -53,15 +53,17 @@ export const likeComment = async (objectId: number, userName: string) => {
     return like(objectId, 4, userName);
 };
 
-// 取消点赞
-//body
-// {
-//     ids: Number
-// } 
-export const cancelLike = async (ids: number) => {
+// 点赞每日一诗讨论
+export const likeDailyPoemDiscussion = async (objectId: number, userName: string) => {
+    return like(objectId, 5, userName);
+};
+
+// 更新：取消点赞接口，支持 type 和 ids 列表
+export const cancelLike = async (type: number, objectId: number[]) => {
     try {
-        const response = await axios.delete(`${BASE_URL}/api/objectLike?ids=${ids}`
-        );
+        const response = await axios.delete(`${BASE_URL}/api/objectLike?type=${type}`, {
+            data: objectId
+        });
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || '取消点赞失败');
@@ -109,6 +111,11 @@ export const isLikeComment = async (objectId: number, userName: string) => {
     return isLike(objectId, 4, userName);
 };
 
+// 查询是否点赞每日一诗讨论
+export const isLikeDailyPoemDiscussion = async (objectId: number, userName: string) => {
+    return isLike(objectId, 5, userName);
+};
+
 // 关注公共接口
 export const subscribe = async (objectId: number, objectType: number, userName: string) => {
     try {
@@ -143,11 +150,22 @@ export const subscribeRecitation = async (objectId: number, userName: string) =>
     return subscribe(objectId, 3, userName);
 };
 
+// 关注评论，用不到
+export const subscribeComment = async (objectId: number, userName: string) => {
+    return subscribe(objectId, 4, userName);
+};
 
-// 取消关注
-export const cancelSubscribe = async (ids: string) => {
+// 关注每日一诗讨论
+export const subscribeDailyPoemDiscussion = async (objectId: number, userName: string) => {
+    return subscribe(objectId, 5, userName);
+};
+
+// 取消收藏接口，支持 type 和 ids 列表
+export const cancelSubscribe = async (type: number, objectId: number[]) => {
     try {
-        const response = await axios.delete(`${BASE_URL}/api/favorites?ids=${ids}`);
+        const response = await axios.delete(`${BASE_URL}/api/favorites?type=${type}`, {
+            data: objectId
+        });
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || '取消关注失败');
@@ -188,4 +206,14 @@ export const isSubscribePoetPoem = async (objectId: number, userName: string) =>
 // 查询是否关注朗诵
 export const isSubscribeRecitation = async (objectId: number, userName: string) => {
     return isSubscribe(objectId, 3, userName);
+};
+
+// 查询是否关注评论，用不到
+export const isSubscribeComment = async (objectId: number, userName: string) => {
+    return isSubscribe(objectId, 4, userName);
+};
+
+// 查询是否关注每日一诗讨论
+export const isSubscribeDailyPoemDiscussion = async (objectId: number, userName: string) => {
+    return isSubscribe(objectId, 5, userName);
 };

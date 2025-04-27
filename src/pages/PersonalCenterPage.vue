@@ -177,7 +177,7 @@
                   <NTag size="small" type="info">{{ comment.commentType }}</NTag>
                   <span class="text-xs text-gray-500">{{ comment.createdAt }}</span>
                 </div>
-                <div class="cursor-pointer" @click="navigateToCommentDetail(comment.objectId)">
+                <div class="cursor-pointer" @click="navigateToCommentDetail(comment.objectId, comment.commentType)">
                   <p class="text-gray-700 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
                   <h3 class="text-lg md:text-xl font-medium text-gray-800 text-right">FROM——{{ comment.title }}</h3>
                 </div>
@@ -247,7 +247,7 @@
                   <NTag size="small" type="info">{{ favorite.favoriteType }}</NTag>
                   <span class="text-xs text-gray-500">{{ favorite.createdAt }}</span>
                 </div>
-                <div class="cursor-pointer" @click="navigateToPostDetail(favorite.postId)">
+                <div class="cursor-pointer" @click="navigateToFavoriteDetail(favorite)">
                  <h3 class="text-lg md:text-xl font-medium text-gray-800">{{ favorite.title }}</h3>
                  <p class="text-gray-600 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
                  <div v-if="favorite.poemTitle" class="text-xs md:text-sm text-gray-500 mb-2">
@@ -551,16 +551,52 @@ const navigateToPostDetail = (postId: number) => {
   router.push({ name: 'PoemExplanationDetail', params: { postId } })
 }
 
-const navigateToCommentDetail = (objectId: number) => {
-  router.push({ name: 'PoemExplanationDetail', params: { postId: objectId } })
+const navigateToCommentDetail = (objectId: number, commentType: string) => {
+  // 根据commentType进行条件导航
+  if (commentType === '帖子') {
+    navigateToPostDetail(objectId)
+  } else if (commentType === '用户诗歌') {
+    navigateToUserPoemDetail(objectId)
+  } else if (commentType === '诗人诗歌') {
+    navigateToPoetPoemDetail(objectId)
+  } else if (commentType === '朗诵') {
+    navigateToRecitationDetail(objectId)
+  } else {
+    // 默认跳转到通用详情或首页
+    router.push({ name: 'HomePage' })
+  }
 }
 
-const navigateToPoetryDetail = (poetryId: number) => {
-  router.push({ name: 'UserPoemDetail', params: { poemId: poetryId } })
+const navigateToUserPoemDetail = (poemId: number) => {
+  router.push({ name: 'UserPoemDetail', params: { poemId } })
+}
+
+const navigateToPoetPoemDetail = (poemId: number) => {
+  router.push({ name: 'PoetPoemDetail', params: { poemId } })
 }
 
 const navigateToRecitationDetail = (recitationId: number) => {
   router.push({ name: 'RecitationDetail', params: { recitationId } })
+}
+
+// 根据收藏类型导航到相应详情页
+const navigateToFavoriteDetail = (favorite: any) => {
+  if (favorite.favoriteType === '用户诗歌') {
+    navigateToUserPoemDetail(favorite.poemId)
+  } else if (favorite.favoriteType === '诗人诗歌') {
+    navigateToPoetPoemDetail(favorite.poemId)
+  } else if (favorite.favoriteType === '帖子') {
+    navigateToPostDetail(favorite.postId)
+  } else if (favorite.favoriteType === '朗诵') {
+    navigateToRecitationDetail(favorite.recitationId)
+  } else {
+    router.push({ name: 'HomePage' })
+  }
+}
+
+// 点击诗歌列表跳转 （默认用户诗歌）
+const navigateToPoetryDetail = (poemId: number) => {
+  navigateToUserPoemDetail(poemId)
 }
 
 onMounted(() => {
