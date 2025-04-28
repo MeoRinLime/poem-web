@@ -2,9 +2,11 @@ import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
+//commentType：0:postComment,1:poemUserComment,2:poemPoetComment,3:recitationComment
 // interface LikeRequest {
 //     objectId: number; // 对象ID
 //     objectType: number; // 评论对象类型 (0: 帖子, 1: 用户诗歌, 2: 诗人诗歌, 3: 朗诵, 4: 评论, 5: 每日一诗讨论)
+//     commentType: number,  //在objectType = 4 的时候要传入 即给评论点赞的时候传入 
 //     userName: string; // 点赞用户的用户名
 // }
 
@@ -15,11 +17,12 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 // }
 
 // 点赞公共接口
-export const like = async (objectId: number, objectType: number, userName: string) => {
+export const like = async (objectId: number, objectType: number,  userName: string, commentType?: number) => {
     try {
         const response = await axios.post(`${BASE_URL}/api/objectLike`, {
             objectId,
             objectType,
+            commentType,
             userName
         });
         return response.data;
@@ -49,8 +52,8 @@ export const likeRecitation = async (objectId: number, userName: string) => {
 };
 
 // 点赞评论
-export const likeComment = async (objectId: number, userName: string) => {
-    return like(objectId, 4, userName);
+export const likeComment = async (objectId: number, userName: string, commentType: number) => {
+    return like(objectId, 4, userName, commentType);
 };
 
 // 点赞每日一诗讨论
@@ -59,9 +62,12 @@ export const likeDailyPoemDiscussion = async (objectId: number, userName: string
 };
 
 // 更新：取消点赞接口，支持 type 和 ids 列表
-export const cancelLike = async (type: number, objectId: number[]) => {
+export const cancelLike = async (type: number, objectId: number[], commentType?: number) => {
     try {
         const response = await axios.delete(`${BASE_URL}/api/objectLike?type=${type}`, {
+            params: {
+                commentType
+            },
             data: objectId
         });
         return response.data;
@@ -71,12 +77,13 @@ export const cancelLike = async (type: number, objectId: number[]) => {
 };
 
 // 查询是否点赞公共接口
-export const isLike = async (objectId: number, objectType: number, userName: string) => {
+export const isLike = async (objectId: number, objectType: number, userName: string, commentType?: number) => {
     try {
         const response = await axios.get(`${BASE_URL}/api/objectLike/isLike`, {
             params: {
                 objectId,
                 objectType,
+                commentType,
                 userName
             }
         });
@@ -107,8 +114,8 @@ export const isLikeRecitation = async (objectId: number, userName: string) => {
 };
 
 // 查询是否点赞评论
-export const isLikeComment = async (objectId: number, userName: string) => {
-    return isLike(objectId, 4, userName);
+export const isLikeComment = async (objectId: number, userName: string, commentType: number) => {
+    return isLike(objectId, 4, userName, commentType);
 };
 
 // 查询是否点赞每日一诗讨论
@@ -148,11 +155,6 @@ export const subscribePoetPoem = async (objectId: number, userName: string) => {
 // 关注朗诵
 export const subscribeRecitation = async (objectId: number, userName: string) => {
     return subscribe(objectId, 3, userName);
-};
-
-// 关注评论，用不到
-export const subscribeComment = async (objectId: number, userName: string) => {
-    return subscribe(objectId, 4, userName);
 };
 
 // 关注每日一诗讨论
@@ -206,11 +208,6 @@ export const isSubscribePoetPoem = async (objectId: number, userName: string) =>
 // 查询是否关注朗诵
 export const isSubscribeRecitation = async (objectId: number, userName: string) => {
     return isSubscribe(objectId, 3, userName);
-};
-
-// 查询是否关注评论，用不到
-export const isSubscribeComment = async (objectId: number, userName: string) => {
-    return isSubscribe(objectId, 4, userName);
 };
 
 // 查询是否关注每日一诗讨论

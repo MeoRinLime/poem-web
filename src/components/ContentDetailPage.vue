@@ -360,11 +360,20 @@
   // 检查评论点赞状态
   const checkCommentLikeStatus = async () => {
     if (!authStore.username || !detail.value.comments?.length) return
-    
+    //commentType：0:postComment,1:poemUserComment,2:poemPoetComment,3:recitationComment
+    let commentType; 
+    if (props.contentType === 'poem') {
+      const isUserPoem = route.path.includes('user-poem')
+      commentType = isUserPoem ? 1 : 2
+    } else if (props.contentType === 'recitation') {
+      commentType = 3
+    } else {
+      commentType = 0
+    }
     try {
       const updatedComments = await Promise.all(
         detail.value.comments.map(async (comment) => {
-          const likeInfo = await isLikeComment(comment.commentId, authStore.username!)
+          const likeInfo = await isLikeComment(comment.commentId, authStore.username!, commentType)
           return { 
             ...comment, 
             isLiked: !!likeInfo?.data?.likeId,
@@ -526,20 +535,30 @@
       message.warning('请先登录')
       return
     }
-  
+    
     const previousState = comment.isLiked
     comment.isLiked = !comment.isLiked
     comment.countLike += comment.isLiked ? 1 : -1
+
+    let commentType; 
+    if (props.contentType === 'poem') {
+      const isUserPoem = route.path.includes('user-poem')
+      commentType = isUserPoem ? 1 : 2
+    } else if (props.contentType === 'recitation') {
+      commentType = 3
+    } else {
+      commentType = 0
+    }
   
     try {
       if (!comment.isLiked && comment.likeId) {
         // 取消点赞，传递数组参数
-        await cancelLike(4, [comment.likeId])
+        await cancelLike(4, [comment.likeId], commentType)
         comment.likeId = undefined
       } else {
         // 点赞
-        await likeComment(comment.commentId, authStore.username)
-        const likeInfo = await isLikeComment(comment.commentId, authStore.username!)
+        await likeComment(comment.commentId, authStore.username, commentType)
+        const likeInfo = await isLikeComment(comment.commentId, authStore.username!, commentType)
         comment.likeId = likeInfo?.data?.likeId
       }
     } catch (error: any) {
