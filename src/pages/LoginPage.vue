@@ -2,7 +2,7 @@
   <div class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white shadow-lg rounded-lg w-full max-w-md md:max-w-4xl md:h-auto md:flex overflow-hidden">
       <!-- 左侧欢迎区域 - 移动端隐藏，平板及以上显示 -->
-      <div class="hidden md:block md:w-1/2 bg-gradient-to-r from-amber-500 to-amber-500 rounded-l-lg flex items-center justify-center"> 
+      <div class="hidden md:block md:w-1/2 bg-gradient-to-r from-amber-500 to-amber-500 rounded-l-lg items-center justify-center"> 
         <div class="text-white space-y-6 p-10 font-serif">
           <h1 class="text-4xl font-bold" style="font-family: Georgia, serif">欢迎来到诗韵！</h1>
           <p class="text-lg" style="font-family: Georgia, serif">
@@ -32,7 +32,7 @@
         >
           <div v-if="isLoginForm" key="login" class="w-full" style="font-family: Courier New, Courier, monospace">
             <h2 class="text-3xl md:text-4xl font-bold mb-6 md:mb-10 text-center">登录</h2>
-            <form @submit.prevent="handleLogin" class="space-y-4 w-full md:w-4/5 mx-auto">
+            <form class="space-y-4 w-full md:w-4/5 mx-auto" @submit.prevent="handleLogin">
               <div>
                 <input 
                   id="username" 
@@ -83,8 +83,8 @@
             <p class="text-center text-sm text-gray-600 mt-6">
               没有账号？
               <button 
-                @click="switchToRegister" 
-                class="font-medium text-amber-600 hover:text-amber-500"
+                class="font-medium text-amber-600 hover:text-amber-500" 
+                @click="switchToRegister"
               >
                 马上注册
               </button>
@@ -94,7 +94,7 @@
           <div v-else key="register" class="w-full" style="font-family: Courier New, Courier, monospace">
             <h2 class="text-3xl font-bold mb-4 text-center">注册</h2>
             <h4 class="mb-6 text-center opacity-50">让我们的旅途从这里开始吧</h4>
-            <form @submit.prevent="handleRegister" class="space-y-4 w-full md:w-4/5 mx-auto">
+            <form class="space-y-4 w-full md:w-4/5 mx-auto" @submit.prevent="handleRegister">
               <div>
                 <input 
                   id="new-username" 
@@ -155,8 +155,8 @@
             <p class="text-center text-sm text-gray-600 mt-6">
               已有账号？
               <button 
-                @click="switchToLogin" 
-                class="font-medium text-amber-600 hover:text-amber-500"
+                class="font-medium text-amber-600 hover:text-amber-500" 
+                @click="switchToLogin"
               >
                 马上登录
               </button>
@@ -173,10 +173,9 @@ import { ref, reactive } from 'vue'
 import { login, register } from '@/api/auth'
 import router from '@/router';
 import { useAuthStore } from '@/store/auth';
-import { useMessage } from 'naive-ui'
 import { getUserAvatar } from '@/api/personalCenter'
+import { showPrompt } from '@/components/functions/prompt'
 
-const message = useMessage()
 const isLoginForm = ref(true)
 const registerError = ref('')
 const isLoading = ref(false)
@@ -215,14 +214,10 @@ const handleLogin = async () => {
     useAuthStore().login(token, username, bio, createTime, email,rememberMe.checked, userId);
     avatarUrl.value = await getUserAvatar(userId);
     useAuthStore().setUserAvatar(avatarUrl.value);
-    message.success(
-          '登录成功！欢迎回到诗词的世界！'
-        );
+    showPrompt('success', '登录成功！欢迎回到诗词的世界！');
     //console.log('登录成功', data);
   } catch (error: any) {
-    message.error(
-          '登录失败，请检查用户名和密码是否正确！'
-        );
+    showPrompt('error', '登录失败，请检查用户名和密码是否正确！');
     console.error('登录失败:', error.message);
   }
 };
@@ -237,10 +232,10 @@ const handleRegister = async () => {
       registerForm.password,
       registerForm.confirmPassword,
     );
-    message.success('注册成功，请登录');
+    showPrompt('success', '注册成功，请登录');
     switchToLogin();
   } catch (error: any) {
-    message.error(error.message + ' · 名称或邮箱已被占用');
+    showPrompt('error', error.message + ' · 名称或邮箱已被占用');
   } finally {
     isLoading.value = false
   }

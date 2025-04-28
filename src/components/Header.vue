@@ -75,7 +75,7 @@
         </Popover>
 
         <!-- 替换常规导航链接：每日一诗 下拉菜单 -->
-        <Popover class="relative" v-slot="{ open }">
+        <Popover v-slot="{ open }" class="relative">
           <PopoverButton class="flex items-center gap-x-2 text-sm font-semibold leading-6" :class="{ 'text-gray-900': isScrolled, 'text-gray-800': !isScrolled }">
             <GlobalOutlined class="h-5 w-5 text-blue-400" aria-hidden="true" />
             每日一诗
@@ -298,24 +298,22 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { Dialog, DialogPanel, Popover, PopoverButton, PopoverGroup, PopoverPanel } from '@headlessui/vue'
-import { Bars3Icon, ChevronDownIcon, PaperAirplaneIcon, SparklesIcon, StarIcon } from '@heroicons/vue/24/outline'
+import { Bars3Icon, ChevronDownIcon, SparklesIcon, StarIcon } from '@heroicons/vue/24/outline'
 import { GlobalOutlined, AppstoreOutlined, LikeFilled, SearchOutlined, SoundTwotone, UserDeleteOutlined, QuestionCircleOutlined, BookOutlined } from '@vicons/antd'
 import { useAuthStore } from '@/store/auth'
 import { logout } from '@/api/auth'
-import { useMessage } from 'naive-ui'
-import router from '@/router'
+import { showPrompt } from '@/components/functions/prompt'
 
-const message = useMessage()
 const DEFAULT_AVATAR = '/default-avatar.png'
 
-// State variables
 const authStore = useAuthStore()
 const mobileMenuOpen = ref(false)
 const userMenuOpen = ref(false)
 const isScrolled = ref(false)
+const router = useRouter()
 
 // Navigation items
 const navigationItems = [
@@ -361,12 +359,12 @@ const handleLogoutMobile = () => {
 const performLogout = () => {
   authStore.logout()
   logout()
-  message.success('退出登录成功，下次见哦。')
   router.push('/')
+  showPrompt('success','退出登录成功，下次见哦。')
 }
 
 // Event handlers for detecting clicks outside
-const handleClickOutside = (event) => {
+const handleClickOutside = (event: any) => {
   const userMenuElement = event.target.closest('.relative')
   if (!userMenuElement && userMenuOpen.value) {
     closeUserMenu()
@@ -392,13 +390,12 @@ onUnmounted(() => {
 
 <style scoped>
 header {
-  height: 64px; /* 与模板中的内联样式一致 */
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 确保所有链接和按钮在垂直方向上居中 */
 a, button {
   display: flex;
   align-items: center;

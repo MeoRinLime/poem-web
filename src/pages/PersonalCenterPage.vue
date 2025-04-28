@@ -284,17 +284,16 @@ import {
   NSpace, 
   NGrid, 
   NGridItem, 
-  NText,
-  NPagination,
-  NButton,
-  NModal,
-  NForm,
-  NFormItem,
-  NInput,
-  NUpload,
-  NUploadDragger,
-  useMessage,
-  NTag
+  NText, 
+  NPagination, 
+  NButton, 
+  NModal, 
+  NForm, 
+  NFormItem, 
+  NInput, 
+  NUpload, 
+  NUploadDragger, 
+  NTag 
 } from 'naive-ui'
 import { 
   PersonCircleOutline, 
@@ -318,6 +317,8 @@ import type { Recitation } from '@/types/recitation';
 import { useRouter } from 'vue-router';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
+
+import { showPrompt } from '@/components/functions/prompt'
 
 const userStore = useAuthStore()
 const router = useRouter()
@@ -350,9 +351,6 @@ const pageSize = ref(5)
 
 const showEditProfileModal = ref(false)
 
-const message = useMessage()
-
-// 加载状态控制
 const isLoading = ref(true)
 const isUpdating = ref(false)
 
@@ -369,18 +367,15 @@ const fetchUserAvatar = async () => {
 
 const showCropper = ref(false)
 const cropperImg = ref('')
-// 使用更明确的类型定义，根据vue-cropper.d.ts中的定义
 const cropperRef = ref<InstanceType<typeof VueCropper> | null>(null)
 
 const handleAvatarUpload = (data: any) => {
   const file = data.file.file
-  
   // 验证文件类型
   if (!file.type.startsWith('image/')) {
-    message.error('请选择图片文件');
+    showPrompt('error','请选择图片文件');
     return;
   }
-  
   // 显示裁剪界面
   cropperImg.value = URL.createObjectURL(file)
   showCropper.value = true
@@ -400,7 +395,7 @@ const handleAvatarUpload = (data: any) => {
 
 const confirmCrop = () => {
   if (!cropperRef.value) {
-    message.error('裁剪组件未初始化');
+    showPrompt('error','裁剪组件未初始化');
     return;
   }
   
@@ -437,10 +432,10 @@ const handleEditProfile = async () => {
     userData.value.email = editProfileForm.email
     useAuthStore().setUserInfo(editProfileForm.bio, editProfileForm.email || '')
     
-    message.success('个人信息更新成功')
+    showPrompt('success','个人信息更新成功')
     showEditProfileModal.value = false
   } catch (error: any) {
-    message.error(error.message || '更新失败')
+    showPrompt('error',error.message || '更新失败')
   } finally {
     isUpdating.value = false
   }
@@ -492,7 +487,7 @@ const fetchUserComments = async () => {
     const reciteComments = reciteRes.data.map((item: any) => ({ ...item, commentType: '朗诵' }))
     comments.value = [...postComments, ...poemComments, ...poetComments, ...reciteComments]
   } catch (error) {
-    message.error('获取评论列表失败')
+    showPrompt('error','获取评论列表失败')
   }
 }
 
@@ -506,7 +501,7 @@ const fetchUserRecitations = async () => {
     const response = await getUserRecitations(userStore.username || '')
     recitations.value = response.data
   } catch (error) {
-    message.error('获取朗诵列表失败')
+    showPrompt('error','获取朗诵列表失败')
   }
 }
 
@@ -524,7 +519,7 @@ const fetchUserFavorites = async () => {
     const poetPoemFav = poetPoemRes.data.map((item: any) => ({ ...item, favoriteType: '诗人诗歌' }))
     favorites.value = [...userPoemFav, ...postFav, ...reciteFav, ...poetPoemFav]
   } catch (error) {
-    message.error('获取收藏列表失败')
+    showPrompt('error','获取收藏列表失败')
   }
 }
 
@@ -541,7 +536,7 @@ const loadInitialData = async () => {
       fetchUserAvatar()
     ])
   } catch (error) {
-    message.error('数据加载失败')
+    showPrompt('error','数据加载失败')
   } finally {
     isLoading.value = false
   }

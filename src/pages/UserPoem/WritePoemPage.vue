@@ -96,7 +96,6 @@ import {
   NForm,
   NFormItem,
   NInput,
-  useMessage,
   type FormRules,
   type FormInst
 } from 'naive-ui'
@@ -106,6 +105,8 @@ import { useRouter } from 'vue-router'
 import type { WritePoem } from '@/types/poem';
 import BackButton from '@/components/buttons/BackButton.vue'
 import SendButton from '@/components/buttons/SendButton.vue'
+
+import { showPrompt } from '@/components/functions/prompt'
 
 const router = useRouter()
 
@@ -118,9 +119,6 @@ const poemForm = ref({
   subtitle: '',
   content: ''
 })
-
-// 消息通知处理
-const message = useMessage()
 
 // 表单验证规则
 const rules: FormRules = {
@@ -164,7 +162,7 @@ const formRef = ref<FormInst | null>(null)
 const handleSubmit = () => {
   formRef.value?.validate(async (errors) => {
     if (errors) {
-      message.error('请检查表单内容')
+      showPrompt('error', '请检查表单内容')
       return
     }
 
@@ -183,14 +181,14 @@ const handleSubmit = () => {
         newPoem.content,
         newPoem.subtitle,
       )
-      message.success('诗词创作成功！')
+      showPrompt('success', '诗词创作成功！')
       router.push('/user-poem-list')
       // 重置表单
       poemForm.value.title = ''
       poemForm.value.subtitle = ''
       poemForm.value.content = ''
     } catch (error) {
-      message.error('诗词创作失败，请稍后再试')
+      showPrompt('error', '诗词创作失败，请稍后再试')
     }
   })
 }
