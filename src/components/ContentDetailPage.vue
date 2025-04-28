@@ -565,7 +565,7 @@
     try {
       const postCommentData = {
         objectId: detail.value.id,
-        objectType: props.contentType === 'poem' ? 1 : props.contentType === 'recitation' ? 3 : 0,
+        objectType: props.contentType === 'poem' ? (route.path.includes('user-poem') ? 1 : 2) : props.contentType === 'recitation' ? 3 : 0,
          userName: authStore.username,
          content: newComment.value,
        }
