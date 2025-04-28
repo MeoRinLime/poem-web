@@ -315,7 +315,7 @@
         favoriteCount: data.favoriteCount || 0,
         likeId: data.likeId,
         favoritesId: data.favoritesId,
-        audioUrl: "https://47.120.46.215" + data.filePath, 
+        audioUrl: data.url, 
       }
     }
     

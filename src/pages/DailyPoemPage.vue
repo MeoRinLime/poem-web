@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+  <div class="min-h-screen flex flex-col items-center justify-center p-4 mt-12">
     <n-card 
       class="w-full max-w-md shadow-lg rounded-lg"
       :content-style="{ padding: '16px' }"
