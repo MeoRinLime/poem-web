@@ -1,33 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/store/auth';  // 引入 Pinia 的 auth store
 
-import HomePage from '@/pages/HomePage.vue';
-import SearchPage from '@/pages/Search/SearchPage.vue';
-import CommunicationPage from '@/pages/Communication/CommunicationList.vue';
-import DailyPoemPage from '@/pages/DailyPoemPage.vue';
-import PersonalCenterPage from '@/pages/PersonalCenterPage.vue';
-import WritePoemPage from '@/pages/UserPoem/WritePoemPage.vue';
-import PoemExplanationPage from '@/pages/Explanation/PoemExplanationList.vue';
-import LoginPage from '@/pages/LoginPage.vue';
-import PoemExplanationDetailPage from '@/pages/Explanation/PoemExplanationDetailPage.vue';
-import NotFoundPage from '@/pages/NotFound/NotFoundPage.vue';
-import CreatePoemExplanation from '@/pages/Explanation/CreatePoemExplanation.vue';
-import UserPoemList from '@/pages/UserPoem/UserPoemList.vue';
-import UserPoemDetail from '@/pages/UserPoem/UserPoemDetail.vue';
-import SearchResultsPage from '@/pages/Search/SearchResultsPage.vue';
-import CommunicationDetailPage from '@/pages/Communication/CommunicationDetailPage.vue';
-import CreateCommunication from '@/pages/Communication/CreateCommunication.vue';
-import RecitationList from '@/pages/Recitation/RecitationList.vue';
-import RecitationDetailPage from '@/pages/Recitation/RecitationDetailPage.vue';
-import CreateRecitation from '@/pages/Recitation/CreateRecitation.vue';
-import PoetPoemListPage from '@/pages/PoetPoem/PoetPoemListPage.vue';
-import PoetPoemDetailPage from '@/pages/PoetPoem/PoetPoemDetailPage.vue';
-import TestPlay from '@/pages/TestPlay.vue';
-
 const routes = [
   {
     path: '/',
-    component: HomePage,
+    component: () => import('@/pages/HomePage.vue'),
     name: 'Home',
     meta: {
       title: '主页',
@@ -35,14 +12,23 @@ const routes = [
   },
   {
     path: '/daily-poem',
-    component: DailyPoemPage,
+    component: () => import('@/pages/DailyPoemPage.vue'),
     meta: {
       title: '每日一诗推荐',
     },
   },
   {
+    path: '/answer-question',
+    component: () => import('@/pages/AnswerQuestionPage.vue'),
+    name: 'AnswerQuestions',
+    meta: {
+      title: '每日答题',
+      isFullscreen: true,  // 全屏显示
+    }
+  },
+  {
     path: '/personal-center',
-    component: PersonalCenterPage,
+    component: () => import('@/pages/PersonalCenterPage.vue'),
     meta: {
       title: '个人中心',
       requiresAuth: true,  // 需要登录才能访问
@@ -50,7 +36,7 @@ const routes = [
   },
   {
     path: '/write-poem',
-    component: WritePoemPage,
+    component: () => import('@/pages/UserPoem/WritePoemPage.vue'),
     name: 'WritePoem',
     meta: {
       title: '创作诗歌',
@@ -60,14 +46,14 @@ const routes = [
   {
     path: '/recitation',
     name: 'RecitationList',
-    component: RecitationList,
+    component: () => import('@/pages/Recitation/RecitationList.vue'),
     meta: {
       title: '诗歌朗诵',
     },
   },
   {
     path: '/recitation/:recitationId',
-    component: RecitationDetailPage,
+    component: () => import('@/pages/Recitation/RecitationDetailPage.vue'),
     name: 'RecitationDetail',
     props: true,
     meta: {
@@ -76,7 +62,7 @@ const routes = [
   },
   {
     path: '/create-recitation',
-    component: CreateRecitation,
+    component: () => import('@/pages/Recitation/CreateRecitation.vue'),
     name: 'CreateRecitation',
     meta: {
       title: '创建朗读',
@@ -85,7 +71,7 @@ const routes = [
   },
   {
     path: '/poem-explanation',
-    component: PoemExplanationPage,
+    component: () => import('@/pages/Explanation/PoemExplanationList.vue'),
     name: 'PoemExplanationList',
     meta: {
       title: '诗歌解析',
@@ -94,12 +80,12 @@ const routes = [
   {
     path: '/poem-explanation/:postId',
     name: 'PoemExplanationDetail',
-    component: PoemExplanationDetailPage,
+    component: () => import('@/pages/Explanation/PoemExplanationDetailPage.vue'),
     props: true
   },
   {
     path: '/communication',
-    component: CommunicationPage,
+    component: () => import('@/pages/Communication/CommunicationList.vue'),
     name: 'Communication',
     meta: {
       title: '诗歌交流',
@@ -108,12 +94,12 @@ const routes = [
   {
     path: '/communication/:postId',
     name: 'CommunicationDetail',
-    component: CommunicationDetailPage,
+    component: () => import('@/pages/Communication/CommunicationDetailPage.vue'),
     props: true
   },
   {
     path: '/poet-poem-list',
-    component: PoetPoemListPage,
+    component: () => import('@/pages/PoetPoem/PoetPoemListPage.vue'),
     name: 'PoetPoemList',
     meta: {
       title: '诗歌列表',
@@ -121,7 +107,7 @@ const routes = [
   },
   {
     path: '/poet-poem-detail/:poemId',
-    component: PoetPoemDetailPage,
+    component: () => import('@/pages/PoetPoem/PoetPoemDetailPage.vue'),
     name: 'PoetPoemDetail',
     props: true,
     meta: {
@@ -130,7 +116,7 @@ const routes = [
   },
   {
     path: '/search',
-    component: SearchPage,
+    component: () => import('@/pages/Search/SearchPage.vue'),
     meta: {
       title: '搜索',
       isFullscreen: false,
@@ -138,7 +124,7 @@ const routes = [
   },
   {
     path: '/search-result',
-    component: SearchResultsPage,
+    component: () => import('@/pages/Search/SearchResultsPage.vue'),
     name: 'SearchResultsPage',
     meta: {
       title: '搜索结果',
@@ -147,7 +133,7 @@ const routes = [
   },
   {
     path: '/login',
-    component: LoginPage,
+    component: () => import('@/pages/LoginPage.vue'),
     name : 'login',
     meta: {
       isFullscreen: true,
@@ -156,7 +142,7 @@ const routes = [
   },
   {
     path: '/create-poem-explanation',
-    component: CreatePoemExplanation,
+    component: () => import('@/pages/Explanation/CreatePoemExplanation.vue'),
     name: 'CreatePoemExplanation',
     meta: {
       title: '创建诗歌解析',
@@ -165,7 +151,7 @@ const routes = [
   },
   {
     path: '/create-communication',
-    component: CreateCommunication,
+    component: () => import('@/pages/Communication/CreateCommunication.vue'),
     name: 'CreateCommunication',
     meta: {
       title: '创建诗歌交流',
@@ -174,7 +160,7 @@ const routes = [
   },
   {
     path: '/user-poem-list',
-    component: UserPoemList,
+    component: () => import('@/pages/UserPoem/UserPoemList.vue'),
     name: 'UserPoemList',
     meta: {
       title: '用户诗歌列表',
@@ -182,7 +168,7 @@ const routes = [
   },
   {
     path: '/user-poem-detail/:poemId',
-    component: UserPoemDetail,
+    component: () => import('@/pages/UserPoem/UserPoemDetail.vue'),
     name: 'UserPoemDetail',
     props: true,
     meta: {
@@ -191,7 +177,7 @@ const routes = [
   },
   {
     path: '/test/just-for-test',
-    component: TestPlay,
+    component: () => import('@/pages/TestPlay.vue'),
     name: 'TestPlay',
     meta: {
       title: '测试页面',
@@ -200,7 +186,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: NotFoundPage,
+    component: () => import('@/pages/NotFound/NotFoundPage.vue'),
     meta: {
       title: '页面未找到',
     },
