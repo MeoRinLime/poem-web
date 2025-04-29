@@ -116,6 +116,11 @@ onMounted(async () => {
       startDelay: 1000,
     });
   } catch (error) {
+    new Typed('#hitokoto', {
+      strings: ["目前并没有部署后端，但是您仍然可以体验网站的基本样式"],
+      typeSpeed: 50,
+      showCursor: false,
+    });
     console.error('Failed to fetch hitokoto:', error);
   }
 });
