@@ -107,7 +107,7 @@
           :class="{ 'text-gray-900': isScrolled, 'text-gray-800': !isScrolled }"
         >
           <LikeFilled class="h-5 w-5 text-pink-400" aria-hidden="true" />
-          创作
+          诗词创作花园
         </router-link>
 
         <!-- Search Icon -->
@@ -226,16 +226,21 @@
               </div>
               <!-- 使用 dailyMenuItems 数组支持多跳转项 -->
               <div class="space-y-2">
-                <router-link
-                  v-for="item in dailyMenuItems"
-                  :key="item.name"
-                  :to="item.href"
-                  class="flex items-center -mx-3 rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                  @click="mobileMenuOpen = false"
-                >
-                  <GlobalOutlined class="h-5 w-5 text-blue-400 mr-2" />
-                  {{ item.name }}
-                </router-link>
+                <h3 class="font-semibold text-gray-900 mb-3 flex items-center">
+                  <GlobalOutlined class="h-5 w-5 text-orange-400 mr-2" />
+                  每日体验
+                </h3>
+                <div class="space-y-2 pl-6">
+                  <router-link
+                    v-for="item in dailyMenuItems"
+                    :key="item.name"
+                    :to="item.href"
+                    class="block rounded-lg py-2 pl-3 pr-3 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    @click="mobileMenuOpen = false"
+                  >
+                    {{ item.name }}
+                  </router-link>
+                </div>
               </div>
               <router-link
                 to="/user-poem-list"
@@ -243,7 +248,7 @@
                 @click="mobileMenuOpen = false"
               >
                 <LikeFilled class="h-5 w-5 text-pink-400 mr-2" />
-                创作
+                诗词创作花园
               </router-link>
               
               <router-link
