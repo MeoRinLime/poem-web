@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen p-4 md:p-24">
-    <PersonalCenterLoader v-show="isLoading" />
     <div 
       class="p-4 md:p-24 transition-all duration-300"
       :class="{'blur-sm pointer-events-none': isLoading}"
@@ -272,6 +271,12 @@
       </div>
     </div>
   </div>
+
+<Teleport to="body">
+  <div v-show="isLoading" class="pointer-events-none">
+    <PersonalCenterLoader />
+  </div>
+</Teleport>
 </template>
 
 <script setup lang="ts">
@@ -419,6 +424,8 @@ const confirmCrop = () => {
 const handleEditProfile = async () => {
   try {
     isUpdating.value = true
+    // 先关闭编辑模态，避免模态遮挡加载动画
+    showEditProfileModal.value = false
     const userId = String(userStore.userId)
     
     // 并行处理基本信息更新和头像更新
@@ -433,7 +440,6 @@ const handleEditProfile = async () => {
     useAuthStore().setUserInfo(editProfileForm.bio, editProfileForm.email || '')
     
     showPrompt('success','个人信息更新成功')
-    showEditProfileModal.value = false
   } catch (error: any) {
     showPrompt('error',error.message || '更新失败')
   } finally {

@@ -11,8 +11,6 @@
 </template>
   
 <script lang="ts" setup>
-import { defineEmits } from 'vue';
-
 const emit = defineEmits(['file-selected']);
 
 const onFileSelected = (event: Event) => {
