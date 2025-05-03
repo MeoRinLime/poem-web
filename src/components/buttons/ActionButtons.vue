@@ -2,6 +2,7 @@
   <div class="action-buttons flex justify-center space-x-4 my-4">
     <n-button 
       :type="isLiked ? 'primary' : 'default'"
+      round
       @click="$emit('toggle-like')"
     >
       <template #icon>
@@ -12,6 +13,7 @@
     
     <n-button 
       :type="isCollected ? 'primary' : 'default'"
+      round
       @click="$emit('toggle-collect')"
     >
       <template #icon>
@@ -22,7 +24,7 @@
     
     <n-popover trigger="hover">
       <template #trigger>
-        <n-button @click="$emit('share')">
+        <n-button round @click="$emit('share')">
           <template #icon>
             <n-icon :component="ShareSocialOutline" />
           </template>
@@ -31,6 +33,15 @@
       </template>
       <span>点击创建分享链接</span>
     </n-popover>
+    
+    <AIButton
+      v-show="showAIButton"
+      :text="aiButtonText"
+      :loading="aiLoading"
+      :disabled="aiDisabled"
+      :color="aiColor"
+      @click="handleAIButtonClick"
+    />
   </div>
 </template>
 
@@ -42,6 +53,7 @@ import {
   BookmarkOutline, 
   ShareSocialOutline 
 } from '@vicons/ionicons5'
+import AIButton from './AIButton.vue'
 
 defineProps({
   likeCount: {
@@ -59,8 +71,32 @@ defineProps({
   isCollected: {
     type: Boolean,
     default: false
+  },
+  aiButtonText: {
+    type: String,
+    default: 'AI 生成'
+  },
+  aiLoading: {
+    type: Boolean,
+    default: false
+  },
+  aiDisabled: {
+    type: Boolean,
+    default: false
+  },
+  aiColor: {
+    type: String,
+    default: '#06c8d9'
+  },
+  showAIButton: {
+    type: Boolean,
+    default: false
   }
 })
 
-defineEmits(['toggle-like', 'toggle-collect', 'share'])
+const emit = defineEmits(['toggle-like', 'toggle-collect', 'share', 'ai-action'])
+
+const handleAIButtonClick = (event: Event) => {
+  emit('ai-action', event);
+}
 </script>

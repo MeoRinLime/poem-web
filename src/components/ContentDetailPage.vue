@@ -85,15 +85,58 @@
         :use-play-api="props.contentType === 'recitation'"
       />
 
+      <!-- AI赏析弹窗 -->
+      <n-modal v-model:show="showAIAnalysisModal" style="width: 90%; max-width: 800px;">
+        <n-card
+          style="width: 100%"
+          :bordered="false"
+          size="huge"
+          role="dialog"
+          aria-modal="true"
+          :title="modalTitle"
+        >
+          <template #header-extra>
+            <n-button circle quaternary @click="closeAIAnalysisModal">
+              <template #icon>
+                <n-icon><close-outlined /></n-icon>
+              </template>
+            </n-button>
+          </template>
+          
+          <div v-if="isAnalyzing" class="flex flex-col items-center justify-center p-6">
+            <n-spin size="large" />
+            <p class="mt-4 text-gray-600">正在分析诗歌，请稍候...</p>
+          </div>
+          
+          <div v-else-if="analysisError" class="text-red-500 p-6">
+            服务器繁忙，请稍后再试
+          </div>
+          
+          <div v-else-if="analysisResult" class="p-4">
+            <div class="prose prose-stone max-w-none" v-html="renderedAnalysis"></div>
+          </div>
+          
+          <template #footer>
+            <div class="flex justify-end">
+              <n-button @click="closeAIAnalysisModal">关闭</n-button>
+            </div>
+          </template>
+        </n-card>
+      </n-modal>
+
       <!-- 交互按钮 -->
       <action-buttons
         :like-count="detail.likeCount"
         :collect-count="detail.favoriteCount"
         :is-liked="isLiked"
         :is-collected="isCollected"
+        ai-button-text="AI赏析"
+        ai-color="#06c8d9"
+        :show-ai-button= true
         @toggle-like="toggleLike"
         @toggle-collect="toggleCollect"
         @share="handleShare"
+        @ai-action="showAIAnalysis"
       />
 
       <!-- 评论区 -->
@@ -115,10 +158,16 @@ import {
   NButton, 
   NAvatar, 
   NSpace, 
-  NTag 
+  NTag,
+  NModal,
+  NSpin,
+  NIcon
 } from 'naive-ui'
+import { CloseOutlined } from '@vicons/antd'
 import { useAuthStore } from '@/store/auth'
 import { getUserAvatarByUsername } from '@/api/personalCenter'
+import { marked } from 'marked'
+import { formatAIContent } from '@/components/functions/formatUtils'
 
 // 引入子组件
 import AudioPlayer from '@/components/detail/AudioPlayer.vue'
@@ -150,6 +199,7 @@ import { getPostById, deletePost } from '@/api/post'
 import { getUserPoem, deleteUserPoem } from '@/api/poemUser'
 import { getRecitationDetail, deleteRecitation } from '@/api/recitation'
 import { getPoetPoem } from '@/api/poemPoet'
+import { analyzePoem } from '@/api/deepseek'
 
 const props = defineProps({
   contentType: {
@@ -216,9 +266,32 @@ const isCollected = ref(false)
 const newComment = ref('')
 const showDeleteModal = ref(false)
 
+// AI赏析相关状态
+const showAIAnalysisModal = ref(false)
+const isAnalyzing = ref(false)
+const analysisResult = ref('')
+const analysisError = ref('')
+const renderedAnalysis = computed(() => {
+  if (!analysisResult.value) return ''
+  
+  const formattedText = formatAIContent(analysisResult.value, detail.value.type)
+  
+  return marked(formattedText, { 
+    breaks: true,
+    gfm: true,
+  })
+})
+const streamingComplete = ref(true) // 标记流式传输是否完成
+
 // 计算属性
 const canDelete = computed(() => {
   return authStore.username && detail.value?.author?.name === authStore.username
+})
+
+const modalTitle = computed(() => {
+  if (detail.value.type === 'poem') return 'AI诗歌赏析'
+  if (detail.value.type === 'post') return 'AI内容解读'
+  return 'AI分析结果'
 })
 
 // 方法
@@ -653,6 +726,62 @@ const formatDate = (date: string | undefined) => {
   }
 }
 
+// AI赏析相关方法
+const showAIAnalysis = () => {
+  if (!detail.value.content) {
+    showPrompt('warning', '诗歌内容为空，无法进行分析')
+    return
+  }
+  
+  if (analysisResult.value || analysisError.value) {
+    showAIAnalysisModal.value = true
+  } else {
+    startAnalyzePoem()
+  }
+}
+
+const startAnalyzePoem = () => {
+  if (!detail.value.content) return
+  
+  showAIAnalysisModal.value = true
+  isAnalyzing.value = true
+  analysisError.value = ''
+  analysisResult.value = ''
+  streamingComplete.value = false
+  
+  // 收集完整的分析结果
+  let fullResult = ''
+  
+  // 使用analyzePoem方法，处理流式响应
+  const closeStream = analyzePoem(
+    detail.value.content,
+    (text) => {
+      isAnalyzing.value = false
+      // 处理每个文本块
+      fullResult += text
+      analysisResult.value = fullResult
+    },
+    () => {
+      // 处理错误
+      isAnalyzing.value = false
+      analysisError.value = '分析过程中发生错误，请稍后重试'
+      streamingComplete.value = true
+    },
+    () => {
+      // 处理完成
+      isAnalyzing.value = false
+      streamingComplete.value = true
+      if (!fullResult.trim()) {
+        analysisError.value = '未获取到分析结果，请稍后重试'
+      }
+    }
+  )
+}
+
+const closeAIAnalysisModal = () => {
+  showAIAnalysisModal.value = false
+}
+
 // 返回按钮功能
 const goBack = () => {
   router.back()
@@ -672,5 +801,72 @@ onMounted(loadDetail)
   .prose {
     font-size: 14px;
   }
+}
+
+:deep(.prose) {
+  /* 增强Markdown渲染样式 */
+  font-family: 'Noto Serif SC', serif;
+}
+
+:deep(.prose h1) {
+  font-size: 1.8em;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  color: #333;
+}
+
+:deep(.prose h2) {
+  font-size: 1.5em;
+  margin-top: 1.4em;
+  margin-bottom: 0.7em;
+  color: #444;
+}
+
+:deep(.prose h3) {
+  font-size: 1.2em;
+  margin-top: 1.3em;
+  margin-bottom: 0.6em;
+  color: #555;
+}
+
+:deep(.prose p) {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.8;
+}
+
+:deep(.prose ul),
+:deep(.prose ol) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+:deep(.prose li) {
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+}
+
+:deep(.prose blockquote) {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1em;
+  border-left: 4px solid #ddd;
+  color: #666;
+  font-style: italic;
+}
+
+:deep(.prose code) {
+  padding: 0.2em 0.4em;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+}
+
+:deep(.prose pre) {
+  padding: 1em;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  overflow-x: auto;
 }
 </style>
