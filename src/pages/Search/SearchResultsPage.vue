@@ -1,4 +1,3 @@
-
 <template>
   <div class="container mx-auto pt-24">
     <!-- 加载状态 -->
@@ -77,7 +76,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
+import { search } from '@/api/search'
 
 // 定义搜索结果的接口类型
 interface SearchResult {
@@ -108,16 +107,11 @@ const performSearch = async () => {
   }
 
   try {
-    const response = await axios.get('http://localhost:8000/api/poem/query', {
-      params: {
-        keyWord: searchQuery.value
-      }
-    })
-
-    searchResults.value = response.data
+    const data = await search(searchQuery.value)
+    searchResults.value = data
     isLoading.value = false
   } catch (error: any) {
-    errorMessage.value = error.response?.data?.message || '搜索失败'
+    errorMessage.value = error.message || '搜索失败'
     isLoading.value = false
   }
 }
@@ -141,6 +135,7 @@ onMounted(performSearch)
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

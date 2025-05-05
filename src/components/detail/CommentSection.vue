@@ -13,18 +13,8 @@
         placeholder="写下您的评论..."
         :autosize="{ minRows: 2, maxRows: 4 }"
       />
-      <div class="submit-btn text-right mt-2">
-        <n-button 
-          type="primary"
-          :disabled="!localComment.trim() || loading" 
-          :loading="loading"
-          @click="submit"
-        >
-          <template #icon>
-            <n-icon :component="SendIcon" />
-          </template>
-          发布评论
-        </n-button>
+      <div class="submit-btn flex justify-end mt-2">
+        <SendButton text="发送评论" @click="submit" />
       </div>
     </div>
     

@@ -118,7 +118,7 @@
           
           <template #footer>
             <div class="flex justify-end">
-              <n-button @click="closeAIAnalysisModal">关闭</n-button>
+              <BackButton @click="closeAIAnalysisModal">关闭</BackButton>
             </div>
           </template>
         </n-card>
