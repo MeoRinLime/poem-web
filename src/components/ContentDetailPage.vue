@@ -113,6 +113,7 @@
           </div>
           
           <div v-else-if="analysisResult" class="p-4">
+            // eslint-disable-next-line vue/no-v-html
             <div class="prose prose-stone max-w-none" v-html="renderedAnalysis"></div>
           </div>
           
@@ -132,12 +133,20 @@
         :is-collected="isCollected"
         ai-button-text="AI赏析"
         ai-color="#06c8d9"
-        :show-ai-button= true
+        :show-ai-button="false"
         @toggle-like="toggleLike"
         @toggle-collect="toggleCollect"
         @share="handleShare"
         @ai-action="showAIAnalysis"
-      />
+      >
+        <template v-if="detail.type === 'poem'">
+          <AIButton
+            text="AI赏析"
+            :color="'#06c8d9'"
+            @click="showAIAnalysis"
+          />
+        </template>
+      </action-buttons>
 
       <!-- 评论区 -->
       <comment-section 
@@ -378,7 +387,7 @@ const transformData = (data: any): DetailContent => {
       id: data.recitationId,
       title: data.title,
       content: data.content,
-      type: 'poem',
+      type: 'recitation', // 修改为'recitation'而不是'poem'
       author: {
         name: data.authorName,
         createdAt: data.createdAt

@@ -34,8 +34,12 @@
       <span>点击创建分享链接</span>
     </n-popover>
     
+    <!-- 通过默认插槽接收AI按钮 -->
+    <slot></slot>
+    
+    <!-- 为了向后兼容，保留旧的AI按钮逻辑 -->
     <AIButton
-      v-show="showAIButton"
+      v-if="showAIButton && !$slots.default"
       :text="aiButtonText"
       :loading="aiLoading"
       :disabled="aiDisabled"

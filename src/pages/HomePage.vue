@@ -29,7 +29,7 @@
           style="font-family: Georgia, 'SimSun', serif">
           诗韵Poemre
         </h1>
-        <h2 class="md:text-2xl text-lg mt-4 text-amber-700 opacity-80 font-serif">Welcome to 诗歌世界</h2>
+        <h2 class="md:text-2xl text-lg mt-4 text-amber-700 opacity-80 font-serif">古韵今风，诗意共享</h2>
 
         <!-- 随机一诗 -->
         <div
