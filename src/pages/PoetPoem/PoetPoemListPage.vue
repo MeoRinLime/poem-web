@@ -43,12 +43,12 @@
       </n-grid>
 
       <!-- 分页组件 -->
-      <div v-if="poemList.totalElements > 0" class="mt-8 flex justify-center">
+      <div v-if="poemList.totalElements > 0" class="mt-8 pagination-container">
         <n-pagination 
           v-model:page="currentPage"
           :page-count="totalPages"
           :page-size="localPageSize"
-          :show-size-picker="true"
+          :show-size-picker="!isMobile"
           :page-sizes="[9, 18, 36]"
           show-quick-jumper
           @update:page="handlePageChange"
@@ -210,9 +210,40 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+/* 分页组件样式 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 600px; /* 设置最大宽度 */
+  margin: 0 auto; /* 确保容器水平居中 */
+}
+
+.n-pagination {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式样式 */
 @media (max-width: 767px) {
-  .p-4 {
-    padding: 16px;
+  .pagination-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .n-pagination {
+    flex-wrap: wrap;
+  }
+
+  .n-pagination-item {
+    margin-bottom: 8px;
   }
 }
 </style>
