@@ -9,6 +9,24 @@
         <p class="mt-4 text-gray-600 font-serif italic">寻觅佳题中...</p>
       </div>
       
+      <!-- 错误状态 -->
+      <div v-else-if="hasError" class="py-16 flex flex-col items-center justify-center">
+        <div class="mb-6 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-red-600 mb-2">获取题目失败</h3>
+        <p class="text-gray-500 mb-6 text-center px-6">{{ errorMessage || '发生了一个错误，请稍后再试' }}</p>
+        <button 
+          class="px-5 py-2 bg-amber-100 text-amber-800 border border-amber-200 rounded-lg hover:bg-amber-200 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2"
+          @click="backToHome">
+          <span class="flex items-center justify-center gap-2">
+            返回主页
+          </span>
+        </button>
+      </div>
+      
       <!-- 内容区域 -->
       <div v-else class="p-6">
         <!-- 问题类别和来源 -->
@@ -114,6 +132,9 @@
 import { ref, onMounted } from 'vue';
 import { getRandomQuestion, submitAnswer } from '@/api/questions';
 import { useAuthStore } from '@/store/auth';
+import LoadingComponent from '@/components/BasicUI/LoadingComponent.vue';
+import { showPrompt } from '@/components/functions/prompt'
+import { useRouter } from 'vue-router';
 
 interface QuestionData {
   questionId: number;
@@ -123,6 +144,7 @@ interface QuestionData {
   source: string;
 }
 
+const router = useRouter();
 const authStore = useAuthStore();
 const loading = ref(true);
 const question = ref<QuestionData>({ questionId: 0, question: '', options: [], category: '', source: '' });
@@ -132,13 +154,17 @@ const correctAnswer = ref('');
 const selected = ref<string>('');
 const questionCount = ref(0);
 const feedbackMessage = ref(''); // 用于保存完整的反馈消息
+const hasError = ref(false); // 错误状态
+const errorMessage = ref(''); // 错误信息
 
 const loadQuestion = async () => {
   loading.value = true;
   submitted.value = false;
   selected.value = '';
+  hasError.value = false; // 重置错误状态
+  errorMessage.value = ''; // 重置错误信息
   try {
-    const data = await getRandomQuestion();
+    const data = await getRandomQuestion(authStore.userId);
     question.value = {
       questionId: data.questionId,
       question: data.question,
@@ -147,11 +173,19 @@ const loadQuestion = async () => {
       source: data.source
     };
     questionCount.value++;
-  } catch (error) {
+  } catch (error: any) {
     console.error('获取题目失败:', error);
+    hasError.value = true;
+    errorMessage.value = error.message || '获取题目失败，请稍后再试';
+    
+    showPrompt('error', error.message);
   } finally {
     loading.value = false;
   }
+};
+
+const backToHome = () => {
+  router.push('/');
 };
 
 // 将选项内容转换为选项标识（A、B、C、D）
@@ -186,7 +220,7 @@ const onSubmit = async () => {
     // 保存完整反馈消息，用于显示
     feedbackMessage.value = responseMessage;
     submitted.value = true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('提交回答失败:', error);
   }
 };
