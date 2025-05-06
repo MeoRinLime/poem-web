@@ -3,9 +3,11 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // 获取随机题目
-export const getRandomQuestion = async () => {
+export const getRandomQuestion = async (userId: number) => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/poem_questions/random`);
+        const response = await axios.get(`${BASE_URL}/api/poem_questions/random`, {
+            params: { userId }
+        });
         return response.data;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || '获取随机题目失败');

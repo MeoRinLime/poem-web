@@ -84,11 +84,8 @@
               </div>
             </div>
             
-            <p v-if="isCorrect" class="text-green-600 text-xl mb-4 font-serif">妙答，正解也！</p>
-            <p v-else class="text-red-600 mb-4 font-serif">
-              <span class="text-xl">未中，再思。</span>
-              <span class="block mt-2 text-gray-700">正确答案是：</span>
-              <span class="block mt-1 text-lg font-medium">{{ correctAnswer }}</span>
+            <p :class="isCorrect ? 'text-green-600' : 'text-red-600'" class="text-xl mb-4 font-serif">
+              {{ feedbackMessage }}
             </p>
             
             <button 
@@ -105,9 +102,9 @@
         </transition>
         
         <!-- 问题计数器 -->
-        <div class="mt-6 text-center text-sm text-gray-500 font-serif">
+        <!-- <div class="mt-6 text-center text-sm text-gray-500 font-serif">
           <span>已答题数：{{ questionCount }}</span>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -134,6 +131,7 @@ const isCorrect = ref(false);
 const correctAnswer = ref('');
 const selected = ref<string>('');
 const questionCount = ref(0);
+const feedbackMessage = ref(''); // 用于保存完整的反馈消息
 
 const loadQuestion = async () => {
   loading.value = true;
@@ -156,13 +154,37 @@ const loadQuestion = async () => {
   }
 };
 
+// 将选项内容转换为选项标识（A、B、C、D）
+const getOptionLetter = (optionContent: string): string => {
+  const index = question.value.options.findIndex(option => option === optionContent);
+  if (index === -1) return '';
+  return String.fromCharCode(65 + index); // 65是ASCII中'A'的编码
+};
+
 const onSubmit = async () => {
   if (!selected.value) return;
   
   try {
-    const response = await submitAnswer(authStore.username, authStore.userId, question.value.questionId, selected.value);
-    isCorrect.value = response.isCorrect;
-    correctAnswer.value = response.correctAnswer;
+    // 获取选项对应的字母（A、B、C、D）
+    const answerLetter = getOptionLetter(selected.value);
+    const response = await submitAnswer(authStore.username, authStore.userId, question.value.questionId, answerLetter);
+    
+    // 处理API直接返回的消息字符串
+    const responseMessage = response.toString();
+    
+    // 检查返回消息来判断是否答对
+    isCorrect.value = responseMessage.includes('回答正确');
+    
+    // 如果答错，从返回消息中提取正确答案
+    if (!isCorrect.value && responseMessage.includes('正确答案是：')) {
+      const match = responseMessage.match(/正确答案是：([A-D])/);
+      correctAnswer.value = match ? match[1] : '';
+    } else {
+      correctAnswer.value = '';
+    }
+    
+    // 保存完整反馈消息，用于显示
+    feedbackMessage.value = responseMessage;
     submitted.value = true;
   } catch (error) {
     console.error('提交回答失败:', error);
