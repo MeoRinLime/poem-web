@@ -1,4 +1,3 @@
-
 <template>
   <div class="min-h-screen flex flex-col items-center p-4">
     <div class="mb-8 text-center mt-36">
@@ -18,14 +17,27 @@
           <SearchOutlined 
             class="absolute top-3 left-2 w-7 text-gray-500 cursor-pointer" 
             @click="handleSearch"
-            />
+          />
           <input 
-            v-model="searchQuery" 
+            v-model="searchQuery"
             type="text"
-            placeholder="今天想知道些什么呢？" 
+            placeholder="今天想知道些什么呢？"
             class="w-full p-3 pl-10 outline-none rounded-full"
             @keyup.enter="handleSearch"
+            @input="onInput"
           />
+          <!-- 联想建议下拉框 -->
+          <ul
+            v-if="suggestions.length"
+            class="absolute top-full left-0 w-full bg-white border rounded-lg mt-1 max-h-60 overflow-auto z-10"
+          >
+            <li
+              v-for="(item, idx) in suggestions"
+              :key="idx"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              @click="selectSuggestion(item)"
+            >{{ item }}</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -33,20 +45,82 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { SearchOutlined } from '@vicons/antd'
 import { useRouter } from 'vue-router'
 
 const searchQuery = ref('')
+const suggestions = ref<string[]>([])
 const router = useRouter()
+let socket: WebSocket
+
+// 生成一个简单的客户端标识 sid
+function generateSid(): string {
+  return Math.random().toString(36).substring(2, 8)
+}
+
+// 建立 WebSocket 连接（直接用 ws://localhost:8000）
+onMounted(() => {
+  const sid = generateSid()
+  const url = `ws://localhost:8000/webSocket/${sid}`
+  console.log('[WS] connecting to', url)
+  socket = new WebSocket(url)
+
+  socket.onopen = () => console.log('[WS] connected')
+  socket.onerror = (err) => console.error('[WS] error', err)
+  socket.onclose = (evt) => console.log('[WS] closed', evt.code, evt.reason)
+  socket.onmessage = (event) => {
+    console.log('[WS] recv:', event.data)
+    try {
+      const resp: SocketMsg = JSON.parse(event.data)
+      if (resp.msgType === 'INFO') {
+        const dtos: Array<{ suggestion: string }> = JSON.parse(resp.msg)
+        suggestions.value = dtos.map(d => d.suggestion)
+      }
+    } catch (e) {
+      console.error('解析联想建议失败', e)
+    }
+  }
+})
+
+// 组件销毁时关闭 WebSocket
+onBeforeUnmount(() => {
+  socket.close()
+})
+
+// 输入时立即发送关键词
+const onInput = () => {
+  const kw = searchQuery.value.trim()
+  if (kw && socket.readyState === WebSocket.OPEN) {
+    console.log('[WS] send:', kw)
+    socket.send(JSON.stringify({ msg: kw, msgType: 'INFO' }))
+  } else {
+    suggestions.value = []
+  }
+}
+
+const selectSuggestion = (text: string) => {
+  searchQuery.value = text
+  suggestions.value = []
+  handleSearch()
+}
 
 const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push({ 
-      name: 'SearchResultsPage', 
-      // eslint-disable-next-line id-length
-      query: { keyWord: searchQuery.value.trim() } 
+  const kw = searchQuery.value.trim()
+  if (kw) {
+    router.push({
+      name: 'SearchResultsPage',
+      query: { keyWord: kw }
     })
   }
 }
+
+interface SocketMsg {
+  msg: string;
+  msgType: 'CONNECT' | 'CLOSE' | 'INFO' | 'ERROR';
+}
 </script>
+
+<style scoped>
+/* 根据需要微调样式 */
+</style>
