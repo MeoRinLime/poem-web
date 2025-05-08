@@ -113,7 +113,6 @@
           </div>
           
           <div v-else-if="analysisResult" class="p-4">
-            // eslint-disable-next-line vue/no-v-html
             <div class="prose prose-stone max-w-none" v-html="renderedAnalysis"></div>
           </div>
           
