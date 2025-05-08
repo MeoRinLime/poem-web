@@ -74,9 +74,15 @@
               <div class="w-full md:w-2/3 mx-auto pt-6">
                 <button 
                   type="submit" 
-                  class="flex w-full justify-center rounded-full border border-transparent bg-amber-600 py-3 px-4 text-m font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                  :disabled="isLoginLoading"
+                  class="flex w-full justify-center rounded-full border border-transparent bg-amber-600 py-3 px-4 text-m font-medium text-white shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50"
                 >
-                  登录 >
+                  <span v-if="isLoginLoading" class="animate-spin mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M13.875 18.825A6.978 6.978 0 0012 19.5c-3.866 0-7-3.134-7-7s3.134-7 7-7c1.125 0 2.175.263 3.125.725M15.75 3.375A9.978 9.978 0 0112 2.25C6.134 2.25 2.25 6.134 2.25 12S6.134 21.75 12 21.75c2.475 0 4.725-.875 6.525-2.325" />
+                    </svg>
+                  </span>
+                  {{ isLoginLoading ? '登录中...' : '登录 >' }}
                 </button>
               </div>
             </form>
@@ -179,6 +185,7 @@ import { showPrompt } from '@/components/functions/prompt'
 const isLoginForm = ref(true)
 const registerError = ref('')
 const isLoading = ref(false)
+const isLoginLoading = ref(false)
 let avatarUrl = ref('');
 const loginForm = reactive({
   username: '', // 用户名或邮箱
@@ -201,6 +208,7 @@ const switchToLogin = () => {
 }
 
 const handleLogin = async () => {
+  isLoginLoading.value = true
   try {
     const data = await login(loginForm.username, loginForm.password);
     router.push('/');
@@ -219,6 +227,8 @@ const handleLogin = async () => {
   } catch (error: any) {
     showPrompt('error', '登录失败，请检查用户名和密码是否正确！');
     console.error('登录失败:', error.message);
+  } finally {
+    isLoginLoading.value = false
   }
 };
 
