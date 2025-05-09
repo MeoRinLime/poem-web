@@ -210,8 +210,10 @@ const switchToLogin = () => {
 const handleLogin = async () => {
   isLoginLoading.value = true
   try {
+    // 登录流程
     const data = await login(loginForm.username, loginForm.password);
-    router.push('/');
+    
+    // 登录成功，处理用户信息
     const token = data.token;
     const username = data.user.username;
     const bio = data.user.bio;
@@ -219,12 +221,26 @@ const handleLogin = async () => {
     const email = data.user.email;
     const userId = data.user.id;
     const rememberMe = document.getElementById('remember-me') as HTMLInputElement;
-    useAuthStore().login(token, username, bio, createTime, email,rememberMe.checked, userId);
-    avatarUrl.value = await getUserAvatar(userId);
-    useAuthStore().setUserAvatar(avatarUrl.value);
+    
+    // 更新用户登录状态
+    useAuthStore().login(token, username, bio, createTime, email, rememberMe.checked, userId);
+    
+    // 登录成功提示
     showPrompt('success', '登录成功！欢迎回到诗词的世界！');
-    //console.log('登录成功', data);
+    
+    // 单独处理头像请求，不影响登录流程
+    try {
+      avatarUrl.value = await getUserAvatar(userId);
+      useAuthStore().setUserAvatar(avatarUrl.value);
+    } catch (avatarError) {
+      console.error('获取头像失败:', avatarError);
+      // 头像获取失败不显示错误提示给用户
+    }
+    
+    // 登录成功后跳转
+    router.push('/');
   } catch (error: any) {
+    // 只有登录过程的错误才提示
     showPrompt('error', '登录失败，请检查用户名和密码是否正确！');
     console.error('登录失败:', error.message);
   } finally {

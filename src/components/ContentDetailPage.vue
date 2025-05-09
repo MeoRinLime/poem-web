@@ -85,44 +85,16 @@
         :use-play-api="props.contentType === 'recitation'"
       />
 
-      <!-- AI赏析弹窗 -->
-      <n-modal v-model:show="showAIAnalysisModal" style="width: 90%; max-width: 800px;">
-        <n-card
-          style="width: 100%"
-          :bordered="false"
-          size="huge"
-          role="dialog"
-          aria-modal="true"
-          :title="modalTitle"
-        >
-          <template #header-extra>
-            <n-button circle quaternary @click="closeAIAnalysisModal">
-              <template #icon>
-                <n-icon><close-outlined /></n-icon>
-              </template>
-            </n-button>
-          </template>
-          
-          <div v-if="isAnalyzing" class="flex flex-col items-center justify-center p-6">
-            <n-spin size="large" />
-            <p class="mt-4 text-gray-600">正在分析诗歌，请稍候...</p>
-          </div>
-          
-          <div v-else-if="analysisError" class="text-red-500 p-6">
-            服务器繁忙，请稍后再试
-          </div>
-          
-          <div v-else-if="analysisResult" class="p-4">
-            <div class="prose prose-stone max-w-none" v-html="renderedAnalysis"></div>
-          </div>
-          
-          <template #footer>
-            <div class="flex justify-end">
-              <BackButton @click="closeAIAnalysisModal">关闭</BackButton>
-            </div>
-          </template>
-        </n-card>
-      </n-modal>
+      <AITextModal
+        v-model:visible="showAIAnalysisModal"
+        :content="analysisResult"
+        :title="modalTitle"
+        :is-loading="isAnalyzing"
+        loading-text="正在分析诗歌，请稍候..."
+        :error="analysisError ? '服务器繁忙，请稍后再试' : ''"
+        :content-type="detail.type"
+        @close="closeAIAnalysisModal"
+      />
 
       <!-- 交互按钮 -->
       <action-buttons
@@ -167,21 +139,12 @@ import {
   NAvatar, 
   NSpace, 
   NTag,
-  NModal,
-  NSpin,
   NIcon
 } from 'naive-ui'
-import { CloseOutlined } from '@vicons/antd'
 import { useAuthStore } from '@/store/auth'
 import { getUserAvatarByUsername } from '@/api/personalCenter'
 import { marked } from 'marked'
 import { formatAIContent } from '@/components/functions/formatUtils'
-
-// 引入子组件
-import AudioPlayer from '@/components/detail/AudioPlayer.vue'
-import CommentSection from '@/components/detail/CommentSection.vue'
-import ActionButtons from '@/components/buttons/ActionButtons.vue'
-import DeleteConfirmModal from '@/components/detail/DeleteConfirmModal.vue'
 
 import { showPrompt } from '@/components/functions/prompt'
 
@@ -242,7 +205,7 @@ type DetailContent = {
   content: string;
   subtitle?: string;
   tags?: string[];
-  type: 'poem' | 'post';
+  type: 'poem' | 'post' | 'recitation';
   author: {
     name: string;
     avatar?: string;
@@ -279,16 +242,7 @@ const showAIAnalysisModal = ref(false)
 const isAnalyzing = ref(false)
 const analysisResult = ref('')
 const analysisError = ref('')
-const renderedAnalysis = computed(() => {
-  if (!analysisResult.value) return ''
-  
-  const formattedText = formatAIContent(analysisResult.value, detail.value.type)
-  
-  return marked(formattedText, { 
-    breaks: true,
-    gfm: true,
-  })
-})
+// renderedAnalysis不再需要，因为AITextModal内部会处理渲染
 const streamingComplete = ref(true) // 标记流式传输是否完成
 
 // 计算属性

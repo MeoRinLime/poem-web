@@ -16,6 +16,14 @@ export const showPrompt = (type: 'success' | 'error' | 'warning' | 'info', messa
   const Comp = componentMap[type]
   const vnode = createVNode(Comp, { message, subText })
   const container = document.createElement('div')
+  
+  // 添加样式确保提示显示在页面最上层
+  container.style.position = 'fixed'
+  container.style.top = '20px'
+  container.style.left = '50%'
+  container.style.transform = 'translateX(-50%)'
+  container.style.zIndex = '9999'
+
   document.body.appendChild(container)
   render(vnode, container)
   setTimeout(() => {
