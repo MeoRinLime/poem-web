@@ -240,8 +240,13 @@ const handleLogin = async () => {
     // 登录成功后跳转
     router.push('/');
   } catch (error: any) {
-    // 只有登录过程的错误才提示
-    showPrompt('error', '登录失败，请检查用户名和密码是否正确！');
+    if (error.message.includes("Redis")) {
+      showPrompt('error', '服务器繁忙，请稍后再试');
+    } else if (error.message.includes("credential")) {
+      showPrompt('error', '用户名或密码错误，请检查后重试');
+    } else {
+      showPrompt('error', '登录失败，请稍后再试');
+    }
     console.error('登录失败:', error.message);
   } finally {
     isLoginLoading.value = false
