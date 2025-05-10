@@ -1,34 +1,36 @@
 <template>
-  <div class="action-buttons flex justify-center space-x-4 my-4">
+  <div class="action-buttons flex flex-wrap justify-center sm:space-x-4 space-x-2 my-4 px-2">
     <n-button 
       :type="isLiked ? 'primary' : 'default'"
       round
+      class="action-button text-sm sm:text-base mb-2 sm:mb-0"
       @click="$emit('toggle-like')"
     >
       <template #icon>
         <n-icon :component="isLiked ? HeartOutline : HeartDislikeOutline" />
       </template>
-      点赞 ({{ likeCount }})
+      <span class="button-text">点赞 ({{ likeCount }})</span>
     </n-button>
     
     <n-button 
       :type="isCollected ? 'primary' : 'default'"
       round
+      class="action-button text-sm sm:text-base mb-2 sm:mb-0"
       @click="$emit('toggle-collect')"
     >
       <template #icon>
         <n-icon :component="BookmarkOutline" />
       </template>
-      收藏 ({{ collectCount }})
+      <span class="button-text">收藏 ({{ collectCount }})</span>
     </n-button>
     
-    <n-popover trigger="hover">
+    <n-popover trigger="hover" :show-arrow="false" placement="bottom">
       <template #trigger>
-        <n-button round @click="$emit('share')">
+        <n-button round class="action-button text-sm sm:text-base mb-2 sm:mb-0" @click="$emit('share')">
           <template #icon>
             <n-icon :component="ShareSocialOutline" />
           </template>
-          分享
+          <span class="button-text">分享</span>
         </n-button>
       </template>
       <span>点击创建分享链接</span>
@@ -44,6 +46,7 @@
       :loading="aiLoading"
       :disabled="aiDisabled"
       :color="aiColor"
+      class="action-button mb-2 sm:mb-0"
       @click="handleAIButtonClick"
     />
   </div>
@@ -104,3 +107,42 @@ const handleAIButtonClick = (event: Event) => {
   emit('ai-action', event);
 }
 </script>
+
+<style scoped>
+/* 响应式样式 */
+.action-buttons {
+  width: 100%;
+}
+
+.action-button {
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+/* 移动端样式调整 */
+@media (max-width: 640px) {
+  .action-button {
+    min-width: calc(50% - 0.5rem);
+    margin-right: 0.25rem;
+    margin-left: 0.25rem;
+    padding: 0 8px;
+  }
+  
+  .button-text {
+    font-size: 0.875rem;
+  }
+  
+  /* 最后一个元素如果是奇数个按钮，则占据整行 */
+  .action-button:last-child:nth-child(odd) {
+    min-width: calc(100% - 0.5rem);
+  }
+}
+
+/* 中等屏幕尺寸样式 */
+@media (min-width: 641px) and (max-width: 768px) {
+  .action-button {
+    min-width: auto;
+    padding: 0 10px;
+  }
+}
+</style>
