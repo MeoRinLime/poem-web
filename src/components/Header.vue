@@ -117,7 +117,12 @@
           aria-label="搜索"
         >
           <SearchButton class="h-6 w-6" />
-        </router-link>
+        </router-link>        
+        
+        <!-- Theme Switch -->
+        <div class="ml-4 inline-flex items-center justify-center" style="height: 24px; width: 24px;">
+          <ThemeSwitch class="scale-[0.45] transform origin-center" style="margin: 0;" />
+        </div>
 
         <!-- User Avatar and Dropdown (Logged in) -->
         <div v-if="authStore.isLoggedIn" class="relative ml-4 flex items-center">
@@ -259,6 +264,21 @@
                 <SearchOutlined class="h-5 w-5 mr-2" />
                 搜索
               </router-link>
+              
+              <!-- Theme Switch in Mobile Menu -->
+              <div class="flex items-center -mx-3 rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900">
+                <div class="flex items-center justify-between w-full">
+                  <span class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    主题模式
+                  </span>
+                  <div class="inline-flex items-center justify-center">
+                    <ThemeSwitch class="scale-[0.55] transform origin-center"/>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div class="py-6">
@@ -305,6 +325,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { Dialog, DialogPanel, Popover, PopoverButton, PopoverGroup, PopoverPanel } from '@headlessui/vue'
 import { Bars3Icon, ChevronDownIcon, SparklesIcon, StarIcon } from '@heroicons/vue/24/outline'
 import { GlobalOutlined, AppstoreOutlined, LikeFilled, SearchOutlined, SoundTwotone, UserDeleteOutlined, QuestionCircleOutlined, BookOutlined } from '@vicons/antd'
