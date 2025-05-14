@@ -34,7 +34,9 @@
             :src="detail.author?.avatar || DEFAULT_AVATAR" 
             round 
             size="large" 
-            class="mr-3" 
+            style="cursor: pointer;"
+            class="mr-3"
+            @click="() => router.push({ name: 'UserPersonalCenter', params: { username: detail.author?.name } })" 
           />
           <h1 class="text-2xl md:text-4xl font-bold text-gray-800">
             {{ detail.title }}

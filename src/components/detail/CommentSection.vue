@@ -38,8 +38,8 @@
 </template>
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import { NDivider, NInput, NButton, NIcon, NEmpty } from 'naive-ui'
-  import { SendOutline as SendIcon, ChatbubbleOutline as CommentIcon } from '@vicons/ionicons5'
+  import { NDivider, NInput, NIcon, NEmpty } from 'naive-ui'
+  import { ChatbubbleOutline as CommentIcon } from '@vicons/ionicons5'
   import CommentItem from './CommentItem.vue'
   import type { Comment } from '@/types/comment'
   

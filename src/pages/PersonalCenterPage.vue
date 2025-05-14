@@ -16,6 +16,7 @@
           <div class="flex-grow w-full md:w-auto text-center md:text-left">
             <h1 class="text-2xl md:text-3xl font-semibold text-gray-800">
               {{ userData.username }}
+              <NTag v-if="!isCurrentUser" class="ml-2" type="info" size="small">用户主页</NTag>
             </h1>
             <p class="text-gray-600 mt-2 text-sm md:text-base">{{ userData.bio }}</p>
             <NSpace class="mt-4 justify-center md:justify-start" :size="[12, 0]">
@@ -27,6 +28,7 @@
             </NSpace>
           </div>
           <NButton 
+            v-if="isCurrentUser"
             type="primary" 
             ghost 
             size="small"
@@ -280,7 +282,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { 
   NTabs, 
   NTabPane, 
@@ -313,30 +315,48 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { getUserPosts, getUserPoems, getUserRecitations,
   getUserPoetPoemFavorites, getUserUserPoemFavorites, getUserPostFavorites, getUserReciteFavorites,
-  updateUserInfo, updateUserAvatar, getUserAvatar,
+  updateUserInfo, updateUserAvatar, getUserAvatar, getUserAvatarByUsername,
   getUserPostComments, getUserPoemComments, getUserPoetComments, getUserReciteComments,
 } from '@/api/personalCenter';
 import type { Post } from '@/types/post';
 import type { Poem } from '@/types/poem';
 import type { Recitation } from '@/types/recitation';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 
 import { showPrompt } from '@/components/functions/prompt'
 
+// 定义props接收username参数
+const props = defineProps<{
+  username?: string
+}>()
+
+const route = useRoute()
 const userStore = useAuthStore()
 const router = useRouter()
 const DEFAULT_AVATAR = '/default-avatar.png'
 
-const userData = ref({
-  username: userStore.username || 'Unknown Author',
-  avatar: DEFAULT_AVATAR,
-  bio: userStore.bio || '这个人很懒，什么也没留下',
-  email: userStore.email,
-  registrationDate: userStore.createTime,
+// 计算属性：当前正在查看的用户名
+const targetUsername = computed(() => {
+  return props.username || route.params.username as string || userStore.username
 })
 
+// 计算属性：是否是查看自己的资料
+const isCurrentUser = computed(() => {
+  return (!props.username && !route.params.username) || 
+         targetUsername.value === userStore.username
+})
+
+const userData = ref({
+  username: targetUsername.value || 'Unknown Author',
+  avatar: DEFAULT_AVATAR,
+  bio: isCurrentUser.value ? userStore.bio || '这个人很懒，什么也没留下' : '这个人很懒，什么也没留下',
+  email: isCurrentUser.value ? userStore.email : '查看不了别人的邮箱哦',
+  registrationDate: isCurrentUser.value ? userStore.createTime : '查看不了别人的注册时间哦',
+})
+
+// 只有是当前登录用户时才需要编辑表单
 const editProfileForm = reactive({
   bio: userData.value.bio,
   email: userData.value.email,
@@ -361,12 +381,21 @@ const isUpdating = ref(false)
 
 const fetchUserAvatar = async () => {
   try {
-    const avatarUrl = await getUserAvatar(userStore.userId)
-    userData.value.avatar = avatarUrl
-    editProfileForm.avatar = avatarUrl
+    if (isCurrentUser.value) {
+      // 获取当前登录用户头像
+      const avatarUrl = await getUserAvatar(userStore.userId)
+      userData.value.avatar = avatarUrl
+      editProfileForm.avatar = avatarUrl
+    } else {
+      // 获取目标用户头像
+      const avatarUrl = await getUserAvatarByUsername(targetUsername.value)
+      userData.value.avatar = avatarUrl
+    }
   } catch (error) {
     userData.value.avatar = DEFAULT_AVATAR
-    editProfileForm.avatar = DEFAULT_AVATAR
+    if (isCurrentUser.value) {
+      editProfileForm.avatar = DEFAULT_AVATAR
+    }
   }
 }
 
@@ -475,17 +504,22 @@ const updateAvatar = async (userId: string) => {
 }
 
 const fetchUserPosts = async () => {
-  const response = await getUserPosts(userStore.username || '')
-  posts.value = response.data
+  try {
+    const response = await getUserPosts(targetUsername.value)
+    posts.value = response.data
+  } catch (error) {
+    showPrompt('error', '获取帖子失败')
+    posts.value = []
+  }
 }
 
 const fetchUserComments = async () => {
   try {
     const [postRes, poemRes, poetRes, reciteRes] = await Promise.all([
-      getUserPostComments(userStore.username || ''),
-      getUserPoemComments(userStore.username || ''),
-      getUserPoetComments(userStore.username || ''),
-      getUserReciteComments(userStore.username || '')
+      getUserPostComments(targetUsername.value),
+      getUserPoemComments(targetUsername.value),
+      getUserPoetComments(targetUsername.value),
+      getUserReciteComments(targetUsername.value)
     ])
     const postComments = postRes.data.map((item: any) => ({ ...item, commentType: '帖子' }))
     const poemComments = poemRes.data.map((item: any) => ({ ...item, commentType: '用户诗歌' }))
@@ -494,30 +528,37 @@ const fetchUserComments = async () => {
     comments.value = [...postComments, ...poemComments, ...poetComments, ...reciteComments]
   } catch (error) {
     showPrompt('error','获取评论列表失败')
+    comments.value = []
   }
 }
 
 const fetchUserPoems = async () => {
-  const response = await getUserPoems(userStore.username || '')
-  poetry.value = response.data
+  try {
+    const response = await getUserPoems(targetUsername.value)
+    poetry.value = response.data
+  } catch (error) {
+    showPrompt('error', '获取诗歌列表失败')
+    poetry.value = []
+  }
 }
 
 const fetchUserRecitations = async () => {
   try {
-    const response = await getUserRecitations(userStore.username || '')
+    const response = await getUserRecitations(targetUsername.value)
     recitations.value = response.data
   } catch (error) {
     showPrompt('error','获取朗诵列表失败')
+    recitations.value = []
   }
 }
 
 const fetchUserFavorites = async () => {
   try {
     const [userPoemRes, postRes, reciteRes, poetPoemRes] = await Promise.all([
-      getUserUserPoemFavorites(userStore.username || ''),
-      getUserPostFavorites(userStore.username || ''),
-      getUserReciteFavorites(userStore.username || ''),
-      getUserPoetPoemFavorites(userStore.username || '')
+      getUserUserPoemFavorites(targetUsername.value),
+      getUserPostFavorites(targetUsername.value),
+      getUserReciteFavorites(targetUsername.value),
+      getUserPoetPoemFavorites(targetUsername.value)
     ])
     const userPoemFav = userPoemRes.data.map((item: any) => ({ ...item, favoriteType: '用户诗歌' }))
     const postFav = postRes.data.map((item: any) => ({ ...item, favoriteType: '帖子' }))
@@ -526,12 +567,19 @@ const fetchUserFavorites = async () => {
     favorites.value = [...userPoemFav, ...postFav, ...reciteFav, ...poetPoemFav]
   } catch (error) {
     showPrompt('error','获取收藏列表失败')
+    favorites.value = []
   }
 }
 
 const loadInitialData = async () => {
   try {
     isLoading.value = true
+    // 更新页面标题
+    document.title = isCurrentUser.value ? '我的个人中心' : `${targetUsername.value}的个人主页`
+    
+    // 更新用户数据
+    userData.value.username = targetUsername.value
+    
     // 并行请求所有初始数据
     await Promise.all([
       fetchUserPosts(),
@@ -604,6 +652,25 @@ onMounted(() => {
   loadInitialData()
 })
 
+// 监听路由参数变化，重新加载数据
+watch(
+  () => route.params.username,
+  (newUsername) => {
+    if (newUsername !== undefined) {
+      loadInitialData()
+    }
+  }
+)
+
+// 监听props变化
+watch(
+  () => props.username,
+  (newUsername) => {
+    if (newUsername !== undefined) {
+      loadInitialData()
+    }
+  }
+)
 </script>
 
 

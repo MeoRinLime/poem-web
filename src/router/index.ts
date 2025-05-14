@@ -29,9 +29,19 @@ const routes = [
   {
     path: '/personal-center',
     component: () => import('@/pages/PersonalCenterPage.vue'),
+    name: 'PersonalCenter',
     meta: {
       title: '个人中心',
       requiresAuth: true,  // 需要登录才能访问
+    },
+  },
+  {
+    path: '/personal-center/:username',
+    component: () => import('@/pages/PersonalCenterPage.vue'),
+    name: 'UserPersonalCenter',
+    props: true,
+    meta: {
+      title: '用户中心',
     },
   },
   {

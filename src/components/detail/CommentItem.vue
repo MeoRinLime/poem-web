@@ -6,6 +6,8 @@
           size="small" 
           round
           class="mr-2"
+          style="cursor: pointer"
+          @click="navigateToUserPage"
         />
         <div class="user-info flex-grow">
           <div class="username font-semibold text-gray-800">{{ comment.userName }}</div>
@@ -34,11 +36,12 @@
 <script setup lang="ts">
   import { NAvatar, NButton, NIcon } from 'naive-ui'
   import { HeartOutline, HeartDislikeOutline } from '@vicons/ionicons5'
+  import { useRouter } from 'vue-router'
   import type { Comment } from '@/types/comment'
-  
+  const router = useRouter()
   const defaultAvatar = '/default-avatar.png'
   
-  defineProps({
+  const props = defineProps({
     comment: {
       type: Object as () => Comment,
       required: true
@@ -54,5 +57,12 @@
     } catch (event) {
       return date
     }
+  }
+
+  const navigateToUserPage = () => {
+    router.push({ 
+      name: 'UserPersonalCenter',
+      params: { username: props.comment.userName }
+    })
   }
 </script>
