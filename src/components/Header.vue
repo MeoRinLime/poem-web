@@ -121,7 +121,7 @@
         
         <!-- Theme Switch -->
         <div class="ml-4 inline-flex items-center justify-center" style="height: 24px; width: 24px;">
-          <ThemeSwitch class="scale-[0.45] transform origin-center" style="margin: 0;" />
+          <ThemeSwitch class="scale-[0.45] transform origin-center hidden" style="margin: 0;" />
         </div>
 
         <!-- User Avatar and Dropdown (Logged in) -->
@@ -275,7 +275,7 @@
                     主题模式
                   </span>
                   <div class="inline-flex items-center justify-center">
-                    <ThemeSwitch class="scale-[0.55] transform origin-center"/>
+                    <ThemeSwitch class="scale-[0.55] transform origin-center hidden"/>
                   </div>
                 </div>
               </div>
