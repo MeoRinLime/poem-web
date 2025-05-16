@@ -14,17 +14,11 @@
           <div class="time text-xs text-gray-500">{{ formatDate(comment.createdAt) }}</div>
         </div>
         <div class="actions">
-          <n-button 
-            quaternary 
-            size="small"
-            :type="comment.isLiked ? 'primary' : 'default'"
-            @click="$emit('like', comment)"
-          >
-            <template #icon>
-              <n-icon :component="comment.isLiked ? HeartOutline : HeartDislikeOutline" />
-            </template>
-            {{ comment.countLike }}
-          </n-button>
+          <like-switch 
+            class="transform scale-75"
+            :checked="comment.isLiked" 
+            @change="handleLikeChange"
+          />
         </div>
       </div>
       <div class="comment-content text-gray-700 mt-2">
@@ -34,10 +28,11 @@
   </template>
   
 <script setup lang="ts">
-  import { NAvatar, NButton, NIcon } from 'naive-ui'
-  import { HeartOutline, HeartDislikeOutline } from '@vicons/ionicons5'
+  import { NAvatar } from 'naive-ui'
   import { useRouter } from 'vue-router'
   import type { Comment } from '@/types/comment'
+  import LikeSwitch from '@/components/switch/likeSwitch.vue'
+  
   const router = useRouter()
   const defaultAvatar = '/default-avatar.png'
   
@@ -48,8 +43,10 @@
     }
   })
   
-  defineEmits(['like'])
-  
+  const emit = defineEmits(['like'])
+    const handleLikeChange = (_isChecked: boolean) => {
+    emit('like', props.comment)
+  }
   const formatDate = (date: string) => {
     if (!date) return ''
     try {
