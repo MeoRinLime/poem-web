@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white shadow-lg rounded-lg w-full max-w-md md:max-w-4xl md:h-auto md:flex overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg w-full max-w-md md:max-w-4xl md:h-auto md:flex overflow-hidden">
       <!-- 左侧欢迎区域 - 移动端隐藏，平板及以上显示 -->
-      <div class="hidden md:block md:w-1/2 bg-gradient-to-r from-amber-500 to-amber-500 rounded-l-lg items-center justify-center"> 
+      <div class="hidden md:block md:w-1/2 bg-amber-500 dark:bg-amber-800 rounded-l-lg items-center justify-center"> 
         <div class="text-white space-y-6 p-10 font-serif">
           <h1 class="text-4xl font-bold" style="font-family: Georgia, serif">欢迎来到诗韵！</h1>
           <p class="text-lg" style="font-family: Georgia, serif">
@@ -31,7 +31,7 @@
           leave-to-class="opacity-0 -translate-x-full"
         >
           <div v-if="isLoginForm" key="login" class="w-full" style="font-family: Courier New, Courier, monospace">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6 md:mb-10 text-center">登录</h2>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 md:mb-10 text-center dark:text-gray-200">登录</h2>
             <form class="space-y-4 w-full md:w-4/5 mx-auto" @submit.prevent="handleLogin">
               <div>
                 <input 
@@ -42,7 +42,7 @@
                   placeholder="用户名或邮箱" 
                   autocomplete="username" 
                   required
-                  class="appearance-none rounded-2xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border dark:bg-gray-800 border-gray-300 px-4 py-3 placeholder-gray-400 dark:placeholder-gray-200 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -54,7 +54,7 @@
                   placeholder="密码" 
                   autocomplete="current-password" 
                   required 
-                  class="appearance-none rounded-2xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border dark:bg-gray-800 border-gray-300 px-4 py-3 placeholder-gray-400 dark:placeholder-gray-200 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div class="flex items-center justify-between mt-2">
@@ -65,7 +65,7 @@
                     type="checkbox" 
                     class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500" 
                   />
-                  <label for="remember-me" class="ml-2 block text-sm text-gray-900">记住我</label>
+                  <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-200">记住我</label>
                 </div>
                 <div class="text-sm">
                   <a href="#" class="font-medium text-amber-600 hover:text-amber-500">忘记密码？</a>
@@ -86,7 +86,7 @@
                 </button>
               </div>
             </form>
-            <p class="text-center text-sm text-gray-600 mt-6">
+            <p class="text-center text-sm text-gray-600 dark:text-gray-200 mt-6">
               没有账号？
               <button 
                 class="font-medium text-amber-600 hover:text-amber-500" 
@@ -98,8 +98,8 @@
           </div>
 
           <div v-else key="register" class="w-full" style="font-family: Courier New, Courier, monospace">
-            <h2 class="text-3xl font-bold mb-4 text-center">注册</h2>
-            <h4 class="mb-6 text-center opacity-50">让我们的旅途从这里开始吧</h4>
+            <h2 class="text-3xl font-bold mb-4 text-center dark:text-gray-200">注册</h2>
+            <h4 class="mb-6 text-center opacity-50 dark:text-gray-200">让我们的旅途从这里开始吧</h4>
             <form class="space-y-4 w-full md:w-4/5 mx-auto" @submit.prevent="handleRegister">
               <div>
                 <input 
@@ -109,7 +109,7 @@
                   type="text" 
                   placeholder="用户名" 
                   required
-                  class="appearance-none rounded-2xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border dark:bg-gray-800 border-gray-300 px-4 py-3 placeholder-gray-400 dark:placeholder-gray-200 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -120,7 +120,7 @@
                   type="email" 
                   placeholder="邮箱" 
                   required
-                  class="appearance-none rounded-2xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border dark:bg-gray-800 border-gray-300 px-4 py-3 placeholder-gray-400 dark:placeholder-gray-200 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -131,7 +131,7 @@
                   type="password" 
                   placeholder="密码" 
                   required 
-                  class="appearance-none rounded-2xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border dark:bg-gray-800 border-gray-300 px-4 py-3 placeholder-gray-400 dark:placeholder-gray-200 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div>
@@ -142,7 +142,7 @@
                   type="password" 
                   placeholder="确认密码" 
                   required 
-                  class="appearance-none rounded-2xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
+                  class="appearance-none rounded-2xl border dark:bg-gray-800 border-gray-300 px-4 py-3 placeholder-gray-400 dark:placeholder-gray-200 focus:border-amber-500 focus:outline-none focus:ring-amber-500 sm:text-sm w-full" 
                 />
               </div>
               <div class="w-full md:w-2/3 mx-auto pt-6">
@@ -158,7 +158,7 @@
                 </button>
               </div>
             </form>
-            <p class="text-center text-sm text-gray-600 mt-6">
+            <p class="text-center text-sm text-gray-600 dark:text-gray-200 mt-6">
               已有账号？
               <button 
                 class="font-medium text-amber-600 hover:text-amber-500" 

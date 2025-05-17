@@ -506,7 +506,7 @@ const toggleLike = async () => {
     isLiked.value = previousState
     detail.value.likeCount += isLiked.value ? 1 : -1
     console.error(error)
-    showPrompt('error', error.message || '点赞操作失败')
+    showPrompt('error', '服务器繁忙，点赞失败，请稍后再试')
   }
 }
 
@@ -564,7 +564,7 @@ const toggleCollect = async () => {
     isCollected.value = previousState
     detail.value.favoriteCount += isCollected.value ? 1 : -1
     console.error(error)
-    showPrompt('error', error.message || '收藏操作失败')
+    showPrompt('error', '服务器繁忙，收藏失败，请稍后再试')
   }
 }
 
@@ -607,7 +607,7 @@ const toggleCommentLike = async (comment: Comment) => {
     comment.isLiked = previousState
     comment.countLike += comment.isLiked ? 1 : -1
     console.error(error)
-    showPrompt('error', error.message || '评论点赞操作失败')
+    showPrompt('error', '服务器繁忙，评论点赞失败，请稍后再试')
   }
 }
 
