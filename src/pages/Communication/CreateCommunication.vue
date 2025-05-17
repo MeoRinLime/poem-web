@@ -1,6 +1,6 @@
 <template>
   <div class="create-communication-container">
-    <div class="form-container">
+    <div class="form-container bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
       <BigTitle
       class="page-title"
       text="新建日常交流贴" />
@@ -37,11 +37,15 @@
             @keyup.enter="addTag"
           />
           <AddTagsButton 
+            class="hover:bg-indigo-700 transition-colors duration-300"
             @click="addTag"
           >
             添加
           </AddTagsButton>
         </div>
+        <p class="mt-1 invisible peer-focus:visible text-xs text-gray-500 dark:text-gray-400">
+          按回车键或点击添加按钮来添加标签
+        </p>
         <div v-if="formData.tags.length > 0" class="tags-container">
           <span 
             v-for="tag in formData.tags" 
@@ -193,11 +197,9 @@ const cancelCreation = () => {
   margin-bottom: 2rem;
   font-size: 1.8rem;
   font-weight: 600;
-  color: #333;
 }
 
 .form-container {
-  background-color: white;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -211,7 +213,7 @@ const cancelCreation = () => {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  @apply text-gray-700 dark:text-gray-300;
 }
 
 .form-input, .form-textarea {
@@ -221,6 +223,7 @@ const cancelCreation = () => {
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s;
+  @apply bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200;
 }
 
 .form-textarea {

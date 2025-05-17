@@ -3,7 +3,8 @@
 <template>
     <div class="min-h-screen flex flex-col items-center p-4">
       <n-card 
-        class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12"
+        class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12
+        bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200"
         :content-style="{ padding: '16px' }"
       >
         <!-- 页面标题和添加按钮 -->

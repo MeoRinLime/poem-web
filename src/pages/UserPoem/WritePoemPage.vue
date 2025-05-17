@@ -9,9 +9,7 @@
       >
         <!-- 左侧装饰区域 -->
         <n-grid-item 
-          class="bg-cover bg-center relative" 
-          style="background-image: linear-gradient(120deg,#FFAB91 0%,#FFAB91 100%), 
-          url('/assets/images/poem-bg.jpg')"
+          class="bg-cover bg-center relative bg-amber-500 dark:bg-amber-800" 
           :class="isMobile ? 'h-40' : 'h-full'"
         >
           <div class="absolute inset-0 flex flex-col justify-center p-4 md:p-8 text-white" style="font-family: Courier New, Courier, monospace">
@@ -24,7 +22,7 @@
         </n-grid-item>
 
         <!-- 右侧表单区域 -->
-        <n-grid-item class="bg-white p-4 md:p-8 overflow-y-auto">
+        <n-grid-item class="bg-white dark:bg-gray-800 p-4 md:p-8 overflow-y-auto">
           <div class="form-container">
             <n-form
               ref="formRef"
@@ -50,16 +48,16 @@
                 />
               </n-form-item>
               <n-form-item label="AI灵思 (输入意向或关键词)" class="custom-form-item">
-                <div class="tags-container">
+                <div class="tags-container dark:text-gray-300">
                   <div class="tags-display">
                     <n-tag
                       v-for="(tag, index) in aiKeywords"
                       :key="index"
                       :style="{ backgroundColor: tag.color }"
                       :bordered="false"
-                      @close="removeTag(index)"
-                      closable
                       class="tag"
+                      closable
+                      @close="removeTag(index)"
                     >
                       {{ tag.name }}
                     </n-tag>
@@ -73,12 +71,12 @@
                     />
                   </div>
                   <div class="ai-button-container">
-                    <AddTagsButton text="添加" @click="addTag" class="mr-6 rounded-2xl" />
+                    <AddTagsButton text="添加" class="mr-6 rounded-2xl" @click="addTag" />
                     <AIButton 
-                      :loading="aiLoading" 
+                      :loading="isGenerating" 
                       :disabled="aiKeywords.length === 0" 
                       text="生成诗词灵感" 
-                      @click="handleAIGenerate"
+                      @click="startGeneratePoem"
                     />
                   </div>
                 </div>
@@ -95,7 +93,7 @@
                   maxlength="1000"
                   class="custom-textarea"
                 />
-                <div class="text-right text-xs md:text-sm text-gray-500 mt-1">
+                <div class="text-right text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
                   剩余 {{ contentRemainingChars }} 字
                 </div>
               </n-form-item>
@@ -123,9 +121,9 @@
   <!-- AI生成诗歌展示模态框 -->
   <AITextModal 
     v-model:visible="showGenerateModal" 
-    :content="aiGenerated"
+    :content="generateResult"
     :keywords="aiKeywords"
-    :is-loading="aiLoading"
+    :is-loading="isGenerating"
     loading-text="正在分析诗歌，请稍候..."
     :error="generateError ? '服务器繁忙，请稍后再试' : ''"
     title="AI灵思诗作"
@@ -169,11 +167,12 @@ const poemForm = ref({
 
 // AI相关状态
 const aiPrompt = ref('')
-const aiLoading = ref(false)
-const aiGenerated = ref('')
+const isGenerating = ref(false)
+const generateResult = ref('')
 const showGenerateModal = ref(false)
 const stopGeneration = ref<null | (() => void)>(null)
 const generateError = ref('')
+const streamingComplete = ref(true)
 
 // 关键词标签相关
 interface Tag {
@@ -210,46 +209,38 @@ const removeTag = (index: number) => {
   aiKeywords.value.splice(index, 1)
 }
 
-// 处理AI生成功能
-const handleAIGenerate = () => {
-  if (aiKeywords.value.length === 0) {
-    showPrompt('warning', '请添加至少一个创作灵感关键词')
-    return
-  }
-  
-  // 重置生成内容并立即显示模态框
-  aiGenerated.value = ''
+// AI生成相关方法
+const startGeneratePoem = () => {
   showGenerateModal.value = true
-  aiLoading.value = true
+  isGenerating.value = true
+  generateError.value = ''
+  generateResult.value = ''
+  streamingComplete.value = false
   
-  // 如果有正在进行的生成，先停止
-  if (stopGeneration.value) {
-    stopGeneration.value()
-    stopGeneration.value = null
-  }
-  
-  // 构建提示词
-  const prompt = `${aiKeywords.value.map(tag => tag.name).join('、')}`
-  let generatedText = ''
-  
-  // 调用AI生成接口
-  stopGeneration.value = generatePoem(
-    prompt,
-    // 每次收到消息的回调
+  // 收集完整的生成结果
+  let fullResult = ''
+
+  const closeStream = generatePoem(
+    aiKeywords.value.map(tag => tag.name).join(', '),
     (text) => {
-      generatedText += text
-      aiGenerated.value = generatedText
+      isGenerating.value = false
+      // 处理每个文本块
+      fullResult += text
+      generateResult.value = fullResult
     },
-    // 错误处理
     () => {
-      aiLoading.value = false
+      // 处理错误
+      isGenerating.value = false
       generateError.value = '分析过程中发生错误，请稍后重试'
-      showPrompt('error', '服务器繁忙，请稍后再试')
+      streamingComplete.value = true
     },
-    // 完成回调
     () => {
-      aiLoading.value = false
-      stopGeneration.value = null
+      // 处理完成
+      isGenerating.value = false
+      streamingComplete.value = true
+      if (!fullResult.trim()) {
+        generateError.value = '未获取到分析结果，请稍后重试'
+      }
     }
   )
 }
@@ -264,10 +255,10 @@ const useGeneratedPoem = (content: string) => {
 const closeGenerateModal = () => {
   showGenerateModal.value = false
   // 如果还在生成中，停止生成
-  if (aiLoading.value && stopGeneration.value) {
+  if (!streamingComplete.value && stopGeneration.value) {
     stopGeneration.value()
     stopGeneration.value = null
-    aiLoading.value = false
+    isGenerating.value = false
   }
 }
 
@@ -438,6 +429,10 @@ const checkScreenSize = () => {
   padding: 0;
   height: auto;
   font-size: inherit;
+}
+
+.dark .custom-form :deep(.n-form-item-label) {
+  color: #e5e7eb;
 }
 
 .custom-form :deep(.n-form-item) {

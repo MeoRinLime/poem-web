@@ -3,18 +3,18 @@
     <!-- 加载状态 -->
     <div v-if="isLoading" class="flex justify-center items-center h-64">
       <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-500"></div>
-      <span class="ml-3 text-gray-600">搜索中...</span>
+      <span class="ml-3 text-gray-600 dark:text-gray-300">搜索中...</span>
     </div>
 
     <!-- 错误提示 -->
-    <div v-else-if="errorMessage" class="text-center text-red-500 py-8">
+    <div v-else-if="errorMessage" class="text-center text-red-500 dark:text-red-400 py-8">
       {{ errorMessage }}
     </div>
 
     <!-- 无搜索结果 -->
     <div v-else-if="searchResults.length === 0" class="text-center py-8">
-      <div class="text-gray-500">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="text-gray-500 dark:text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h.01M15 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         没有找到相关内容
@@ -23,7 +23,7 @@
 
     <!-- 搜索结果 -->
     <div v-else>
-      <h2 class="text-2xl font-bold mb-6 text-gray-700">
+      <h2 class="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-200">
         搜索 "{{ searchQuery }}" 的结果 ({{ totalItems }})
       </h2>
 
@@ -31,29 +31,29 @@
         <div 
           v-for="result in searchResults" 
           :key="result.postId || result.poemId" 
-          class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+          class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300 cursor-pointer"
           @click="navigateToDetail(result)"
         >
           <div class="flex justify-between items-start mb-4">
             <div>
-              <h3 class="text-xl font-semibold text-gray-800">{{ result.title }}</h3>
-              <p v-if="result.subTitle" class="text-gray-500 text-sm">
+              <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ result.title }}</h3>
+              <p v-if="result.subTitle" class="text-gray-500 dark:text-gray-400 text-sm">
                 {{ result.subTitle }}
               </p>
             </div>
             <span 
               class="px-2 py-1 rounded-full text-xs font-medium 
-              text-blue-800 bg-blue-100"
+              text-blue-800 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-200"
             >
               {{ getTypeLabel(result.type) }}
             </span>
           </div>
 
-          <div class="text-gray-600 mb-4 line-clamp-3">
+          <div class="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
             {{ result.content || result.excerpt }}
           </div>
 
-          <div class="flex justify-between text-sm text-gray-500">
+          <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
             <div class="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
@@ -75,8 +75,11 @@
         <div class="flex items-center space-x-1">
           <!-- 上一页按钮 -->
           <button 
-            class="px-4 py-2 border rounded-md" 
-            :class="{'text-gray-400 cursor-not-allowed': currentPage === 1, 'hover:bg-gray-100': currentPage > 1}" 
+            class="px-4 py-2 border rounded-md dark:border-gray-700 dark:text-gray-300" 
+            :class="{
+              'text-gray-400 dark:text-gray-600 cursor-not-allowed': currentPage === 1, 
+              'hover:bg-gray-100 dark:hover:bg-gray-700': currentPage > 1
+            }" 
             :disabled="currentPage === 1"
             @click="changePage(currentPage - 1)"
           >
@@ -87,19 +90,25 @@
           <div v-for="page in displayedPages" :key="page" class="px-1">
             <button 
               v-if="page !== '...'"
-              :class="{'bg-blue-500 text-white': page === currentPage, 'hover:bg-gray-100': page !== currentPage}" 
+              :class="{
+                'bg-blue-500 text-white': page === currentPage, 
+                'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300 dark:border-gray-700': page !== currentPage
+              }" 
               class="px-4 py-2 border rounded-md"
               @click="changePage(Number(page))"
             >
               {{ page }}
             </button>
-            <span v-else class="px-2">...</span>
+            <span v-else class="px-2 dark:text-gray-400">...</span>
           </div>
           
           <!-- 下一页按钮 -->
           <button 
-            class="px-4 py-2 border rounded-md" 
-            :class="{'text-gray-400 cursor-not-allowed': currentPage === totalPages, 'hover:bg-gray-100': currentPage < totalPages}" 
+            class="px-4 py-2 border rounded-md dark:border-gray-700 dark:text-gray-300" 
+            :class="{
+              'text-gray-400 dark:text-gray-600 cursor-not-allowed': currentPage === totalPages, 
+              'hover:bg-gray-100 dark:hover:bg-gray-700': currentPage < totalPages
+            }" 
             :disabled="currentPage === totalPages"
             @click="changePage(currentPage + 1)"
           >

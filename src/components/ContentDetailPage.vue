@@ -38,7 +38,7 @@
             class="mr-3"
             @click="() => router.push({ name: 'UserPersonalCenter', params: { username: detail.author?.name } })" 
           />
-          <h1 class="text-2xl md:text-4xl font-bold text-gray-800">
+          <h1 class="text-2xl md:text-4xl font-bold text-gray-800 dark:text-gray-200">
             {{ detail.title }}
           </h1>
         </div>
@@ -59,7 +59,7 @@
         </n-space>
         
         <!-- 作者和日期 -->
-        <div class="text-gray-500 text-sm mt-2">
+        <div class="text-gray-500 dark:text-green-50 text-sm mt-2">
           {{ detail.author?.name }}
           <template v-if="!route.path.includes('/poet-poem')">
             · {{ formatDate(detail.author?.createdAt) }}
@@ -70,7 +70,7 @@
       <!-- 内容 -->
       <div 
         :class="[
-          'prose max-w-full mb-6 text-gray-700',
+          'prose max-w-full mb-6 text-gray-700 dark:text-gray-200',
           detail.type === 'poem' ? 'text-center whitespace-pre-line leading-relaxed' : 'leading-relaxed'
         ]"
       >
@@ -593,11 +593,13 @@ const toggleCommentLike = async (comment: Comment) => {
     if (!comment.isLiked && comment.likeId) {
       // 取消点赞，传递数组参数
       await cancelLike(4, [comment.likeId], commentType)
+      showPrompt('info', '取消点赞成功')
       comment.likeId = undefined
     } else {
       // 点赞
       await likeComment(comment.commentId, authStore.username, commentType)
       const likeInfo = await isLikeComment(comment.commentId, authStore.username!, commentType)
+      showPrompt('success', '点赞成功')
       comment.likeId = likeInfo?.data?.likeId
     }
   } catch (error: any) {
@@ -611,11 +613,6 @@ const toggleCommentLike = async (comment: Comment) => {
 
 // 发布评论
 const postCommentHere = async () => {
-  if (!newComment.value.trim()) {
-    showPrompt('warning', '评论内容不能为空')
-    return
-  }
-  
   if (!authStore.username) {
     showPrompt('warning', '请先登录')
     return

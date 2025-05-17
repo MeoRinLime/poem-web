@@ -16,7 +16,7 @@
         <img 
           src="/img/book.gif" 
           alt="Animated Book" 
-          class="w-[280px] h-auto z-10 opacity-95 transition-all duration-300"
+          class="w-[280px] h-auto z-10 opacity-95 transition-all duration-300 dark:brightness-90"
           style="filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.4));"
         >
       </div>
@@ -25,21 +25,23 @@
       <div class="flex flex-col items-center px-4 md:px-0">
         <h1
           class="md:text-7xl text-4xl font-bold text-transparent bg-clip-text 
-          bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 opacity-90 font-serif" 
+          bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 opacity-90 font-serif
+          dark:from-amber-400 dark:via-amber-500 dark:to-amber-600" 
           style="font-family: Georgia, 'SimSun', serif">
           诗韵Poemre
         </h1>
-        <h2 class="md:text-2xl text-lg mt-4 text-amber-700 opacity-80 font-serif">古韵今风，诗意共享</h2>
+        <h2 class="md:text-2xl text-lg mt-4 text-amber-700 opacity-80 font-serif dark:text-amber-300">古韵今风，诗意共享</h2>
 
         <!-- 随机一诗 -->
         <div
           class="text-center md:mt-20 mt-10 p-4 md:p-6 border-2 border-amber-200 rounded-lg 
-                  bg-amber-50 bg-opacity-70 shadow-md max-w-md mx-auto font-mono w-[90%] relative z-30">
+                  bg-amber-50 bg-opacity-70 shadow-md max-w-md mx-auto font-mono w-[90%] relative z-30
+                  dark:bg-gray-800 dark:bg-opacity-80 dark:border-amber-700">
           <span
-            id="hitokoto" class="md:text-xl text-base text-amber-900" 
+            id="hitokoto" class="md:text-xl text-base text-amber-900 dark:text-amber-100" 
             style="font-family: 'Courier New', Courier, monospace"></span>
           <div
-            id="hitokoto-From" class="text-sm text-amber-800 mt-2 italic" 
+            id="hitokoto-From" class="text-sm text-amber-800 mt-2 italic dark:text-amber-300" 
             style="font-family: 'Courier New', Courier, monospace"></div>
         </div>
 
@@ -48,7 +50,8 @@
           <button 
             class="px-6 py-2 md:px-8 md:py-3 text-base md:text-lg bg-gradient-to-r 
                   from-amber-600 to-amber-700 text-white rounded-lg hover:opacity-90 
-                  transition-opacity font-serif shadow-md active:scale-95" 
+                  transition-opacity font-serif shadow-md active:scale-95
+                  dark:from-amber-500 dark:to-amber-600" 
             @click="handleCreatePoem" 
           >
             开始创作
@@ -56,7 +59,8 @@
           <button 
             class="px-6 py-2 md:px-8 md:py-3 text-base md:text-lg bg-gradient-to-r 
                   from-amber-700 to-amber-800 text-white rounded-lg hover:opacity-90 
-                  transition-opacity font-serif shadow-md active:scale-95" 
+                  transition-opacity font-serif shadow-md active:scale-95
+                  dark:from-amber-600 dark:to-amber-700" 
             @click="handleDailyPoem" 
           >
             每日一诗
@@ -69,7 +73,7 @@
         <img 
           src="/img/book.gif" 
           alt="Animated Book" 
-          class="w-[150px] h-auto opacity-90"
+          class="w-[150px] h-auto opacity-90 dark:brightness-70"
           style="filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));"
         >
       </div>

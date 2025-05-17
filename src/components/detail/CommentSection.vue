@@ -42,6 +42,7 @@
   import { ChatbubbleOutline as CommentIcon } from '@vicons/ionicons5'
   import CommentItem from './CommentItem.vue'
   import type { Comment } from '@/types/comment'
+import { showPrompt } from '../functions/prompt'
   
   const loading = ref(false)
   const props = defineProps({
@@ -71,6 +72,10 @@
   })
   
   const submit = () => {
+    if (!localComment.value.trim()) {
+      showPrompt('warning', '评论内容不能为空')
+      return
+    }
     if (localComment.value.trim() && !loading.value) {
       loading.value = true
       emit('post-comment')

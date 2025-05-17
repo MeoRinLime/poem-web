@@ -6,7 +6,7 @@
     >
       <div class="max-w-4xl mx-auto">
         <!-- 用户信息卡片 - 调整为移动端布局 -->
-        <div class="bg-white shadow-lg rounded-lg p-4 md:p-6 mb-6 flex flex-col md:flex-row items-center mt-16 md:mt-10">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 md:p-6 mb-6 flex flex-col md:flex-row items-center mt-16 md:mt-10">
           <NAvatar 
             :size="80" 
             :class="['md:mr-6 mb-4 md:mb-0', { 'border-blue-200': activeTab === 'profile' }]"
@@ -14,11 +14,11 @@
             round
           />
           <div class="flex-grow w-full md:w-auto text-center md:text-left">
-            <h1 class="text-2xl md:text-3xl font-semibold text-gray-800">
+            <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-gray-200">
               {{ userData.username }}
               <NTag v-if="!isCurrentUser" class="ml-2" type="info" size="small">用户主页</NTag>
             </h1>
-            <p class="text-gray-600 mt-2 text-sm md:text-base">{{ userData.bio }}</p>
+            <p class="text-gray-600 dark:text-gray-200 mt-2 text-sm md:text-base">{{ userData.bio }}</p>
             <NSpace class="mt-4 justify-center md:justify-start" :size="[12, 0]">
               <NText depth="3" class="text-xs md:text-sm">帖子: {{ posts.length }}</NText>
               <NText depth="3" class="text-xs md:text-sm">评论: {{ comments.length }}</NText>
@@ -179,8 +179,8 @@
                   <span class="text-xs text-gray-500">{{ comment.createdAt }}</span>
                 </div>
                 <div class="cursor-pointer" @click="navigateToCommentDetail(comment.objectId, comment.commentType)">
-                  <p class="text-gray-700 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
-                  <h3 class="text-lg md:text-xl font-medium text-gray-800 text-right">FROM——{{ comment.title }}</h3>
+                  <p class="text-gray-700 dark:text-gray-200 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
+                  <h4 class=" text-base md:text-sm font-medium text-gray-800 dark:text-gray-200 text-right">FROM——{{ comment.title }}</h4>
                 </div>
               </div>
               <NPagination 
@@ -202,8 +202,8 @@
                 </div>
               </template>
               <div v-for="poem in poetry" :key="poem.poemId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPoetryDetail(poem.poemId)">
-                <h3 class="text-lg md:text-xl font-medium text-gray-800">{{ poem.title }}</h3>
-                <pre class="whitespace-pre-wrap text-gray-600 text-sm md:text-base line-clamp-3">{{ poem.content }}</pre>
+                <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ poem.title }}</h3>
+                <pre class="whitespace-pre-wrap text-gray-600 dark:text-gray-400 text-sm md:text-base line-clamp-3">{{ poem.content }}</pre>
                 <div class="text-right text-gray-500 text-xs md:text-sm">
                   {{ poem.createdAt }}
                 </div>
@@ -227,9 +227,9 @@
                 </div>
               </template>
               <div v-for="rec in recitations" :key="rec.recitationId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToRecitationDetail(rec.recitationId)">
-                <h3 class="text-lg md:text-xl font-medium">{{ rec.title }}</h3>
-                <p class="text-gray-600 text-sm md:text-base line-clamp-2">{{ rec.content }}</p>
-                <div class="text-right text-gray-500 text-xs md:text-sm">{{ rec.createdAt }}</div>
+                <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ rec.title }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base line-clamp-2">{{ rec.content }}</p>
+                <div class="text-right text-gray-500 dark:text-gray-400 text-xs md:text-sm">{{ rec.createdAt }}</div>
               </div>
               <NPagination v-model:page="currentPage" :page-size="pageSize" :total="recitations.length" size="small" />
             </NCard>
@@ -249,8 +249,8 @@
                   <span class="text-xs text-gray-500">{{ favorite.createdAt }}</span>
                 </div>
                 <div class="cursor-pointer" @click="navigateToFavoriteDetail(favorite)">
-                 <h3 class="text-lg md:text-xl font-medium text-gray-800">{{ favorite.title }}</h3>
-                 <p class="text-gray-600 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
+                 <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ favorite.title }}</h3>
+                 <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
                  <div v-if="favorite.poemTitle" class="text-xs md:text-sm text-gray-500 mb-2">
                    <span>诗歌: {{ favorite.poemTitle }}</span>
                    <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>

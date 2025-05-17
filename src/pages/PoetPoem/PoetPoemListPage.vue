@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen flex flex-col items-center p-4">
     <n-card 
-      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12"
+      class="max-w-6xl w-full mx-auto shadow-2xl rounded-2xl mt-12
+      bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200"
       :content-style="{ padding: '16px' }"
     >
       <!-- 页面标题和添加按钮 -->
@@ -20,7 +21,7 @@
       </div>
 
       <!-- 内容为空时的提示 -->
-      <div v-else-if="poemList.content?.length === 0" class="text-center py-12 text-gray-500">
+      <div v-else-if="poemList.content?.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
         {{ emptyText }}
       </div>
 
@@ -43,9 +44,10 @@
       </n-grid>
 
       <!-- 分页组件 -->
-      <div v-if="poemList.totalElements > 0" class="mt-8 pagination-container">
-        <n-pagination 
+      <div v-if="poemList.totalElements > 0" class="pagination-container">
+        <n-pagination
           v-model:page="currentPage"
+          class="dark:bg-gray-900 dark:text-gray-200"
           :page-count="totalPages"
           :page-size="localPageSize"
           :show-size-picker="!isMobile"
@@ -217,7 +219,8 @@ onUnmounted(() => {
   align-items: center;
   width: 100%;
   max-width: 600px; /* 设置最大宽度 */
-  margin: 0 auto; /* 确保容器水平居中 */
+  margin: 0 auto;
+  margin-top: 2rem;
 }
 
 .n-pagination {
@@ -225,7 +228,6 @@ onUnmounted(() => {
   width: 100%;
   justify-content: center;
   align-items: center;
-  background-color: white;
   border-radius: 8px;
   padding: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

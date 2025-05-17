@@ -1,5 +1,5 @@
 <template>
-    <h1 class="title" data-text="Awesome Title">
+    <h1 class="title dark:text-gray-100" data-text="Awesome Title">
       <span class="actual-text">&nbsp;{{ text }}&nbsp;</span>
       <span aria-hidden="true" class="hover-text">&nbsp;{{ text }}&nbsp;</span>
     </h1>
@@ -29,7 +29,6 @@ export default {
     text-transform: uppercase;
     position: relative;
     display: inline-block;
-    color: black;
     -webkit-text-stroke: 1px var(--text-stroke-color);
   }
   

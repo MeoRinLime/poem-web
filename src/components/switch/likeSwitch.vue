@@ -5,6 +5,7 @@
     type="checkbox" 
     class="checkbox" 
     :checked="checked"
+    :disabled="disabled"
     @change="handleChange"
     >
     <div class="svg-container">
@@ -33,6 +34,10 @@ import { ref } from 'vue';
 
 const props = defineProps({
   checked: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
     type: Boolean,
     default: false
   }

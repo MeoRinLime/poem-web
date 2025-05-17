@@ -1,7 +1,7 @@
 <template>
   <div class="create-recitation-container">
-    <div class="form-container">
-      <BigTitle text="新建朗诵" class="page-title"></BigTitle>
+    <div class="form-container bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+      <BigTitle text="新建朗诵" class="page-title dark:text-gray-200"></BigTitle>
       <div class="form-group">
         <label for="title">朗诵标题</label>
         <input 
@@ -38,13 +38,13 @@
         <label>朗诵音频文件</label>
         <div class="upload-container">
           <UploadFile @file-selected="handleFileSelect" />
-          <p v-if="selectedFile" class="selected-file-name">
+          <p v-if="selectedFile" class="selected-file-name dark:text-gray-200">
             已选择: {{ selectedFile.name }}
           </p>
         </div>
       </div>
 
-      <div v-if="selectedFile" class="audio-preview">
+      <div v-if="selectedFile" class="audio-preview bg-gray-100 dark:bg-gray-700 dark:text-gray-200 p-4 rounded-lg">
         <h3>音频预览</h3>
         <audio controls>
           <source :src="audioPreviewUrl" type="audio/mpeg">
@@ -180,14 +180,12 @@ const cancelCreation = () => {
 
 .page-title {
   margin-left: 1rem;
-margin-bottom: 2rem;
+  margin-bottom: 2rem;
   font-size: 1.8rem;
   font-weight: 600;
-  color: #333;
 }
 
 .form-container {
-  background-color: white;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -201,7 +199,7 @@ margin-bottom: 2rem;
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  @apply text-gray-700 dark:text-gray-300;
 }
 
 .form-input, .form-textarea {
@@ -211,6 +209,7 @@ margin-bottom: 2rem;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s;
+  @apply bg-gray-200 dark:bg-gray-800;
 }
 
 .form-textarea {
@@ -233,20 +232,17 @@ margin-bottom: 2rem;
 .selected-file-name {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #4b5563;
 }
 
 .audio-preview {
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: #f3f4f6;
   border-radius: 8px;
 }
 
 .audio-preview h3 {
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
-  color: #374151;
 }
 
 .audio-preview audio {

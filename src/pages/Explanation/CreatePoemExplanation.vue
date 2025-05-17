@@ -1,10 +1,10 @@
 <template>
   <div class="create-explanation-container">
-    <div class="form-container">
+    <div class="form-container bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
       <div class="form-group">
         <BigTitle 
         text= "新建诗歌解读贴"
-        class="page-title" />
+        class="page-title dark:text-gray-200" />
         <label for="poemTitle">诗歌标题</label>
         <input 
           id="poemTitle" 
@@ -237,11 +237,9 @@ const cancelCreation = () => {
   margin-bottom: 2rem;
   font-size: 1.8rem;
   font-weight: 600;
-  color: #333;
 }
 
 .form-container {
-  background-color: white;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -255,7 +253,7 @@ const cancelCreation = () => {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  @apply text-gray-700 dark:text-gray-300;
 }
 
 .form-input, .form-textarea {
@@ -265,6 +263,7 @@ const cancelCreation = () => {
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s;
+  @apply bg-gray-200 dark:bg-gray-800;
 }
 
 .form-textarea {

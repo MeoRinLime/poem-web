@@ -18,24 +18,24 @@
       <template v-else>
         <!-- 诗词标题和作者 -->
         <div class="text-center mb-4">
-          <h1 class="text-2xl font-bold text-gray-800 mb-2" style="font-family: Georgia, serif;">
+          <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2" style="font-family: Georgia, serif;">
             {{ dailyPoem?.title }}
           </h1>
-          <div class="text-gray-600 text-base" style="font-family: Georgia, serif;">
+          <div class="text-gray-600 dark:text-gray-200 text-base" style="font-family: Georgia, serif;">
             {{ dailyPoem?.dynasty }} · {{ dailyPoem?.author }}
           </div>
         </div>
 
         <!-- 诗词内容 -->
-        <div class="bg-white p-4 rounded-lg shadow-inner mb-4">
-          <pre class="whitespace-pre-wrap text-center text-base text-gray-700" style="font-family: Georgia, serif;">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-inner mb-4">
+          <pre class="whitespace-pre-wrap text-center text-base text-gray-700 dark:text-gray-200" style="font-family: Georgia, serif;">
             {{ dailyPoem?.content }}
           </pre>
         </div>
 
         <!-- 相关讨论分隔线 -->
         <n-divider title-placement="left">
-          <span class="text-gray-600">相关讨论</span>
+          <span class="text-gray-600 dark:text-gray-200">相关讨论</span>
         </n-divider>
 
         <!-- 相关讨论列表 -->
@@ -43,10 +43,10 @@
           <div 
             v-for="post in paginatedPosts" 
             :key="post.id" 
-            class="mb-4 p-2 border-b last:border-b-0 hover:bg-gray-100 transition-colors"
+            class="mb-4 p-2 border-b last:border-b-0 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-2xl"
           >
             <div class="flex justify-between items-center mb-2">
-              <h3 class="text-base font-semibold text-gray-800" style="font-family: Georgia, serif;">{{ post.title }}</h3>
+              <h3 class="text-base font-semibold text-gray-800 dark:text-gray-200" style="font-family: Georgia, serif;">{{ post.title }}</h3>
               <div class="flex space-x-2">
                 <n-tag type="info" size="small">
                   {{ post.commentCount }} 评论
@@ -56,8 +56,8 @@
                 </n-tag>
               </div>
             </div>
-            <p class="text-gray-600 mb-2" style="font-family: Georgia, serif;">{{ post.excerpt }}</p>
-            <div class="text-right text-gray-500 text-sm" style="font-family: Georgia, serif;">
+            <p class="text-gray-600 dark:text-gray-200 mb-2" style="font-family: Georgia, serif;">{{ post.excerpt }}</p>
+            <div class="text-right text-gray-500 dark:text-gray-200 text-sm" style="font-family: Georgia, serif;">
               作者：{{ post.author }}
             </div>
           </div>

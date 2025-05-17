@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col items-center p-4">
     <div class="mb-8 text-center mt-36">
-      <h1 class="text-5xl font-thin text-gray-600">
+      <h1 class="text-5xl font-thin text-gray-600 dark:text-gray-300">
         <span class="text-blue-500">P</span>
         <span class="text-red-500">o</span>
         <span class="text-yellow-500">e</span>
@@ -12,29 +12,29 @@
     </div>
 
     <div class="w-full max-w-xl relative">
-      <div class="flex items-center border rounded-full shadow-md hover:shadow-lg transition-shadow">
+      <div class="flex items-center border dark:border-gray-700 rounded-full shadow-md hover:shadow-lg transition-shadow dark:bg-gray-800">
         <div class="relative flex-grow">
           <SearchOutlined 
-            class="absolute top-3 left-2 w-7 text-gray-500 cursor-pointer" 
+            class="absolute top-3 left-2 w-7 text-gray-500 dark:text-gray-400 cursor-pointer" 
             @click="handleSearch"
           />
           <input 
             v-model="searchQuery"
             type="text"
             placeholder="今天想知道些什么呢？"
-            class="w-full p-3 pl-10 outline-none rounded-full"
+            class="w-full p-3 pl-10 outline-none rounded-full dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500"
             @keyup.enter="handleSearch"
             @input="onInput"
           />
           <!-- 联想建议下拉框 -->
           <ul
             v-if="suggestions.length"
-            class="absolute top-full left-0 w-full bg-white border rounded-lg mt-1 max-h-60 overflow-auto z-10"
+            class="absolute top-full left-0 w-full bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg mt-1 max-h-60 overflow-auto z-10 shadow-lg"
           >
             <li
               v-for="(item, idx) in suggestions"
               :key="idx"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer dark:text-gray-200"
               @click="selectSuggestion(item)"
             >{{ item }}</li>
           </ul>
@@ -62,7 +62,7 @@ function generateSid(): string {
 // 建立 WebSocket 连接（直接用 ws://localhost:8000）
 onMounted(() => {
   const sid = generateSid()
-  const url = `ws://localhost:8000/webSocket/${sid}`
+  const url = `ws://api.meorin.top/webSocket/${sid}`
   console.log('[WS] connecting to', url)
   socket = new WebSocket(url)
 
@@ -77,8 +77,8 @@ onMounted(() => {
         const dtos: Array<{ suggestion: string }> = JSON.parse(resp.msg)
         suggestions.value = dtos.map(d => d.suggestion)
       }
-    } catch (e) {
-      console.error('解析联想建议失败', e)
+    } catch (error) {
+      console.error('解析联想建议失败', error)
     }
   }
 })
