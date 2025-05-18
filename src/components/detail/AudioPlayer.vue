@@ -1,8 +1,8 @@
 <template>
-  <div class="audio-player bg-white p-4 rounded-lg shadow-sm mb-4">
+  <div class="audio-player bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-4">
     <div v-if="src" class="player-container">
       <div class="player-info mb-2">
-        <h3 class="text-lg font-medium text-gray-800">{{ title }} 朗读</h3>
+        <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ title }} 朗读</h3>
         <p class="text-sm text-gray-600">朗读者: {{ author }}</p>
       </div>
 
@@ -10,7 +10,7 @@
       <div class="custom-player">
         <!-- 进度条 -->
         <div class="progress-container flex items-center mb-2">
-          <span class="text-xs text-gray-500 mr-2">{{ formatTime(currentTime) }}</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 mr-2">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar flex-1 h-2 bg-gray-200 rounded cursor-pointer" @click="seekAudio">
             <div class="progress-fill bg-primary h-full rounded" :style="{ width: `${progress}%` }"></div>
           </div>
