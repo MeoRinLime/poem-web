@@ -148,20 +148,30 @@
                   <span class="text-sm md:text-base">帖子列表</span>
                 </div>
               </template>
-              <div v-for="post in posts" :key="post.postId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPostDetail(post.postId)">
-                <h3 class="text-lg md:text-xl font-medium">{{ post.title }}</h3>
-                <p class="text-gray-600 text-sm md:text-base line-clamp-2">{{ post.content }}</p>
-                <div class="text-right text-gray-500 text-xs md:text-sm">
-                  {{ post.createdAt }}
+              <div v-if="posts.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                <div class="mb-2">
+                  <NIcon size="48" class="opacity-70">
+                    <EllipsisVerticalOutline />
+                  </NIcon>
                 </div>
+                <p class="text-sm md:text-base">{{ isCurrentUser ? '你目前没有发布过帖子哦~' : '该用户目前没有发布过帖子哦~' }}</p>
               </div>
-              <NPagination 
-                v-model:page="currentPage"
-                :page-size="pageSize"
-                :total="posts.length"
-                :page-slot="5"
-                size="small"
-              />
+              <template v-else>
+                <div v-for="post in posts" :key="post.postId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPostDetail(post.postId)">
+                  <h3 class="text-lg md:text-xl font-medium">{{ post.title }}</h3>
+                  <p class="text-gray-600 text-sm md:text-base line-clamp-2">{{ post.content }}</p>
+                  <div class="text-right text-gray-500 text-xs md:text-sm">
+                    {{ post.createdAt }}
+                  </div>
+                </div>
+                <NPagination 
+                  v-model:page="currentPage"
+                  :page-size="pageSize"
+                  :total="posts.length"
+                  :page-slot="5"
+                  size="small"
+                />
+              </template>
             </NCard>
           </NTabPane>
 
@@ -173,23 +183,33 @@
                   <span class="text-sm md:text-base">评论列表</span>
                 </div>
               </template>
-              <div v-for="(comment, index) in comments" :key="index" class="mb-4 pb-4 border-b">
-                <div class="flex justify-between items-center mb-2">
-                  <NTag size="small" type="info">{{ comment.commentType }}</NTag>
-                  <span class="text-xs text-gray-500">{{ comment.createdAt }}</span>
+              <div v-if="comments.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                <div class="mb-2">
+                  <NIcon size="48" class="opacity-70">
+                    <ChatboxOutline />
+                  </NIcon>
                 </div>
-                <div class="cursor-pointer" @click="navigateToCommentDetail(comment.objectId, comment.commentType)">
-                  <p class="text-gray-700 dark:text-gray-200 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
-                  <h4 class=" text-base md:text-sm font-medium text-gray-800 dark:text-gray-200 text-right">FROM——{{ comment.title }}</h4>
-                </div>
+                <p class="text-sm md:text-base">{{ isCurrentUser ? '你目前没有发表过评论哦~' : '该用户目前没有发表过评论哦~' }}</p>
               </div>
-              <NPagination 
-                v-model:page="currentPage"
-                :page-size="pageSize"
-                :total="comments.length"
-                :page-slot="5"
-                size="small"
-              />
+              <template v-else>
+                <div v-for="(comment, index) in comments" :key="index" class="mb-4 pb-4 border-b">
+                  <div class="flex justify-between items-center mb-2">
+                    <NTag size="small" type="info">{{ comment.commentType }}</NTag>
+                    <span class="text-xs text-gray-500">{{ comment.createdAt }}</span>
+                  </div>
+                  <div class="cursor-pointer" @click="navigateToCommentDetail(comment.objectId, comment.commentType)">
+                    <p class="text-gray-700 dark:text-gray-200 text-sm md:text-base line-clamp-2">{{ comment.content }}</p>
+                    <h4 class=" text-base md:text-sm font-medium text-gray-800 dark:text-gray-200 text-right">FROM——{{ comment.title }}</h4>
+                  </div>
+                </div>
+                <NPagination 
+                  v-model:page="currentPage"
+                  :page-size="pageSize"
+                  :total="comments.length"
+                  :page-slot="5"
+                  size="small"
+                />
+              </template>
             </NCard>
           </NTabPane>
 
@@ -201,20 +221,30 @@
                   <span class="text-sm md:text-base">诗歌作品</span>
                 </div>
               </template>
-              <div v-for="poem in poetry" :key="poem.poemId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPoetryDetail(poem.poemId)">
-                <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ poem.title }}</h3>
-                <pre class="whitespace-pre-wrap text-gray-600 dark:text-gray-400 text-sm md:text-base line-clamp-3">{{ poem.content }}</pre>
-                <div class="text-right text-gray-500 text-xs md:text-sm">
-                  {{ poem.createdAt }}
+              <div v-if="poetry.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                <div class="mb-2">
+                  <NIcon size="48" class="opacity-70">
+                    <BookOutline />
+                  </NIcon>
                 </div>
+                <p class="text-sm md:text-base">{{ isCurrentUser ? '你目前没有发布过诗歌作品哦~' : '该用户目前没有发布过诗歌作品哦~' }}</p>
               </div>
-              <NPagination 
-                v-model:page="currentPage"
-                :page-size="pageSize"
-                :total="poetry.length"
-                :page-slot="5"
-                size="small"
-              />
+              <template v-else>
+                <div v-for="poem in poetry" :key="poem.poemId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToPoetryDetail(poem.poemId)">
+                  <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ poem.title }}</h3>
+                  <pre class="whitespace-pre-wrap text-gray-600 dark:text-gray-400 text-sm md:text-base line-clamp-3">{{ poem.content }}</pre>
+                  <div class="text-right text-gray-500 text-xs md:text-sm">
+                    {{ poem.createdAt }}
+                  </div>
+                </div>
+                <NPagination 
+                  v-model:page="currentPage"
+                  :page-size="pageSize"
+                  :total="poetry.length"
+                  :page-slot="5"
+                  size="small"
+                />
+              </template>
             </NCard>
           </NTabPane>
 
@@ -226,12 +256,22 @@
                   <span class="text-sm md:text-base">朗诵列表</span>
                 </div>
               </template>
-              <div v-for="rec in recitations" :key="rec.recitationId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToRecitationDetail(rec.recitationId)">
-                <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ rec.title }}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base line-clamp-2">{{ rec.content }}</p>
-                <div class="text-right text-gray-500 dark:text-gray-400 text-xs md:text-sm">{{ rec.createdAt }}</div>
+              <div v-if="recitations.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                <div class="mb-2">
+                  <NIcon size="48" class="opacity-70">
+                    <VolumeHighOutline />
+                  </NIcon>
+                </div>
+                <p class="text-sm md:text-base">{{ isCurrentUser ? '你目前没有发布过朗诵作品哦~' : '该用户目前没有发布过朗诵作品哦~' }}</p>
               </div>
-              <NPagination v-model:page="currentPage" :page-size="pageSize" :total="recitations.length" size="small" />
+              <template v-else>
+                <div v-for="rec in recitations" :key="rec.recitationId" class="mb-4 pb-4 border-b cursor-pointer" @click="navigateToRecitationDetail(rec.recitationId)">
+                  <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ rec.title }}</h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base line-clamp-2">{{ rec.content }}</p>
+                  <div class="text-right text-gray-500 dark:text-gray-400 text-xs md:text-sm">{{ rec.createdAt }}</div>
+                </div>
+                <NPagination v-model:page="currentPage" :page-size="pageSize" :total="recitations.length" size="small" />
+              </template>
             </NCard>
           </NTabPane>
 
@@ -243,30 +283,40 @@
                   <span class="text-sm md:text-base">收藏列表</span>
                 </div>
               </template>
-              <div v-for="(favorite, index) in favorites" :key="index" class="mb-4 pb-4 border-b">
-                <div class="flex justify-between items-center mb-2">
-                  <NTag size="small" type="info">{{ favorite.favoriteType }}</NTag>
-                  <span class="text-xs text-gray-500">{{ favorite.createdAt }}</span>
+              <div v-if="favorites.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                <div class="mb-2">
+                  <NIcon size="48" class="opacity-70">
+                    <HeartOutline />
+                  </NIcon>
                 </div>
-                <div class="cursor-pointer" @click="navigateToFavoriteDetail(favorite)">
-                 <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ favorite.title }}</h3>
-                 <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
-                 <div v-if="favorite.poemTitle" class="text-xs md:text-sm text-gray-500 mb-2">
-                   <span>诗歌: {{ favorite.poemTitle }}</span>
-                   <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>
-                 </div>
-                 <div v-if="favorite.tags && favorite.tags.length > 0" class="mb-2 flex flex-wrap">
-                   <NTag 
-                     v-for="tag in favorite.tags" 
-                     :key="tag" 
-                     size="small" 
-                     class="mr-1 mb-1"
-                   >
-                     {{ tag }}
-                   </NTag>
-                 </div>
-                </div>
+                <p class="text-sm md:text-base">{{ isCurrentUser ? '你目前没有收藏任何内容哦~' : '该用户目前没有收藏任何内容哦~' }}</p>
               </div>
+              <template v-else>
+                <div v-for="(favorite, index) in favorites" :key="index" class="mb-4 pb-4 border-b">
+                  <div class="flex justify-between items-center mb-2">
+                    <NTag size="small" type="info">{{ favorite.favoriteType }}</NTag>
+                    <span class="text-xs text-gray-500">{{ favorite.createdAt }}</span>
+                  </div>
+                  <div class="cursor-pointer" @click="navigateToFavoriteDetail(favorite)">
+                    <h3 class="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200">{{ favorite.title }}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm md:text-base line-clamp-2">{{ favorite.content }}</p>
+                    <div v-if="favorite.poemTitle" class="text-xs md:text-sm text-gray-500 mb-2">
+                      <span>诗歌: {{ favorite.poemTitle }}</span>
+                      <span class="ml-2">作者: {{ favorite.poemAuthor }}</span>
+                    </div>
+                    <div v-if="favorite.tags && favorite.tags.length > 0" class="mb-2 flex flex-wrap">
+                      <NTag 
+                        v-for="tag in favorite.tags" 
+                        :key="tag" 
+                        size="small" 
+                        class="mr-1 mb-1"
+                      >
+                        {{ tag }}
+                      </NTag>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </NCard>
           </NTabPane>
         </NTabs>
@@ -300,7 +350,8 @@ import {
   NInput, 
   NUpload, 
   NUploadDragger, 
-  NTag 
+  NTag,
+  NIcon
 } from 'naive-ui'
 import { 
   PersonCircleOutline, 
