@@ -225,9 +225,6 @@ const handleLogin = async () => {
     // 更新用户登录状态
     useAuthStore().login(token, username, bio, createTime, email, rememberMe.checked, userId);
     
-    // 登录成功提示
-    showPrompt('success', '登录成功！欢迎回到诗词的世界！');
-    
     // 单独处理头像请求，不影响登录流程
     try {
       avatarUrl.value = await getUserAvatar(userId);
@@ -236,6 +233,9 @@ const handleLogin = async () => {
       console.error('获取头像失败:', avatarError);
       // 头像获取失败不显示错误提示给用户
     }
+
+    // 登录成功提示
+    showPrompt('success', '登录成功！欢迎回到诗词的世界！');
     
     // 登录成功后跳转
     router.push('/');
