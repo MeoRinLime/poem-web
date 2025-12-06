@@ -3,7 +3,7 @@
   <n-message-provider>
     <div :class="isFullScreenPage ? 'fixed-container' : 'scroll-container'">
       <!-- 导航栏 -->
-      <Header class="flex-shrink-0"></Header>
+      <Header v-if="!hideHeader" class="flex-shrink-0"></Header>
 
       <!-- 流星效果-->
       <MeteorsStars class="fixed-container"></MeteorsStars>
@@ -53,6 +53,7 @@ useHead({
 });
 
 const isFullScreenPage = computed(() => route.meta.isFullscreen);
+const hideHeader = computed(() => route.meta.hideHeader);
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const darkTheme = computed(() => {

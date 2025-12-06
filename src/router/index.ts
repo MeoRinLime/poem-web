@@ -191,6 +191,7 @@ const routes = [
     name: 'TestPlay',
     meta: {
       title: '测试页面',
+      hideHeader: true,  // 隐藏导航栏
     },
   },
   {
